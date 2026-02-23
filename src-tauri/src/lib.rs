@@ -12,6 +12,8 @@ pub fn run() {
             commands::git::git_status,
             commands::git::git_commit,
             commands::ai::ai_complete,
+            commands::ai::spawn_ccs,
+            commands::ai::list_ccs_profiles,
             commands::fs::list_directory,
             commands::worktree::worktree_create,
             commands::worktree::worktree_cleanup,

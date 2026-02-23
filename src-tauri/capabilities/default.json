@@ -7,6 +7,8 @@
     "core:default",
     "opener:default",
     "shell:allow-open",
+    "shell:allow-spawn",
+    "shell:allow-execute",
     "dialog:default",
     "fs:default"
   ]
