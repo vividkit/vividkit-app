@@ -36,15 +36,19 @@ Local-first: all data on device, no cloud sync, API keys never leave the machine
 └─────────────────────────────────────────────────────┘
 ```
 
-## Key Flow: AI Session
+## Key Flow: AI Session (CCS Test Console)
 
 ```
-User selects CCS profile in UI (e.g. "Gemini")
-  → Zustand action → invoke("ai_session_start", { profile, project_path })
-  → commands/ai.rs spawns PTY: `ccs gemini` in project_path
-  → PTY stdout streamed back via Tauri events
-  → xterm.js renders output in real-time
-  → on session end / component unmount: PTY killed, terminal disposed
+User clicks Run in Settings → CCS Test Console
+  → invoke("spawn_ccs", { profile, command, cwd })
+  → commands/ai.rs spawns PTY: `ccs [profile] [command]` in cwd
+  → returns { run_id, pid } for that process instance
+  → backend emits "ccs_run_event" payloads:
+      { run_id, kind: stdout|stderr|terminated|error, chunk?, code?, message? }
+  → frontend filters events by active run_id to avoid cross-run mixing
+  → Stop action invokes invoke("stop_ccs", { run_id })
+  → stop result: { run_id, stopped, already_stopped }
+  → on session end / stop / component unmount: run state cleared, terminal disposed
 ```
 
 ## Key Flow: Git Worktree
