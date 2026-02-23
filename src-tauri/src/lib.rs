@@ -15,6 +15,7 @@ pub fn run() {
             commands::ai::ai_complete,
             commands::ai::spawn_ccs,
             commands::ai::stop_ccs,
+            commands::ai::send_ccs_input,
             commands::ai::list_ccs_profiles,
             commands::fs::list_directory,
             commands::fs::resolve_home_path,

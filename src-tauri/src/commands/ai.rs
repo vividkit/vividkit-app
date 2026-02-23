@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf, sync::{atomic::{AtomicU64, Ordering}, Mutex}, time::{SystemTime, UNIX_EPOCH}};
 use tauri::{AppHandle, Emitter, Manager, State};
-use tauri_plugin_shell::{process::CommandEvent, ShellExt};
+use tauri_plugin_shell::{process::{CommandChild, CommandEvent}, ShellExt};
 
 const CCS_RUN_EVENT: &str = "ccs_run_event";
 static RUN_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -11,7 +11,7 @@ pub struct AiRequest { pub prompt: String, pub model: String }
 #[derive(Serialize)]
 pub struct AiResponse { pub content: String }
 #[derive(Default)]
-pub struct CcsProcessRegistry { runs: Mutex<HashMap<String, u32>> }
+pub struct CcsProcessRegistry { runs: Mutex<HashMap<String, CommandChild>> }
 #[derive(Serialize)]
 pub struct CcsSpawnResult { pub run_id: String, pub pid: Option<u32> }
 #[derive(Serialize)]
@@ -36,6 +36,31 @@ pub async fn ai_complete(request: AiRequest) -> Result<AiResponse, String> { let
 fn generate_run_id() -> String {
     let ts = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis();
     format!("ccs-{ts}-{}", RUN_COUNTER.fetch_add(1, Ordering::Relaxed))
+}
+
+fn build_ccs_spawn_command(profile: &str, command: &str) -> (String, Vec<String>) {
+    let mut ccs_args: Vec<String> = Vec::with_capacity(2);
+    if !profile.is_empty() && profile != "default" {
+        ccs_args.push(profile.to_string());
+    }
+    ccs_args.push(command.to_string());
+
+    // On macOS, run `ccs` through `script` to allocate a pseudo-terminal.
+    // This avoids buffered output from tools that only stream in TTY mode.
+    #[cfg(target_os = "macos")]
+    {
+        let mut wrapped_args = Vec::with_capacity(ccs_args.len() + 3);
+        wrapped_args.push("-qF".to_string());
+        wrapped_args.push("/dev/null".to_string());
+        wrapped_args.push("ccs".to_string());
+        wrapped_args.extend(ccs_args);
+        return ("script".to_string(), wrapped_args);
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        ("ccs".to_string(), ccs_args)
+    }
 }
 
 fn build_extended_path() -> Result<String, String> {
@@ -95,15 +120,21 @@ pub async fn spawn_ccs(
     command: String,
     cwd: String,
 ) -> Result<CcsSpawnResult, String> {
-    let mut args = Vec::with_capacity(2);
-    if !profile.is_empty() && profile != "default" { args.push(profile); }
-    args.push(command);
+    let (program, args) = build_ccs_spawn_command(&profile, &command);
     let args_ref: Vec<&str> = args.iter().map(String::as_str).collect();
     let run_id = generate_run_id();
 
-    let (mut rx, child) = app.shell().command("ccs").args(args_ref).env("PATH", build_extended_path()?).current_dir(&cwd).spawn().map_err(|e| e.to_string())?;
+    let (mut rx, child) = app
+        .shell()
+        .command(program)
+        .args(args_ref)
+        .env("PATH", build_extended_path()?)
+        .env("TERM", "xterm-256color")
+        .current_dir(&cwd)
+        .spawn()
+        .map_err(|e| e.to_string())?;
     let pid = child.pid();
-    process_registry.runs.lock().map_err(|_| "Failed to lock CCS process registry".to_string())?.insert(run_id.clone(), pid);
+    process_registry.runs.lock().map_err(|_| "Failed to lock CCS process registry".to_string())?.insert(run_id.clone(), child);
 
     let app_handle = app.clone();
     let run_id_for_task = run_id.clone();
@@ -129,14 +160,32 @@ pub async fn spawn_ccs(
 #[tauri::command]
 pub async fn stop_ccs(process_registry: State<'_, CcsProcessRegistry>, run_id: String) -> Result<CcsStopResult, String> {
     let mut runs = process_registry.runs.lock().map_err(|_| "Failed to lock CCS process registry".to_string())?;
-    if let Some(pid) = runs.get(&run_id).copied() {
+    if let Some(child) = runs.remove(&run_id) {
+        let pid = child.pid();
         let stopped = kill_process_by_pid(pid).is_ok();
-        if stopped {
-            runs.remove(&run_id);
-        }
+        if !stopped { runs.insert(run_id.clone(), child); }
         return Ok(CcsStopResult { run_id, stopped, already_stopped: false });
     }
     Ok(CcsStopResult { run_id, stopped: false, already_stopped: true })
+}
+
+#[tauri::command]
+pub async fn send_ccs_input(
+    process_registry: State<'_, CcsProcessRegistry>,
+    run_id: String,
+    data: String,
+) -> Result<(), String> {
+    if data.is_empty() {
+        return Ok(());
+    }
+    let mut runs = process_registry
+        .runs
+        .lock()
+        .map_err(|_| "Failed to lock CCS process registry".to_string())?;
+    let child = runs
+        .get_mut(&run_id)
+        .ok_or_else(|| "CCS run not found".to_string())?;
+    child.write(data.as_bytes()).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

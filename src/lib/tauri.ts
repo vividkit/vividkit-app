@@ -43,3 +43,7 @@ export async function spawnCcs(args: SpawnCcsArgs): Promise<SpawnCcsResult> {
 export async function stopCcs(runId: string): Promise<StopCcsResult> {
   return invoke<StopCcsResult>('stop_ccs', { runId })
 }
+
+export async function sendCcsInput(runId: string, data: string): Promise<void> {
+  return invoke('send_ccs_input', { runId, data })
+}
