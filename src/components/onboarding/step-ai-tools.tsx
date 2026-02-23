@@ -34,9 +34,9 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
 
   const statusBadge = (s: 'active' | 'paused') =>
     s === 'active' ? (
-      <Badge variant="outline" className="text-success border-success/40">Active</Badge>
+      <Badge variant="secondary" className="bg-success/10 text-success">Active</Badge>
     ) : (
-      <Badge variant="outline" className="text-warning border-warning/40">Paused</Badge>
+      <Badge variant="secondary" className="bg-warning/10 text-warning">Paused</Badge>
     )
 
   return (

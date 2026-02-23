@@ -1,7 +1,7 @@
 import { Bell, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { useSettingsStore } from '@/stores/settings-store'
+import { useTheme } from './theme-provider'
 
 interface AppHeaderProps {
   title: string
@@ -9,23 +9,17 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, subtitle }: AppHeaderProps) {
-  const { settings, updateSettings } = useSettingsStore()
-  const isDark = settings.theme === 'dark'
-
-  function toggleTheme() {
-    const next = isDark ? 'light' : 'dark'
-    document.documentElement.classList.toggle('dark', next === 'dark')
-    updateSettings({ theme: next })
-  }
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
+    <header className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
       <div>
-        <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
         {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
+        <div className="mr-2 flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-2 rounded-full bg-success animate-pulse" />
           AI Connected
         </div>

@@ -24,7 +24,7 @@ export function WorktreeCardMerged({ worktree }: WorktreeCardMergedProps) {
             </p>
           )}
         </div>
-        <Badge variant="outline" className="text-muted-foreground text-xs shrink-0">Merged</Badge>
+        <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">Merged</Badge>
       </CardContent>
     </Card>
   )

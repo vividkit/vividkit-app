@@ -38,7 +38,7 @@ export function DeckCard({ deck, onSelect }: DeckCardProps) {
             )}
           </div>
           {deck.isActive && (
-            <Badge variant="outline" className="text-primary border-primary/30 text-xs shrink-0">
+            <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">
               Active
             </Badge>
           )}

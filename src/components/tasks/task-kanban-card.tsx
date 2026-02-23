@@ -6,9 +6,15 @@ import { cn } from '@/lib/utils'
 import type { Task } from '@/types'
 
 const PRIORITY_COLORS: Record<string, string> = {
-  low: 'bg-muted-foreground',
+  low: 'bg-success',
   medium: 'bg-warning',
   high: 'bg-destructive',
+}
+
+const PRIORITY_BADGE_CLASS: Record<string, string> = {
+  low: 'bg-success/10 text-success',
+  medium: 'bg-warning/10 text-warning',
+  high: 'bg-destructive/10 text-destructive',
 }
 
 interface TaskKanbanCardProps {
@@ -29,7 +35,7 @@ export function TaskKanbanCard({ task, onCook }: TaskKanbanCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <span className={cn('size-2 rounded-full', PRIORITY_COLORS[task.priority])} />
-            <Badge variant="outline" className="text-xs capitalize">{task.priority}</Badge>
+            <Badge variant="secondary" className={cn('text-xs capitalize', PRIORITY_BADGE_CLASS[task.priority])}>{task.priority}</Badge>
           </div>
           {done ? (
             <span className="text-xs text-success font-medium">✓ Done</span>

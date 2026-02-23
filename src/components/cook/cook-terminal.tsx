@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
+import { getTerminalTheme } from '@/lib/utils'
 
 const PHASE_LINES: Record<number, string> = {
   0: '\x1b[33m$ Analyzing task requirements...\x1b[0m\r\n',
@@ -22,7 +23,7 @@ export function CookTerminal({ progress }: CookTerminalProps) {
 
   useEffect(() => {
     if (!containerRef.current) return
-    const term = new Terminal({ theme: { background: '#0d0d0d', foreground: '#d4d4d4' }, fontSize: 12, cursorBlink: true })
+    const term = new Terminal({ theme: getTerminalTheme(), fontSize: 12, cursorBlink: true })
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(containerRef.current)
@@ -46,7 +47,7 @@ export function CookTerminal({ progress }: CookTerminalProps) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 rounded-lg border border-border bg-[#0d0d0d]"
+      className="flex-1 rounded-lg border border-border bg-terminal-background"
       style={{ minHeight: 300 }}
     />
   )

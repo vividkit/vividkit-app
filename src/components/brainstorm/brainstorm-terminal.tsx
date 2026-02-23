@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
+import { getTerminalTheme } from '@/lib/utils'
 
 const IDLE_MESSAGE = '$ Ready to brainstorm. Enter your idea below.\r\n'
 
@@ -30,8 +31,9 @@ export function BrainstormTerminal({ status, onComplete }: BrainstormTerminalPro
 
   useEffect(() => {
     if (!containerRef.current) return
+    const terminalTheme = getTerminalTheme()
     const term = new Terminal({
-      theme: { background: '#0d0d0d', foreground: '#d4d4d4', cursor: '#d4d4d4' },
+      theme: terminalTheme,
       fontSize: 13,
       fontFamily: 'JetBrains Mono, Fira Code, monospace',
       cursorBlink: true,
@@ -70,7 +72,7 @@ export function BrainstormTerminal({ status, onComplete }: BrainstormTerminalPro
   return (
     <div
       ref={containerRef}
-      className="flex-1 rounded-lg overflow-hidden border border-border bg-[#0d0d0d]"
+      className="flex-1 rounded-lg overflow-hidden border border-border bg-terminal-background"
       style={{ minHeight: 280 }}
     />
   )

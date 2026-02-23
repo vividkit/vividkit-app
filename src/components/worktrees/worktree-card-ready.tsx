@@ -35,7 +35,7 @@ export function WorktreeCardReady({ worktree }: WorktreeCardReadyProps) {
               <p className="text-sm font-mono font-medium truncate">{worktree.branch}</p>
               <p className="text-xs text-muted-foreground">{worktree.filesChanged} files changed</p>
             </div>
-            <Badge variant="outline" className="text-warning border-warning/40 text-xs shrink-0">
+            <Badge variant="secondary" className="bg-warning/10 text-warning text-xs shrink-0">
               Ready to Merge
             </Badge>
           </div>

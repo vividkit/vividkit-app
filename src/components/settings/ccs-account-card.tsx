@@ -7,9 +7,9 @@ type CcsAccount = Project['ccsAccounts'][number]
 type AccountStatus = CcsAccount['status']
 
 const STATUS_MAP: Record<AccountStatus, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'text-success border-success/40' },
-  paused: { label: 'Paused', className: 'text-warning border-warning/40' },
-  exhausted: { label: 'Exhausted', className: 'text-destructive border-destructive/40' },
+  active: { label: 'Active', className: 'bg-success/10 text-success' },
+  paused: { label: 'Paused', className: 'bg-warning/10 text-warning' },
+  exhausted: { label: 'Exhausted', className: 'bg-destructive/10 text-destructive' },
 }
 
 interface CcsAccountCardProps {
@@ -29,7 +29,7 @@ export function CcsAccountCard({ account }: CcsAccountCardProps) {
         <p className="text-sm font-medium">{providerLabel}</p>
         <p className="text-xs text-muted-foreground truncate">{account.email}</p>
       </div>
-      <Badge variant="outline" className={cn('text-xs', status.className)}>
+      <Badge variant="secondary" className={cn('text-xs', status.className)}>
         {status.label}
       </Badge>
     </div>

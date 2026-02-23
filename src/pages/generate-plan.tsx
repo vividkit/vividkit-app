@@ -6,9 +6,10 @@ import '@xterm/xterm/css/xterm.css'
 import { AppHeader } from '@/components/layout'
 import { PhaseIndicator } from '@/components/generate-plan'
 import { Button } from '@/components/ui/button'
+import { getTerminalTheme } from '@/lib/utils'
+import { useDeckStore } from '@/stores/deck-store'
 import { usePlanStore } from '@/stores/plan-store'
 import { useTaskStore } from '@/stores/task-store'
-import { useDeckStore } from '@/stores/deck-store'
 
 const PHASE_LINES = [
   ['\x1b[33m$ Searching for brainstorm report...\x1b[0m\r\n', 'Found: brainstorm-report.md\r\n'],
@@ -30,7 +31,7 @@ export default function GeneratePlanPage() {
 
   useEffect(() => {
     if (!containerRef.current) return
-    const term = new Terminal({ theme: { background: '#0d0d0d', foreground: '#d4d4d4' }, fontSize: 13 })
+    const term = new Terminal({ theme: getTerminalTheme(), fontSize: 13 })
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(containerRef.current)
@@ -79,7 +80,7 @@ export default function GeneratePlanPage() {
       <AppHeader title="Generate Plan" subtitle="AI is creating your implementation plan…" />
       <div className="flex flex-col flex-1 p-6 gap-4 min-h-0">
         <PhaseIndicator currentPhase={done ? 4 : currentPhase} />
-        <div ref={containerRef} className="flex-1 rounded-lg border border-border bg-[#0d0d0d]" style={{ minHeight: 300 }} />
+        <div ref={containerRef} className="flex-1 rounded-lg border border-border bg-terminal-background" style={{ minHeight: 300 }} />
         {done && (
           <div className="flex gap-3">
             <Button onClick={() => navigate(`/plans/${planId}?new=true`)}>View Plan</Button>

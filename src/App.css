@@ -48,6 +48,10 @@
   --warning: hsl(38 92% 50%);
   --info: hsl(217 91% 60%);
 
+  --terminal-background: hsl(240 10% 4%);
+  --terminal-foreground: hsl(210 20% 85%);
+  --terminal-cursor: hsl(190 95% 70%);
+
   --sidebar: hsl(0 0% 99%);
   --sidebar-foreground: hsl(220 20% 20%);
   --sidebar-primary: hsl(25 95% 53%);
@@ -95,6 +99,10 @@
   --success: hsl(142 71% 45%);
   --warning: hsl(38 92% 50%);
   --info: hsl(217 91% 60%);
+
+  --terminal-background: hsl(240 10% 4%);
+  --terminal-foreground: hsl(210 20% 85%);
+  --terminal-cursor: hsl(190 95% 70%);
 
   --sidebar: hsl(222 47% 9%);
   --sidebar-foreground: hsl(210 40% 95%);
@@ -144,6 +152,9 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-terminal-background: var(--terminal-background);
+  --color-terminal-foreground: var(--terminal-foreground);
+  --color-terminal-cursor: var(--terminal-cursor);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);

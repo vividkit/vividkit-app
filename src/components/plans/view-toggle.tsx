@@ -11,16 +11,20 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
   return (
-    <div className="flex rounded-md border border-border overflow-hidden">
+    <div className="flex rounded-lg border border-border bg-muted/50 p-0.5">
       {(['phases', 'preview'] as PlanView[]).map((v) => (
         <Button
           key={v}
           variant="ghost"
           size="sm"
-          className={cn('rounded-none h-8 px-3', view === v && 'bg-accent text-accent-foreground')}
+          className={cn(
+            'h-8 rounded-md px-3 text-muted-foreground',
+            view === v ? 'bg-background text-foreground shadow-sm' : 'hover:text-foreground',
+          )}
           onClick={() => onChange(v)}
         >
-          {v === 'phases' ? <List className="size-3.5" /> : <BookOpen className="size-3.5" />}
+          {v === 'phases' ? <List className="size-3.5 mr-1" /> : <BookOpen className="size-3.5 mr-1" />}
+          <span className="capitalize">{v}</span>
         </Button>
       ))}
     </div>

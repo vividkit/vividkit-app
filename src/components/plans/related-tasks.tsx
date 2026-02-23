@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/task-store'
 import { cn } from '@/lib/utils'
 
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  done: 'bg-success/10 text-success',
+  in_progress: 'bg-warning/10 text-warning',
+  todo: 'bg-warning/10 text-warning',
+  backlog: 'bg-muted text-muted-foreground',
+}
+
 interface RelatedTasksProps {
   planId: string
   isNew?: boolean
@@ -56,7 +63,7 @@ export function RelatedTasks({ planId, isNew }: RelatedTasksProps) {
             </p>
             {task.description && <p className="text-xs text-muted-foreground truncate">{task.description}</p>}
           </div>
-          <Badge variant="outline" className="text-xs shrink-0">{task.status}</Badge>
+          <Badge variant="secondary" className={cn('text-xs shrink-0', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>{task.status}</Badge>
           {(task.status as string) === 'in_progress' && (
             <Button size="sm" variant="outline" className="text-xs h-7 shrink-0" onClick={() => navigate(`/cook/${task.id}`)}>
               Cook

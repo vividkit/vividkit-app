@@ -21,6 +21,62 @@ Desktop:   Tauri v2, Rust
 Libraries: xterm.js, Monaco Editor, dnd-kit, react-markdown, git2, rusqlite, tokio
 ```
 
+## UI Design Guidelines (MANDATORY)
+
+Áp dụng cho mọi thay đổi UI trong `src/components/**`, `src/pages/**`, `src/App.css`.
+
+### Design tokens + colors
+- Semantic color tokens là source-of-truth trong `src/App.css` (`:root`, `.dark`, `@theme inline`).
+- Không hardcode màu raw trong component (`#...`, `rgb(...)`, `hsl(...)`, `bg-[#...]`) trừ ANSI output trong terminal stream text.
+- Luôn dùng semantic classes: `bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-muted-foreground`, `text-success`, `text-warning`, `text-info`.
+- Sidebar dùng token riêng: `sidebar-*` (`bg-sidebar`, `text-sidebar-foreground`, `border-sidebar-border`, `ring-sidebar-ring`).
+
+### Typography scale
+- Page title (H1): `text-xl font-semibold text-foreground`
+- Section heading (H2): `text-lg font-semibold text-foreground`
+- Card title (H3): `font-semibold text-foreground` hoặc `font-medium text-foreground`
+- Body text: `text-sm text-foreground`
+- Caption/meta: `text-xs text-muted-foreground`
+- Code/terminal: `font-mono text-sm`
+
+### Layout + spacing
+- Border radius global: `--radius: 0.75rem`
+- Page padding: `p-6`
+- Card padding: `p-4` đến `p-6`
+- Section gap: `space-y-6` đến `space-y-8`
+- Grid gap: `gap-4`
+- Sidebar width: expanded `w-64`, collapsed `w-[60px]`
+- Header height: ưu tiên `h-16`
+
+### Component + interaction patterns
+- Ưu tiên shadcn/ui primitives (`Card`, `Button`, `Badge`, `Dialog`, `Sheet`, `Tabs`, `Select`, `Input`, `Textarea`, `Switch`, `Checkbox`, `RadioGroup`, `Progress`, `Skeleton`, `Tooltip`, `DropdownMenu`, `ScrollArea`).
+- Card hover/active:
+  - Hover: `hover:border-primary/30 hover:shadow-md transition-all`
+  - Active: `border-primary shadow-md`
+- View toggle theo segmented control: `rounded-lg border bg-muted/50 p-0.5`; tab active `bg-background text-foreground shadow-sm`.
+- Status badge mapping:
+  - Active/Done/Merged: `bg-success/10 text-success`
+  - In Progress/Paused/Todo: `bg-warning/10 text-warning`
+  - Backlog: `bg-muted text-muted-foreground`
+  - High priority: `bg-destructive/10 text-destructive`
+  - Medium priority: `bg-warning/10 text-warning`
+  - Low priority: `bg-success/10 text-success`
+
+### Terminal UI (xterm.js)
+- Terminal background target: `hsl(240 10% 4%)` (tokenized, không hardcode raw màu trong JSX wrapper).
+- xterm theme ưu tiên lấy từ semantic tokens thay vì literals.
+- Giữ rules hiện có: dispose terminal khi unmount, lazy mount khi tab ẩn, stream theo buffer.
+
+### Dark/Light mode + icons
+- Theme flow chuẩn: `ThemeProvider` + `useTheme()` + persist `localStorage`.
+- Icon system thống nhất `lucide-react`, size phổ biến `h-4 w-4` đến `h-5 w-5`.
+
+### Pre-merge UI checklist
+- Không còn raw color trong TSX/CSS utility classes tại vùng code thay đổi.
+- Typography/spacing đúng scale ở trên.
+- Status badge đúng semantic mapping.
+- UI text vẫn tuân thủ i18n rule (`t('key')`) theo section I18n bên dưới.
+
 ## Cross-Platform Compat (MANDATORY)
 
 **Rust:**

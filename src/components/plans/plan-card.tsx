@@ -23,7 +23,7 @@ export function PlanCard({ plan }: PlanCardProps) {
         <div className="flex items-start justify-between gap-2">
           <p className="font-medium text-sm leading-snug">{plan.name}</p>
           {pct === 100 && (
-            <Badge variant="outline" className="text-success border-success/40 text-xs shrink-0">
+            <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">
               Complete
             </Badge>
           )}

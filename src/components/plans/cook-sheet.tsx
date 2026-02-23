@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
+import { getTerminalTheme } from '@/lib/utils'
 import type { Plan } from '@/types'
-
 const COOK_LINES = [
   '\x1b[33m$ Executing plan phases...\x1b[0m\r\n',
   '> Phase 1: Analyzing requirements...\r\n',
@@ -28,7 +28,7 @@ export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
 
   useEffect(() => {
     if (!open || !containerRef.current) return
-    const term = new Terminal({ theme: { background: '#0d0d0d', foreground: '#d4d4d4' }, fontSize: 12 })
+    const term = new Terminal({ theme: getTerminalTheme(), fontSize: 12 })
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(containerRef.current)
@@ -62,7 +62,7 @@ export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
           </Badge>
         </SheetHeader>
         <div className="flex-1 p-4 min-h-0">
-          <div ref={containerRef} className="h-full rounded-lg border border-border bg-[#0d0d0d]" />
+          <div ref={containerRef} className="h-full rounded-lg border border-border bg-terminal-background" />
         </div>
       </SheetContent>
     </Sheet>

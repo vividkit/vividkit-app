@@ -2,6 +2,7 @@ import { Palette, Save, Type } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { useTheme } from '@/components/layout'
 import { useSettingsStore } from '@/stores/settings-store'
 import type { AppSettings } from '@/types'
 
@@ -10,11 +11,7 @@ type Theme = AppSettings['theme']
 
 export function SettingsEditor() {
   const { settings, updateSettings } = useSettingsStore()
-
-  function setTheme(theme: Theme) {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    updateSettings({ theme })
-  }
+  const { updateTheme } = useTheme()
 
   return (
     <div className="space-y-3">
@@ -25,7 +22,7 @@ export function SettingsEditor() {
             <p className="text-sm font-medium">Theme</p>
             <p className="text-xs text-muted-foreground">App color scheme</p>
           </div>
-          <Select value={settings.theme} onValueChange={(v) => setTheme(v as Theme)}>
+          <Select value={settings.theme} onValueChange={(v) => updateTheme(v as Theme)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>

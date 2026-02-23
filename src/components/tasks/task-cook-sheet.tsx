@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
+import { getTerminalTheme } from '@/lib/utils'
 import { useTaskStore } from '@/stores/task-store'
 import type { Task } from '@/types'
 
@@ -35,7 +36,7 @@ export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) 
     if (!open || !containerRef.current || !task) return
     updateStatus(task.id, 'in_progress')
 
-    const term = new Terminal({ theme: { background: '#0d0d0d', foreground: '#d4d4d4' }, fontSize: 12 })
+    const term = new Terminal({ theme: getTerminalTheme(), fontSize: 12 })
     const fit = new FitAddon()
     term.loadAddon(fit)
     term.open(containerRef.current)
@@ -74,7 +75,7 @@ export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) 
           </div>
         </SheetHeader>
         <div className="flex-1 p-4 min-h-0">
-          <div ref={containerRef} className="h-full rounded-lg border border-border bg-[#0d0d0d]" style={{ minHeight: 300 }} />
+          <div ref={containerRef} className="h-full rounded-lg border border-border bg-terminal-background" style={{ minHeight: 300 }} />
         </div>
         <div className="px-4 pb-4 flex gap-2 shrink-0">
           <Button variant="destructive" size="sm" onClick={handleDiscard}>Discard</Button>

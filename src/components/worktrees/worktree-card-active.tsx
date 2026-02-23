@@ -23,7 +23,7 @@ export function WorktreeCardActive({ worktree }: WorktreeCardActiveProps) {
             <p className="text-sm font-mono font-medium truncate">{worktree.branch}</p>
             <p className="text-xs text-muted-foreground">{worktree.filesChanged} files changed</p>
           </div>
-          <Badge className="bg-primary text-primary-foreground text-xs shrink-0">Active</Badge>
+          <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">Active</Badge>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Clock className="size-3" /> Cooking in progress…

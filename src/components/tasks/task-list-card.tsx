@@ -6,6 +6,13 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Task } from '@/types'
 
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  done: 'bg-success/10 text-success',
+  in_progress: 'bg-warning/10 text-warning',
+  todo: 'bg-warning/10 text-warning',
+  backlog: 'bg-muted text-muted-foreground',
+}
+
 const PRIORITY_DOT: Record<string, string> = {
   low: 'bg-muted-foreground',
   medium: 'bg-warning',
@@ -45,7 +52,7 @@ export function TaskListCard({ task, onCook }: TaskListCardProps) {
             <span className={cn('size-2 rounded-full', PRIORITY_DOT[task.priority])} />
             <span className="text-xs text-muted-foreground capitalize">{task.priority}</span>
           </div>
-          <Badge variant="outline" className="text-xs">{task.status}</Badge>
+          <Badge variant="secondary" className={cn('text-xs', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>{task.status}</Badge>
           {done ? (
             <span className="text-xs text-success font-medium">✓ Done</span>
           ) : running ? (
