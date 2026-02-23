@@ -16,6 +16,17 @@ Desktop:   Tauri v2, Rust
 Libraries: xterm.js, Monaco Editor, dnd-kit, react-markdown, git2, rusqlite, tokio
 ```
 
+## UI Design System (MANDATORY)
+
+All UI rules (tokens, typography, spacing, components, status mapping, terminal, theme, checklist) are centralized in:
+
+- `docs/design-system.md`
+
+When implementing/reviewing UI in `src/components/**`, `src/pages/**`, `src/App.css`:
+- Always read and follow `docs/design-system.md`
+- Do not duplicate or override UI rules in `CLAUDE.md`/`AGENTS.md`
+- If a guideline needs updates, edit `docs/design-system.md` directly
+
 ## Cross-Platform Compat (MANDATORY)
 
 **Rust:**
