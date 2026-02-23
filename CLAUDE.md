@@ -94,6 +94,13 @@ Report goes to `../vividkit-supervisor/inbox/pending/`.
 Mentor reviews code against plan, asks questions, issues verdict.
 See full protocol: `../vividkit-supervisor/docs/mentor-protocol.md`
 
+**Automation:** Start the mentor daemon once per session before coding:
+```bash
+cd ../vividkit-supervisor && make mentor-start
+```
+After that, submit-to-mentor and mentor-review run automatically when a cook phase ends.
+Manual steps remaining: write response to questions + accept verdict.
+
 ## File References
 
 - Architecture: `docs/system-architecture.md`

@@ -53,7 +53,15 @@ Generate an implementation report for the last completed phase and submit it to 
      - **Self-Assessment**: check applicable boxes honestly
      - **Questions for Mentor**: list any uncertainties or deviations
 
-6. **Confirm submission:**
+6. **Write automation flag file** (for Stop hook auto-submit):
+   - Write `.claude/.mentor-submit-needed` in project root with content:
+     ```json
+     { "phase_path": "{relative-path-to-phase-file}" }
+     ```
+   - This allows the Stop hook to auto-trigger submit if user didn't run this command manually.
+   - If this command is being run manually (i.e. flag file already exists), delete it first to prevent double submission.
+
+7. **Confirm submission:**
    - Print the report path.
    - Print a brief summary of what was submitted.
    - Instruct: "Switch to vividkit-supervisor project and run `/mentor-review` to start the review."
