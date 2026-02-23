@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# PRR-Kit (local only)
+_prr/
+_prr-output/
+.envrc

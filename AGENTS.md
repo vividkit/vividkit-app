@@ -1,17 +1,12 @@
-# VividKit Desktop — CLAUDE.md
+## Config
+
+# VividKit Desktop — AGENTS.md
 
 ## Project Overview
 
-VividKit Desktop is a GUI companion that makes **Claude Code CLI + CCS** accessible to everyone — developers who avoid the terminal and non-developers alike.
-
-Core mechanic: Rust backend spawns a PTY process running `ccs [profile] [args]`, streamed to the user via xterm.js. The UI abstracts away CLI complexity behind visual workflows.
-
+VividKit Desktop is an AI-powered solo developer companion built as a Tauri v2 desktop app.
 MVP scope: 5 modules — Onboarding, Project Deck, Brainstorm, Tasks, Cook + Worktree.
-Target: single-user, local-first. No cloud sync. API keys stay on device.
-
-**External CLI dependencies (must be installed by user):**
-- [CCS CLI](https://github.com/kaitranntt/ccs) — `npm install -g @kaitranntt/ccs`
-- [Claude Code CLI](https://claude.ai/code)
+Target: single-user, local-first, AI-assisted coding workflow management.
 
 ## Stack
 
@@ -49,9 +44,8 @@ Libraries: xterm.js, Monaco Editor, dnd-kit, react-markdown, git2, rusqlite, tok
 
 **No mocks:** Never use fake data, mocked implementations, or simulated responses in any context.
 
-**AI via CCS — Rust PTY only:** All AI sessions are spawned as `ccs [profile]` PTY processes in Rust (`src-tauri/src/commands/ai.rs`). Never call AI provider APIs directly from React/TypeScript or via `fetch()`.
-
-**CCS profile selection:** UI lets user pick profile (claude, gemini, glm, kimi, etc.) — Rust maps selection to `ccs <profile>` spawn args.
+**AI HTTP — Rust only:** All AI provider calls go through `src-tauri/src/commands/ai.rs`.
+Never use `fetch()` or any HTTP client from React/TypeScript for AI calls.
 
 **React pattern:** `Component → Custom Hook → Zustand action → invoke()`
 - State lives in Zustand stores (`src/stores/`)
@@ -74,7 +68,7 @@ Libraries: xterm.js, Monaco Editor, dnd-kit, react-markdown, git2, rusqlite, tok
 
 | Module | Directory | Purpose |
 |--------|-----------|---------|
-| Onboarding | `src/components/onboarding/` | Welcome screen, CCS profile setup, project creation |
+| Onboarding | `src/components/onboarding/` | Welcome screen, API key entry, project creation |
 | Project Deck | `src/components/project/` | Project cards, selection, metadata |
 | Brainstorm | `src/components/brainstorm/` | Idea generation, AI-assisted ideation |
 | Tasks | `src/components/tasks/` | Kanban board, task CRUD |
@@ -136,4 +130,5 @@ Manual steps remaining: write response to questions + accept verdict.
 - Architecture: `docs/system-architecture.md`
 - Code standards: `docs/code-standards.md`
 - Plans: `plans/` — active implementation plans with phase files
-- Supervisor: `../vividkit-supervisor/` — cross-review system
+- Supervisor: `..` — cross-review system
+
