@@ -1,0 +1,15 @@
+# Clippy configuration for cross-platform compat enforcement
+
+# Prevent direct path string manipulation — force PathBuf usage
+disallowed-methods = [
+  # Avoid converting paths to raw strings (loses platform awareness)
+  { path = "std::path::Path::to_str", reason = "Use PathBuf methods or display() for cross-platform path handling" },
+  { path = "std::path::PathBuf::to_str", reason = "Use display() or to_string_lossy() for display; keep as PathBuf for logic", allow-invalid = true },
+  # Avoid unwrap in production code
+  { path = "std::option::Option::unwrap", reason = "Use map_err or ? operator — never unwrap in command files" },
+  { path = "std::result::Result::unwrap", reason = "Use map_err(|e| e.to_string()) — every command must return Result<T, String>" },
+]
+
+# Lint levels
+cognitive-complexity-threshold = 15
+too-many-arguments-threshold = 6

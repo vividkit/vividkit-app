@@ -14,6 +14,28 @@ Desktop:   Tauri v2, Rust
 Libraries: xterm.js, Monaco Editor, dnd-kit, react-markdown, git2, rusqlite, tokio
 ```
 
+## Cross-Platform Compat (MANDATORY)
+
+**Rust:**
+- Always use `std::path::PathBuf` — never concat paths with `/` or `\`
+- Use `dirs` crate for home/config dirs — never hardcode `~/`, `/home/`, `C:\Users\`
+- `std::process::Command`: avoid bash-only syntax (pipes `|`, `&&`, `||`) — use Rust logic instead
+- Platform-specific behavior: use `#[cfg(target_os = "windows")]` / `"macos"` / `"linux"` guards
+- Use `std::env::var()` for env paths — never hardcode platform-specific env vars
+
+**Frontend (React/TS):**
+- No platform detection in frontend — let Rust handle platform logic and return normalized data
+- Path display only — actual path resolution always done in Rust via IPC
+
+## I18n — Structure-Ready (MANDATORY)
+
+- NO hardcoded user-facing strings in JSX — all text via `t('key')` from `react-i18next`
+- Locale files: `src/locales/{lang}.json` (en as default, vi as second)
+- Date/time: store UTC internally, format at display layer via `Intl.DateTimeFormat`
+- Numbers: use `Intl.NumberFormat` for locale-aware formatting
+- CSS: prefer logical props (`margin-inline-start` over `margin-left`) for RTL readiness
+- Error strings from Rust (returned as `String`): map to i18n key on frontend before displaying
+
 ## Critical Rules
 
 **File size:** Max 200 lines per file. Split into focused modules if exceeded.
