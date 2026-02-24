@@ -15,6 +15,11 @@ export interface SpawnCcsResult {
   pid: number | null
 }
 
+export interface CcsProfile {
+  name: string
+  profileType: string
+}
+
 export interface StopCcsResult {
   run_id: string
   stopped: boolean
@@ -29,6 +34,10 @@ export interface SpawnCcsArgs extends Record<string, unknown> {
 
 export async function spawnCcs(args: SpawnCcsArgs): Promise<SpawnCcsResult> {
   return invoke<SpawnCcsResult>('spawn_ccs', args)
+}
+
+export async function listCcsProfiles(): Promise<CcsProfile[]> {
+  return invoke<CcsProfile[]>('list_ccs_profiles')
 }
 
 export async function stopCcs(runId: string): Promise<StopCcsResult> {

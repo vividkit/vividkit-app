@@ -8,9 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { getTerminalTheme } from '@/lib/utils'
-import { resolveHomePath, sendCcsInput, spawnCcs, stopCcs, type CcsRunEventPayload } from '@/lib/tauri'
+import { listCcsProfiles, resolveHomePath, sendCcsInput, spawnCcs, stopCcs, type CcsRunEventPayload } from '@/lib/tauri'
 
-const PROFILES = ['default', 'glm', 'gemini', 'kimi', 'codex']
 const DEFAULT_COMMAND = '/brainstorm write a todo app'
 const DEFAULT_RELATIVE_CWD = 'projects/solo-builder/vividkit-workspace/vividkit-testing'
 
@@ -24,6 +23,7 @@ export function CcsTestConsole() {
   const writeQueueRef = useRef<string[]>([])
   const flushingRef = useRef(false)
   const pendingEventsRef = useRef<CcsRunEventPayload[]>([])
+  const [profiles, setProfiles] = useState<string[]>(['default'])
   const [profile, setProfile] = useState('default')
   const [command, setCommand] = useState(DEFAULT_COMMAND)
   const [cwd, setCwd] = useState('')
@@ -43,6 +43,20 @@ export function CcsTestConsole() {
   }
 
   useEffect(() => { resolveHomePath(DEFAULT_RELATIVE_CWD).then(setCwd).catch(() => {}) }, [])
+
+  useEffect(() => {
+    let active = true
+    void listCcsProfiles()
+      .then((items) => {
+        if (!active) return
+        const nextProfiles = Array.from(new Set(items.map((item) => item.name.trim()).filter((name) => name.length > 0)))
+        if (nextProfiles.length === 0) return
+        setProfiles(nextProfiles)
+        setProfile((current) => (nextProfiles.includes(current) ? current : nextProfiles[0]))
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -126,7 +140,7 @@ export function CcsTestConsole() {
           <label className="w-16 shrink-0 text-xs font-medium">Profile</label>
           <Select value={profile} onValueChange={setProfile}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>{PROFILES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+            <SelectContent>{profiles.map((profileName) => <SelectItem key={profileName} value={profileName}>{profileName}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">

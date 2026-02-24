@@ -18,6 +18,7 @@
   - `project-store`, `deck-store`, `task-store`, `plan-store`, `brainstorm-store`, `worktree-store`, `settings-store`.
 - App initialization now loads persisted settings/projects and restores `lastActiveProjectId` when available.
 - Follow-up hardening after Wave 5 review: `settings-store` now serializes settings writes with a mutation queue and applies safer patch merge logic to avoid lost updates under concurrent writes (Task #17 completed).
+- Settings CCS Test Console now loads profile options from backend `list_ccs_profiles` instead of a hardcoded profile list, with fallback to `default` when discovery is unavailable.
 
 ### Quality Gates
 - Wave 5 test gate: PASS (`cargo check`, `npm run build`).
@@ -25,4 +26,5 @@
 - Review follow-up closure: High settings lost-update finding resolved in Task #17.
 
 ### Known Issues / Follow-up
-- **Medium:** dynamic `list_ccs_profiles` backend capability is available, but settings UI consumer still uses hardcoded profile list.
+- **M4 scope (prototype):** Onboarding AI Tools detection still uses simulated/hardcoded UI states and account badges.
+- **M4 follow-up (partial):** Onboarding Git Setup Browse now uses Tauri dialog plugin API; broader onboarding real detect/clone workflow is still prototype.
