@@ -64,11 +64,12 @@ export function useMyFeature() {
 ```
 
 **Rules:**
-- No async logic in stores — hooks own async + error handling
+- Prefer hooks for UI orchestration and cross-store flows
+- Domain stores may expose async CRUD actions when they call typed Tauri wrappers and own state updates
 - Always catch and log errors (never silent failures)
 - Memoize expensive deps with `useMemo` / `useCallback` if needed
 
-### Tauri IPC Wrapper (src/lib/tauri.ts)
+### Tauri IPC Wrappers (`src/lib/tauri-*.ts` + `src/lib/tauri.ts` barrel)
 
 ```ts
 // Typed wrappers, not raw invoke()
@@ -82,9 +83,10 @@ export async function spawnCcs(args: {
 ```
 
 **Rules:**
+- Group wrappers by domain (`tauri-project`, `tauri-task`, `tauri-settings`, etc.) and re-export via `src/lib/tauri.ts`
 - Every wrapper has typed args + return
 - Always `Promise<T>` return type
-- Error handling at call site (try/catch in component/hook)
+- Error handling at call site (try/catch in component/hook/store action)
 - No `any` argument types
 
 ---
@@ -110,9 +112,10 @@ export const useProjectStore = create<ProjectStore>((set) => ({
 **Rules:**
 - One store per domain (project, task, brainstorm, worktree, etc.)
 - All actions defined inside `create()` callback
-- No async logic — stores hold state only
+- Keep stores focused on state + domain actions; avoid cross-domain orchestration inside store actions
+- Async CRUD actions are allowed in domain stores when backed by typed Tauri wrappers
 - No circular dependencies between stores
-- Custom hooks subscribe and invoke actions
+- Custom hooks subscribe and orchestrate multi-store flows
 
 ---
 
