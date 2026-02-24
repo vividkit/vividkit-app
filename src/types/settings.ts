@@ -6,4 +6,5 @@ export interface AppSettings {
   defaultBranch: string
   worktreesDir: string
   commandProviders: Record<string, string>
+  lastActiveProjectId?: string | null
 }

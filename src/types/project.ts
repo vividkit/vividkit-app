@@ -9,7 +9,7 @@ export interface Project {
 }
 
 export interface CcsAccount {
-  provider: 'claude' | 'gemini' | 'copilot' | 'openrouter'
+  provider: string
   email: string
   status: 'active' | 'paused' | 'exhausted'
 }

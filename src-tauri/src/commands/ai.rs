@@ -188,5 +188,3 @@ pub async fn send_ccs_input(
     child.write(data.as_bytes()).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
-pub async fn list_ccs_profiles() -> Result<Vec<String>, String> { Err("Not implemented".to_string()) }
