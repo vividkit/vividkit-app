@@ -15,19 +15,31 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 
 | Route | Module | Status |
 |-------|--------|--------|
-| `/onboarding` | Onboarding | ⬜ Planned |
-| `/` | Dashboard | ⬜ Planned |
-| `/decks` | Project Deck | ⬜ Planned |
-| `/brainstorm` | Brainstorm | ⬜ Planned |
-| `/brainstorm/:id` | Brainstorm Report | ⬜ Planned |
-| `/generate-plan` | Generate Plan | ⬜ Planned |
-| `/plans` | Plans | ⬜ Planned |
-| `/plans/:id` | Plan Review | ⬜ Planned |
-| `/tasks` | Tasks | ⬜ Planned |
-| `/cook/:taskId` | Cook Standalone | ⬜ Planned |
-| `/worktrees` | Worktrees | ⬜ Planned |
-| `/settings` | Settings | ⬜ Planned |
-| `/new-project` | New Project | ⬜ Planned |
+| `/onboarding` | Onboarding | 🟡 UI prototype |
+| `/` | Dashboard | 🟡 UI prototype |
+| `/decks` | Project Deck | 🟡 UI prototype |
+| `/brainstorm` | Brainstorm | 🟡 UI prototype |
+| `/brainstorm/:id` | Brainstorm Report | 🟡 UI prototype |
+| `/generate-plan` | Generate Plan | 🟡 UI prototype |
+| `/plans` | Plans | 🟡 UI prototype |
+| `/plans/:id` | Plan Review | 🟡 UI prototype |
+| `/tasks` | Tasks | 🟡 UI prototype |
+| `/cook/:taskId` | Cook Standalone | 🟡 UI prototype |
+| `/worktrees` | Worktrees | 🟡 UI prototype |
+| `/settings` | Settings | 🟡 UI prototype |
+| `/new-project` | New Project | 🟡 UI prototype |
+
+### Completion Status
+
+| Layer | Status |
+|-------|--------|
+| UI Components | 🟡 ~80% (routes/components largely present; some flows still prototype/hardcoded) |
+| CCS PTY Integration | ✅ Production-ready (ai.rs) |
+| SQLite Persistence | ✅ M1 foundation implemented (r2d2 pool + v1 migration + SQLite schema) |
+| Git Operations (git2) | ❌ Stubs only |
+| Worktree CRUD | 🟡 Persistence CRUD implemented (`worktree_cmd`); git lifecycle wiring still partial |
+| Store → IPC Integration | 🟡 Core stores wired to Tauri IPC (project/deck/task/plan/brainstorm/worktree/settings); some UI consumers still prototype |
+| i18n Keys | 🟡 Structure ready, keys incomplete |
 
 ---
 
@@ -54,118 +66,53 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 
 ---
 
-## Phase 1 — Foundation
+## Milestones
 
-**Goal:** App shell, routing, shared layout, SQLite schema, CCS detection.
+### M1 — Data Foundation ✅ Complete (Wave 5 gate passed)
+**Goal:** SQLite persistence + Rust CRUD commands + stores wired to IPC.
+**Ref:** `plans/260224-1104-m1-data-foundation/plan.md`
 
-- [ ] AppLayout: sidebar (collapsible) + header + outlet
-- [ ] AppSidebar: project switcher, main nav, bottom nav, collapsed mode
-- [ ] AppHeader: AI status indicator, theme toggle, notifications
-- [ ] Routing: all 13 routes wired
-- [ ] SQLite schema: all models migrated
-- [ ] CCS detection: `ccs detect` → parse accounts, save to DB
-- [ ] i18n setup: `react-i18next`, `en.json` + `vi.json` base keys
-- [ ] Zustand stores: project, deck, task, worktree, settings
+- [x] SQLite schema: versioned migration for all 9 models (v1 migration + schema_version)
+- [x] Rust CRUD commands: project, deck, task, plan, phase, brainstorm, worktree, key-insight, settings
+- [x] Tauri IPC wrappers: typed invoke functions for all CRUD ops
+- [x] Zustand stores refactor: replace mock data with IPC calls
+- [x] App initialization: DB setup on first launch, load active project
 
----
+**Wave 5 quality gates:** Test gate PASS (`cargo check`, `npm run build`), review gate PASS (no release blocker).
+**Post-gate follow-up:** High-priority settings lost-update race was fixed in Task #17 (`settings-store` mutation queue + safer patch merge).
 
-## Phase 2 — Onboarding
+### M2 — Core Workflows ⬜ Not Started
+**Goal:** Wire real CCS PTY into brainstorm/cook. Plan generation + phase tracking.
+**Depends on:** M1
 
-**Goal:** First-run wizard. User exits with git repo + CCS detected + first project created.
+- [ ] Brainstorm terminal → real CCS session → save report to disk + DB
+- [ ] Plan generation via CCS → parse phases → persist to DB
+- [ ] Task auto-generation from plan phases
+- [ ] Cook terminal → real CCS execution per task
+- [ ] Cook progress: real output streaming (replace mock progress)
 
-- [ ] 4-step wizard UI (progress sidebar)
-- [ ] Step 1: Welcome screen
-- [ ] Step 2: Git setup — local repo picker (Browse) or clone from GitHub URL
-- [ ] Step 3: AI Tools detection — `ccs detect` with spinner → accounts display
-- [ ] Step 4: Project setup — name + description + summary
-- [ ] Navigate to `/` on completion
+### M3 — Git & Worktree Integration ⬜ Not Started
+**Goal:** git2 operations: status, commit, diff, worktree lifecycle.
+**Depends on:** M1, partially M2
 
----
+- [ ] git2: `git_status`, `git_diff`, `git_commit`
+- [ ] git2: `worktree_create`, `worktree_list`, `worktree_remove`
+- [ ] git2: `worktree_merge` (merge/squash/rebase strategies)
+- [ ] Wire worktree UI to real git2 commands
+- [ ] Cook flow: create worktree → execute → show diff → merge
 
-## Phase 3 — Dashboard & Decks
+### M4 — Onboarding + Settings + Polish ⬜ Not Started
+**Goal:** First-run wizard, settings persistence, error handling, release prep.
+**Depends on:** M1-M3
 
-**Goal:** Project overview + deck management.
-
-- [ ] Dashboard: stats cards (tasks by status, worktree count)
-- [ ] Dashboard: quick actions grid → all major routes
-- [ ] Decks: deck list with active state toggle
-- [ ] Decks: Create Deck dialog (name, description, based-on insight)
-- [ ] New Project: `/new-project` form (git local/clone + name)
-
----
-
-## Phase 4 — Brainstorm
-
-**Goal:** AI ideation via CCS PTY terminal, save insights, generate plan.
-
-- [ ] Brainstorm: deck context bar + key insights dialog
-- [ ] Brainstorm: PTY terminal panel (idle → running → completed states)
-- [ ] Brainstorm: input area (Enter triggers session)
-- [ ] Brainstorm: post-completion actions (View Report, Create Plan, Save Insight)
-- [ ] Report Preview Dialog: article layout, prose typography
-- [ ] Brainstorm Report page (`/brainstorm/:id`): key insights grid + action items
-- [ ] Key Insights Dialog: list, continue session, delete
-
----
-
-## Phase 5 — Plans
-
-**Goal:** Plan generation from brainstorm output, phase tracking, markdown preview.
-
-- [ ] Generate Plan (`/generate-plan`): phase indicator + xterm.js terminal simulation
-- [ ] Plans list (`/plans`): plan cards with phase progress bar
-- [ ] Plan Review (`/plans/:id`): phases checklist + markdown preview toggle
-- [ ] Plan Review: related tasks section (`?new=true` loading state)
-- [ ] Cook Sheet (right panel): xterm.js terminal executing plan via `ccs [profile]`
-
----
-
-## Phase 6 — Tasks
-
-**Goal:** Task CRUD, list + kanban views, cook integration.
-
-- [ ] Tasks: toolbar (view toggle, search, status filters, add task)
-- [ ] Tasks: list view with status/priority badges + Cook button
-- [ ] Tasks: kanban view (4 columns: Backlog, Todo, In Progress, Done)
-- [ ] Add Task dialog: name, description, priority
-- [ ] Cook Sheet (right panel): PTY terminal, changed files summary, Merge/Discard
-- [ ] Cook standalone (`/cook/:taskId`): progress bar, status steps, preview changes dialog
-
----
-
-## Phase 7 — Worktrees
-
-**Goal:** Git worktree lifecycle management via UI.
-
-- [ ] Worktrees: list grouped by status (Active, Ready to Merge, Merged)
-- [ ] Worktrees: Active card actions (View Files, Pause, Stop)
-- [ ] Merge Dialog: strategy selector (merge/squash/rebase) + options (run tests, delete after)
-- [ ] Rust: `worktree_create`, `worktree_list`, `worktree_merge`, `worktree_cleanup` commands
-
----
-
-## Phase 8 — Settings
-
-**Goal:** App config — language, CCS provider mapping, git defaults, editor prefs.
-
-- [ ] Settings: 4 tabs (General, AI & Commands, Git, Editor)
-- [ ] General: language selector (en/vi)
-- [ ] AI & Commands: CCS accounts list + command→provider mapping table
-- [ ] Git: default branch + worktrees directory inputs
-- [ ] Editor: theme, auto-save toggle, font size
-
----
-
-## Phase 9 — Polish & Release
-
+- [ ] Onboarding wizard: real CCS detect + git repo picker + project creation
+- [ ] Settings: persist to DB, load on app start
 - [ ] Error boundaries on all routes
 - [ ] Empty states for all list views
 - [ ] Toast notifications system-wide
-- [ ] Offline resilience (CCS not installed, git not configured)
-- [ ] CCS not installed → install guide deep-link
+- [ ] Offline resilience (CCS/git not installed → guide)
 - [ ] Cross-platform testing (macOS, Windows, Linux)
-- [ ] App icon + metadata (Tauri `tauri.conf.json`)
-- [ ] Build pipeline (GitHub Actions)
+- [ ] App icon + metadata + build pipeline
 
 ---
 

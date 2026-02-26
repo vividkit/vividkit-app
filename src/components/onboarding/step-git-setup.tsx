@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { invoke } from '@tauri-apps/api/core'
+import { open } from '@tauri-apps/plugin-dialog'
 import { cn } from '@/lib/utils'
 import type { OnboardingState, GitMethod } from './onboarding-wizard'
+
+const OPEN_FOLDER_PICKER_FAILED_KEY = 'onboarding.git_setup.open_folder_picker_failed'
 
 interface StepGitSetupProps {
   state: OnboardingState
@@ -19,10 +21,17 @@ export function StepGitSetup({ state, patch, onNext, onBack }: StepGitSetupProps
   async function browse() {
     setBrowsing(true)
     try {
-      const selected = await invoke<string | null>('open_directory_dialog')
-      if (selected) patch({ gitPath: selected })
-    } catch {
-      // dialog cancelled or failed
+      const selected = await open({ directory: true, multiple: false })
+      if (typeof selected === 'string' && selected.length > 0) {
+        patch({ gitPath: selected })
+      }
+    } catch (error) {
+      console.error('Onboarding folder browse failed:', error)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('vividkit:toast', {
+          detail: { type: 'error', message: OPEN_FOLDER_PICKER_FAILED_KEY },
+        }))
+      }
     } finally {
       setBrowsing(false)
     }

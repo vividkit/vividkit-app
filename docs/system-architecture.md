@@ -73,6 +73,18 @@ CookView component
 | Tasks | Task CRUD, Kanban state | project context |
 | Cook | PTY terminal sessions, file tree | project path, worktrees |
 
+## M1 Data Foundation Snapshot (2026-02-24)
+
+- SQLite foundation is now initialized at app startup via `db::init_db(app_data_dir)` in `src-tauri/src/lib.rs`.
+- DB runtime uses `r2d2_sqlite` pool with per-connection PRAGMA (`foreign_keys=ON`, `journal_mode=WAL`) in `src-tauri/src/db/mod.rs`.
+- Versioned migration baseline exists (`schema_version` + v1 schema for projects, decks, plans/phases, tasks, brainstorm, worktrees, settings) in `src-tauri/src/db/migrations.rs`.
+- CRUD command surface is registered for M1 domains in `src-tauri/src/lib.rs` (`project`, `deck`, `task`, `plan`, `brainstorm`, `worktree_cmd`, `settings`).
+- Frontend now consumes domain IPC wrappers (`src/lib/tauri-*.ts`) and persists state via Zustand domain stores (`src/stores/*-store.ts`) instead of purely mock/in-memory data.
+
+### Known Non-Blocking Follow-up
+
+- Wave 5 review identified a high-priority settings lost-update race under concurrent writes. Follow-up Task #17 fixed the frontend side in `src/stores/settings-store.ts` using a mutation queue + safer patch merge. M1 remains non-blocked and docs now reflect the resolved follow-up.
+
 ## Key Technology Choices
 
 | Decision | Rationale |

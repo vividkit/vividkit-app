@@ -1,4 +1,12 @@
 pub mod ai;
+pub mod brainstorm;
+pub mod ccs_profile;
+pub mod deck;
 pub mod fs;
 pub mod git;
+pub mod plan;
+pub mod project;
+pub mod settings;
+pub mod task;
 pub mod worktree;
+pub mod worktree_cmd;
