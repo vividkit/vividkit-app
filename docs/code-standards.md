@@ -86,6 +86,7 @@ export async function spawnCcs(args: {
 - Always `Promise<T>` return type
 - Error handling at call site (try/catch in component/hook)
 - No `any` argument types
+- With Tauri `invoke()`, use camelCase keys on frontend (`runId`) for Rust snake_case args (`run_id`)
 
 ---
 
@@ -160,7 +161,7 @@ registry.insert(run_id.clone(), child);
 ```
 
 **Rules:**
-- Store `CommandChild` in managed state (e.g., `CcsProcessRegistry`)
+- Store process handles in managed state (e.g., `CcsProcessRegistry`)
 - Capture PID for reference in frontend
 - Never drop child without draining output first
 - Emit run-scoped events: `{ run_id, kind, chunk?, code?, message? }`
@@ -186,9 +187,9 @@ let path = "/home/user".to_string() + "/projects";
 - Never hardcode `/home/`, `C:\Users\`, `/Users/` — use `dirs` crate
 - Use `#[cfg(target_os = "...")]` for OS-specific logic (macOS/Windows/Linux)
 - Platform-specific PTY handling:
-  - **macOS:** wrap `ccs` command with `script -q /dev/null` for TTY support
+  - Keep PTY slave/process handles alive until child exit to preserve stdin stability
   - **Windows:** use `taskkill /PID` for killing processes
-  - **Linux:** native process spawning works directly
+  - **Linux/macOS:** prefer TERM then KILL fallback for deterministic stop
 
 ### Serialization (IPC)
 
@@ -249,6 +250,7 @@ const handleCcsEvent = (event: CcsRunEvent) => {
 - Write chunks immediately; don't buffer large strings
 - Emit terminal done event on process exit, not on UI unmount
 - Handle rapid output: don't block terminal on large streams
+- For stream-card UIs, keep a fixed-height outer container with internal scroll to avoid layout jumps
 
 ### Process Control (Stop)
 
@@ -265,9 +267,9 @@ const handleStop = async () => {
 ```
 
 **Rules:**
-- Stop button invokes `stopCcs(run_id)` on backend
+- Stop button invokes `stopCcs(runId)` on backend
 - Stopping is async — UI should show spinner
-- Terminal is not disposed after stop (user can review output)
+- Output view stays visible after stop (user can review logs)
 - On remount: clear terminal, start fresh run with new `run_id`
 
 ---

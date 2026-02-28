@@ -41,9 +41,42 @@ export async function spawnCcs(args: SpawnCcsArgs): Promise<SpawnCcsResult> {
 }
 
 export async function stopCcs(runId: string): Promise<StopCcsResult> {
-  return invoke<StopCcsResult>('stop_ccs', { runId })
+  return invoke<StopCcsResult>('stop_ccs', { runId }).catch((e) => {
+    console.error('[stopCcs] error:', e, { runId })
+    throw e
+  })
 }
 
 export async function sendCcsInput(runId: string, data: string): Promise<void> {
-  return invoke('send_ccs_input', { runId, data })
+  return invoke<void>('send_ccs_input', { runId, data }).catch((e) => {
+    console.error('[sendCcsInput] error:', e, { runId, data })
+    throw e
+  })
+}
+
+export async function resumeCcsSession(
+  sessionId: string,
+  prompt: string,
+  cwd: string,
+): Promise<string> {
+  return invoke<string>('resume_ccs_session', { sessionId, prompt, cwd }).catch((e) => {
+    console.error('[resumeCcsSession] error:', e, { sessionId, cwd })
+    throw e
+  })
+}
+
+export async function findNewSessionLog(
+  projectsDir: string,
+  cwd: string | undefined,
+  spawnTimeMs: number,
+): Promise<string | null> {
+  return invoke<string | null>('find_new_session_log', { projectsDir, cwd, spawnTimeMs })
+}
+
+export async function watchSessionLog(sessionId: string, path: string): Promise<void> {
+  return invoke<void>('watch_session_log', { sessionId, path })
+}
+
+export async function stopSessionLogWatch(sessionId: string): Promise<void> {
+  return invoke<void>('stop_session_log_watch', { sessionId })
 }
