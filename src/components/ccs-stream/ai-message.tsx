@@ -13,6 +13,10 @@ interface Props {
 
 export function AIMessage({ item, isLast }: Props) {
   const [toolsExpanded, setToolsExpanded] = useState(true)
+  const isInlineTool = (name: string) => /(^|[./:])(read|write|edit|multiedit)$/i.test(name)
+  const inlineTools = item.toolCalls.filter((tool) => isInlineTool(tool.name))
+  const listedTools = item.toolCalls.filter((tool) => !isInlineTool(tool.name))
+  const hasListedTools = listedTools.length > 0
   const hasTools = item.toolCalls.length > 0
   const hasText = item.textBlocks.length > 0
   const showDoing = isLast && hasTools && !hasText
@@ -21,36 +25,39 @@ export function AIMessage({ item, isLast }: Props) {
 
   return (
     <div className="flex gap-3 px-4">
-      {/* Avatar */}
-      <div className="shrink-0 mt-0.5 h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
         <Bot className="h-3.5 w-3.5 text-primary" />
       </div>
 
-      {/* Content card */}
-      <div className="flex-1 min-w-0 space-y-2">
-        {/* Thinking block */}
+      <div className="min-w-0 flex-1 space-y-2">
         {item.thinking && <ThinkingItem thinking={item.thinking} />}
 
-        {/* Tool calls — collapsible */}
-        {hasTools && (
-          <div className="border border-border rounded-lg overflow-hidden">
+        {inlineTools.length > 0 && (
+          <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-2">
+            {inlineTools.map((tool) => (
+              <ToolCallItem key={tool.id} tool={tool} defaultExpanded hideHeader />
+            ))}
+          </div>
+        )}
+
+        {hasListedTools && (
+          <div className="overflow-hidden rounded-lg border border-border">
             <button
               onClick={() => setToolsExpanded(!toolsExpanded)}
-              className="flex items-center gap-2 w-full px-3 py-2 text-left bg-muted/40 hover:bg-muted/60 transition-colors"
+              className="flex w-full items-center gap-2 bg-muted/40 px-3 py-2 text-left transition-colors hover:bg-muted/60"
             >
               <ChevronRight
-                className={`h-3.5 w-3.5 text-muted-foreground transition-transform shrink-0 ${toolsExpanded ? 'rotate-90' : ''}`}
+                className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${toolsExpanded ? 'rotate-90' : ''}`}
               />
               <span className="text-xs font-medium text-muted-foreground">
-                {item.toolCalls.length} tool call{item.toolCalls.length > 1 ? 's' : ''}
+                {listedTools.length} tool call{listedTools.length > 1 ? 's' : ''}
               </span>
-              {/* Status dots for tool results */}
               <div className="ml-auto flex gap-1">
-                {item.toolCalls.map((tc) =>
-                  tc.result !== undefined ? (
+                {listedTools.map((tool) =>
+                  tool.result !== undefined ? (
                     <span
-                      key={tc.id}
-                      className={`h-1.5 w-1.5 rounded-full ${tc.isError ? 'bg-destructive' : 'bg-success'}`}
+                      key={tool.id}
+                      className={`h-1.5 w-1.5 rounded-full ${tool.isError ? 'bg-destructive' : 'bg-success'}`}
                     />
                   ) : null,
                 )}
@@ -58,15 +65,14 @@ export function AIMessage({ item, isLast }: Props) {
             </button>
             {toolsExpanded && (
               <div className="divide-y divide-border">
-                {item.toolCalls.map((tc) => (
-                  <ToolCallItem key={tc.id} tool={tc} />
+                {listedTools.map((tool) => (
+                  <ToolCallItem key={tool.id} tool={tool} />
                 ))}
               </div>
             )}
           </div>
         )}
 
-        {/* Text response */}
         {hasText && (
           <div className="prose-stream">
             {item.textBlocks.map((text, i) => (
@@ -77,10 +83,9 @@ export function AIMessage({ item, isLast }: Props) {
           </div>
         )}
 
-        {/* Doing indicator */}
         {showDoing && (
           <div className="flex items-center gap-1.5 text-xs text-warning">
-            <span className="h-1.5 w-1.5 rounded-full bg-warning animate-pulse" />
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning" />
             <span>Working...</span>
           </div>
         )}

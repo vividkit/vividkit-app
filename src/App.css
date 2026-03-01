@@ -272,3 +272,25 @@
 .prose-stream-invert strong { color: var(--primary-foreground); }
 .prose-stream-invert code { background: rgba(0,0,0,0.2); color: var(--primary-foreground); }
 .prose-stream-invert a { color: var(--primary-foreground); }
+
+/* Stream scrollbars */
+.stream-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 45%, transparent) transparent;
+}
+.stream-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.stream-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.stream-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+.stream-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+}
