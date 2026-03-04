@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import type { RawSubagentData } from '@/types/subagent'
 
 export type CcsRunEventKind = 'stdout' | 'stderr' | 'terminated' | 'error'
 
@@ -41,9 +42,61 @@ export async function spawnCcs(args: SpawnCcsArgs): Promise<SpawnCcsResult> {
 }
 
 export async function stopCcs(runId: string): Promise<StopCcsResult> {
-  return invoke<StopCcsResult>('stop_ccs', { runId })
+  return invoke<StopCcsResult>('stop_ccs', { runId }).catch((e) => {
+    console.error('[stopCcs] error:', e, { runId })
+    throw e
+  })
 }
 
 export async function sendCcsInput(runId: string, data: string): Promise<void> {
-  return invoke('send_ccs_input', { runId, data })
+  return invoke<void>('send_ccs_input', { runId, data }).catch((e) => {
+    console.error('[sendCcsInput] error:', e, { runId, data })
+    throw e
+  })
+}
+
+export async function resumeCcsSession(
+  sessionId: string,
+  prompt: string,
+  cwd: string,
+): Promise<string> {
+  return invoke<string>('resume_ccs_session', { sessionId, prompt, cwd }).catch((e) => {
+    console.error('[resumeCcsSession] error:', e, { sessionId, cwd })
+    throw e
+  })
+}
+
+export async function findNewSessionLog(
+  projectsDir: string,
+  cwd: string | undefined,
+  spawnTimeMs: number,
+): Promise<string | null> {
+  return invoke<string | null>('find_new_session_log', { projectsDir, cwd, spawnTimeMs })
+}
+
+export async function watchSessionLog(sessionId: string, path: string): Promise<void> {
+  return invoke<void>('watch_session_log', { sessionId, path })
+}
+
+export async function stopSessionLogWatch(sessionId: string): Promise<void> {
+  return invoke<void>('stop_session_log_watch', { sessionId })
+}
+
+// =============================================================================
+// Subagent Commands
+// =============================================================================
+
+/** List subagent JSONL files in a session's subagents directory */
+export async function listSubagentFiles(sessionDir: string): Promise<string[]> {
+  return invoke<string[]>('list_subagent_files', { sessionDir })
+}
+
+/** Parse a single subagent JSONL file */
+export async function parseSubagentFile(filePath: string): Promise<RawSubagentData> {
+  return invoke<RawSubagentData>('parse_subagent_file', { filePath })
+}
+
+/** Resolve all subagents for a session directory */
+export async function resolveSubagents(sessionDir: string): Promise<RawSubagentData[]> {
+  return invoke<RawSubagentData[]>('resolve_subagents', { sessionDir })
 }

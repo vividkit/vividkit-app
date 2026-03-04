@@ -2,7 +2,7 @@
 
 ## Overview
 
-VividKit Desktop is a GUI companion that wraps **Claude Code CLI + CCS** for users who want full AI coding power without touching a terminal. All AI sessions run as PTY processes (`ccs [profile]`) spawned by the Rust backend, streamed to the UI via xterm.js.
+VividKit Desktop is a GUI companion that wraps **Claude Code CLI + CCS** for users who want full AI coding power without touching a terminal. All AI sessions run as PTY processes (`ccs [profile]`) spawned by the Rust backend; output is rendered in xterm.js (Cook) or stream cards (CCS Test Console).
 
 Local-first: all data on device, no cloud sync, API keys never leave the machine.
 
@@ -12,7 +12,7 @@ Local-first: all data on device, no cloud sync, API keys never leave the machine
 ┌─────────────────────────────────────────────────────┐
 │                  React Frontend                      │
 │  Component → Custom Hook → Zustand Store → invoke() │
-│  xterm.js renders PTY output stream                  │
+│  xterm.js + StreamView render AI session output      │
 └────────────────────┬────────────────────────────────┘
                      │ Tauri IPC (invoke / events)
 ┌────────────────────▼────────────────────────────────┐
@@ -43,12 +43,14 @@ User clicks Run in Settings → CCS Test Console
   → invoke("spawn_ccs", { profile, command, cwd })
   → commands/ai.rs spawns PTY: `ccs [profile] [command]` in cwd
   → returns { run_id, pid } for that process instance
+  → frontend discovers the new session log file (`find_new_session_log`) and starts file watch
+  → backend emits "ccs_session_log_line" for parsed stream rendering
   → backend emits "ccs_run_event" payloads:
       { run_id, kind: stdout|stderr|terminated|error, chunk?, code?, message? }
   → frontend filters events by active run_id to avoid cross-run mixing
-  → Stop action invokes invoke("stop_ccs", { run_id })
+  → Stop action invokes invoke("stop_ccs", { runId })  // Tauri maps runId -> run_id
   → stop result: { run_id, stopped, already_stopped }
-  → on session end / stop / component unmount: run state cleared, terminal disposed
+  → on session end / stop: run state cleared, stream output remains visible for review
 ```
 
 ## Key Flow: Git Worktree
