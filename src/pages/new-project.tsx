@@ -6,6 +6,7 @@ import { StepGitSetup } from '@/components/onboarding/step-git-setup'
 import { useProjectStore } from '@/stores/project-store'
 import { useState } from 'react'
 import type { OnboardingState } from '@/components/onboarding/onboarding-wizard'
+import { baseNameFromPath } from '@/lib/session-path-utils'
 
 export default function NewProjectPage() {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function NewProjectPage() {
   function handleCreate() {
     addProject({
       id: crypto.randomUUID(),
-      name: state.gitPath.split('/').pop() ?? 'New Project',
+      name: baseNameFromPath(state.gitPath) ?? 'New Project',
       gitPath: state.gitMethod === 'local' ? state.gitPath : state.cloneUrl,
       ccsConnected: false,
       ccsAccounts: [],
