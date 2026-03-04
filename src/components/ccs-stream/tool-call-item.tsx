@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { diffLines } from 'diff'
-import { Check, ChevronRight, Copy } from 'lucide-react'
+import { Check, ChevronRight, Copy, FileCode, PenLine, Search, Terminal, Wrench } from 'lucide-react'
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash'
@@ -32,15 +32,53 @@ import type { ToolCall } from '@/lib/jsonl-session-parser'
 
 interface Props { tool: ToolCall; defaultExpanded?: boolean; hideHeader?: boolean }
 const MAX_PREVIEW_CHARS = 40000
+const MAX_GLOB_MATCHES_PREVIEW = 300
 const EXT_TO_LANG: Record<string, string> = {
   ts: 'typescript', tsx: 'tsx', js: 'jsx', jsx: 'jsx', py: 'python', rs: 'rust',
   go: 'go', rb: 'ruby', ruby: 'ruby', json: 'json', yml: 'yaml', yaml: 'yaml', md: 'markdown', sh: 'bash', bash: 'bash',
 }
+const toToolNameParts = (name: string): string[] =>
+  name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[./:]/)
+    .flatMap((part) => part.split(/[^a-z0-9]+/))
+    .filter((part) => part.length > 0)
+
+const hasToolVariant = (name: string, target: 'task' | 'agent'): boolean =>
+  toToolNameParts(name).some(
+    (part) => part === target || part.startsWith(target) || part.endsWith(target)
+  )
+
 const normalizeToolName = (name: unknown) => {
-  const key = typeof name === 'string' ? name.match(/(?:^|[./:])([a-z]+)$/i)?.[1]?.toLowerCase() : undefined
-  return key === 'read' ? 'Read' : key === 'write' ? 'Write' : key === 'edit' ? 'Edit' : key === 'multiedit' ? 'MultiEdit' : typeof name === 'string' ? name : 'UnknownTool'
+  if (typeof name !== 'string') return 'UnknownTool'
+  const trimmed = name.trim()
+  if (!trimmed) return 'UnknownTool'
+  if (trimmed === 'Task') return 'Task'
+  if (trimmed === 'Agent') return 'Agent'
+  const key = trimmed.match(/(?:^|[./:])([a-z]+)$/i)?.[1]?.toLowerCase() ?? trimmed.toLowerCase()
+  if (key === 'read') return 'Read'
+  if (key === 'write') return 'Write'
+  if (key === 'edit') return 'Edit'
+  if (key === 'multiedit') return 'MultiEdit'
+  if (key === 'glob') return 'Glob'
+  if (key === 'bash') return 'Bash'
+  return trimmed
+}
+const toolIconForName = (toolName: string): ReactNode => {
+  if (toolName === 'Read') return <FileCode className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+  if (toolName === 'Write' || toolName === 'Edit' || toolName === 'MultiEdit') return <PenLine className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+  if (toolName === 'Glob') return <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+  if (toolName === 'Bash') return <Terminal className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+  return <Wrench className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 }
 const clipText = (text: string) => (text.length > MAX_PREVIEW_CHARS ? text.slice(0, MAX_PREVIEW_CHARS) : text)
+const stripAnsiCodes = (text: string) =>
+  text
+    .replace(/\u001b\][^\u0007]*(?:\u0007|\u001b\\)/g, '')
+    .replace(/\u009d[^\u0007]*(?:\u0007|\u001b\\)/g, '')
+    .replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, '')
+    .replace(/\u009b[0-9;?]*[ -/]*[@-~]/g, '')
 const getToolSummary = (input: Record<string, unknown>) => { const first = Object.values(input)[0]; return typeof first === 'string' ? first.split('\n')[0].slice(0, 80) : '' }
 const pickFilePath = (input: Record<string, unknown>) => { const path = input.file_path ?? input.path; return typeof path === 'string' ? path : 'unknown' }
 const inferLanguage = (path: string) => EXT_TO_LANG[path.split('.').pop()?.toLowerCase() ?? ''] ?? 'text'
@@ -60,6 +98,112 @@ const sanitizeReadOutput = (text: string) => {
   const sequential = nums.every((num, idx) => idx === 0 || num === nums[idx - 1] + 1)
   const shouldStrip = nums.length > 0 && sequential && nums.length >= Math.ceil(nonEmpty.length * 0.4)
   return (shouldStrip ? lines.map(removePrefix) : lines).join('\n').trim()
+}
+const readString = (record: Record<string, unknown>, ...keys: string[]) => {
+  for (const key of keys) {
+    const value = record[key]
+    if (typeof value === 'string' && value.trim()) return value
+  }
+  return ''
+}
+const extractTaggedContent = (raw: string, tag: 'stdout' | 'stderr') => {
+  const regex = new RegExp(`<local-command-${tag}>([\\s\\S]*?)<\\/local-command-${tag}>`, 'gi')
+  const parts = [...raw.matchAll(regex)].map((match) => match[1].trim()).filter((text) => text.length > 0)
+  return { hasTag: new RegExp(`<local-command-${tag}>`, 'i').test(raw), text: parts.join('\n') }
+}
+const parseBashResult = (raw: string) => {
+  const stdoutTagged = extractTaggedContent(raw, 'stdout')
+  const stderrTagged = extractTaggedContent(raw, 'stderr')
+  if (stdoutTagged.hasTag || stderrTagged.hasTag) {
+    return { stdout: stdoutTagged.text, stderr: stderrTagged.text, exitCode: undefined as number | undefined }
+  }
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (Array.isArray(parsed)) {
+      const text = parsed
+        .map((block) =>
+          typeof block === 'object' && block !== null && 'text' in block
+            ? String((block as { text?: unknown }).text ?? '')
+            : JSON.stringify(block)
+        )
+        .join('\n')
+        .trim()
+      return { stdout: text, stderr: '', exitCode: undefined as number | undefined }
+    }
+    if (parsed && typeof parsed === 'object') {
+      const record = parsed as Record<string, unknown>
+      const stdout = readString(record, 'stdout', 'content', 'result', 'message')
+      const stderr = readString(record, 'stderr', 'error')
+      const exit = record.exitCode ?? record.exit_code
+      const exitCode =
+        typeof exit === 'number'
+          ? exit
+          : typeof exit === 'string' && /^-?\d+$/.test(exit.trim())
+            ? Number(exit)
+            : undefined
+      if (stdout || stderr || exitCode !== undefined) return { stdout, stderr, exitCode }
+    }
+  } catch {
+    // keep raw text fallback
+  }
+  return { stdout: raw.trim(), stderr: '', exitCode: undefined as number | undefined }
+}
+const toStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+}
+const isLikelyPathLine = (line: string) => {
+  if (!line) return false
+  if (line.length > 260) return false
+  if (line.includes('Reason:') || line.includes('Tip:')) return false
+  return /[\\/]/.test(line) || /\.[a-z0-9]{1,8}$/i.test(line)
+}
+const parseGlobResult = (raw: string) => {
+  const cleaned = stripAnsiCodes(raw).trim()
+  if (!cleaned) return { matches: [] as string[], text: '' }
+
+  try {
+    const parsed = JSON.parse(cleaned) as unknown
+    if (Array.isArray(parsed)) {
+      const matches = toStringArray(parsed)
+      if (matches.length > 0) return { matches, text: '' }
+    }
+    if (parsed && typeof parsed === 'object') {
+      const record = parsed as Record<string, unknown>
+      const arrayKeys = ['matches', 'paths', 'files', 'file_paths', 'filePaths', 'filenames', 'results']
+      for (const key of arrayKeys) {
+        const matches = toStringArray(record[key])
+        if (matches.length > 0) return { matches, text: '' }
+      }
+      const fallbackText = readString(record, 'output', 'content', 'message', 'error', 'result')
+      return { matches: [], text: stripAnsiCodes(fallbackText || cleaned).trim() }
+    }
+  } catch {
+    // not JSON payload, continue with plain-text parsing
+  }
+
+  const normalizedLines = cleaned
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => line.replace(/^[-*•]\s+/, '').replace(/^\d+[.)]\s+/, '').replace(/^"+|"+$/g, ''))
+  const pathLikeLines = normalizedLines.filter(isLikelyPathLine)
+  if (pathLikeLines.length >= 1 && pathLikeLines.length >= Math.ceil(normalizedLines.length * 0.6)) {
+    return { matches: pathLikeLines, text: '' }
+  }
+
+  return { matches: [], text: cleaned }
+}
+const formatStructuredOutput = (raw: string): string => {
+  const cleaned = stripAnsiCodes(raw).trim()
+  if (!cleaned) return ''
+  try {
+    const parsed = JSON.parse(cleaned) as unknown
+    if (typeof parsed === 'string') return parsed.trim()
+    return JSON.stringify(parsed, null, 2)
+  } catch {
+    return cleaned
+  }
 }
 function renderDiffBlock(toolName: string, filePath: string, language: string, oldString: string, newString: string) {
   const rows = diffLines(oldString, newString).flatMap((part) => {
@@ -108,12 +252,29 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
   const resultTruncated = resultPreview.length < resultText.length
   const input: Record<string, unknown> = tool.input && typeof tool.input === 'object' ? tool.input : {}
 
+  const isTaskTool = hasToolVariant(tool.name, 'task')
+  const isAgentTool = hasToolVariant(tool.name, 'agent')
+  const isTaskOrAgentTool = isTaskTool || isAgentTool
   const toolName = normalizeToolName(tool.name)
   const isRead = toolName === 'Read'
   const isWrite = toolName === 'Write'
   const isEdit = toolName === 'Edit'
   const isMultiEdit = toolName === 'MultiEdit'
+  const isBash = toolName === 'Bash'
+  const isGlob = toolName === 'Glob'
   const hasResult = tool.result !== undefined
+  const taskFamilySummary = readString(
+    input,
+    'subject',
+    'description',
+    'prompt',
+    'instruction',
+    'message',
+    'query'
+  ) || readString(input, 'subagent_type', 'subagentType', 'agent_type', 'agentType', 'name')
+  const summary = isTaskOrAgentTool
+    ? (taskFamilySummary || getToolSummary(input))
+    : getToolSummary(input)
 
   const filePath = pickFilePath(input)
   const language = inferLanguage(filePath)
@@ -126,6 +287,57 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
   const rawCodeContent = isWrite ? writeContent : isRead ? sanitizeReadOutput(resultText) : resultText
   const codeContent = clipText(rawCodeContent)
   const previewTruncated = rawCodeContent.length > codeContent.length
+  const bashDescription = typeof input.description === 'string' ? input.description : ''
+  const bashCommand = typeof input.command === 'string' ? input.command : ''
+  const bashResult = useMemo(
+    () =>
+      isBash
+        ? parseBashResult(resultText)
+        : { stdout: '', stderr: '', exitCode: undefined as number | undefined },
+    [isBash, resultText]
+  )
+  const bashStdoutPreview = clipText(bashResult.stdout)
+  const bashStderrPreview = clipText(bashResult.stderr)
+  const bashTruncated =
+    bashStdoutPreview.length < bashResult.stdout.length ||
+    bashStderrPreview.length < bashResult.stderr.length
+  const globPattern = typeof input.pattern === 'string' ? input.pattern : (typeof input.glob === 'string' ? input.glob : '')
+  const globPath = typeof input.path === 'string' ? input.path : (typeof input.cwd === 'string' ? input.cwd : '')
+  const globResult = useMemo(
+    () =>
+      isGlob
+        ? parseGlobResult(resultText)
+        : { matches: [] as string[], text: '' },
+    [isGlob, resultText]
+  )
+  const globMatches = globResult.matches.slice(0, MAX_GLOB_MATCHES_PREVIEW)
+  const globMatchTruncated = globMatches.length < globResult.matches.length
+  const globOutputPreview = clipText(globResult.text)
+  const globOutputTruncated = globOutputPreview.length < globResult.text.length
+  const taskOrAgentInputText = readString(
+    input,
+    'subject',
+    'description',
+    'prompt',
+    'instruction',
+    'message',
+    'query'
+  )
+  const taskOrAgentMetadata = [
+    { label: 'type', value: readString(input, 'subagent_type', 'subagentType', 'agent_type', 'agentType') },
+    { label: 'id', value: readString(input, 'agent_id', 'agentId', 'teammate_id', 'teammateId') },
+  ].filter((entry): entry is { label: string; value: string } => entry.value.length > 0)
+  const taskOrAgentFallbackInput = useMemo(() => {
+    if (taskOrAgentInputText || taskOrAgentMetadata.length > 0) return ''
+    if (Object.keys(input).length === 0) return ''
+    return JSON.stringify(input, null, 2)
+  }, [input, taskOrAgentInputText, taskOrAgentMetadata])
+  const taskOrAgentOutputText = useMemo(
+    () => (isTaskOrAgentTool ? formatStructuredOutput(resultText) : ''),
+    [isTaskOrAgentTool, resultText]
+  )
+  const taskOrAgentOutputPreview = clipText(taskOrAgentOutputText)
+  const taskOrAgentOutputTruncated = taskOrAgentOutputPreview.length < taskOrAgentOutputText.length
 
   const multiEdits = Array.isArray(input.edits)
     ? input.edits
@@ -153,20 +365,41 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
   return (
     <div className={hideHeader ? '' : 'group'}>
       {!hideHeader && (
-        <button onClick={() => setExpanded(!expanded)} className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-muted/30">
-          <ChevronRight className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${expanded ? 'rotate-90' : ''}`} />
+        <button onClick={() => setExpanded(!expanded)} className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35">
+          {toolIconForName(toolName)}
           <span className="shrink-0 text-xs font-semibold text-foreground">{toolName}</span>
-          {getToolSummary(input) && <span className="flex-1 truncate text-xs text-muted-foreground">{getToolSummary(input)}</span>}
-          {hasResult ? <span className={`ml-auto shrink-0 text-[10px] font-medium ${tool.isError ? 'text-destructive' : 'text-success'}`}>{tool.isError ? 'error' : 'done'}</span> : <span className="ml-auto h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-warning" />}
+          {summary ? (
+            <>
+              <span className="shrink-0 text-xs text-muted-foreground">-</span>
+              <span className="flex-1 truncate text-xs text-muted-foreground">{summary}</span>
+            </>
+          ) : (
+            <span className="flex-1" />
+          )}
+          {hasResult ? (
+            <span
+              className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-full ${tool.isError ? 'bg-destructive' : 'bg-success'}`}
+              title={tool.isError ? 'error' : 'done'}
+            />
+          ) : (
+            <span className="ml-auto h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-warning" />
+          )}
+          <ChevronRight className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${expanded ? 'rotate-90' : ''}`} />
         </button>
       )}
 
       {shouldShowBody && (
-        <div className={hideHeader ? 'space-y-2' : 'space-y-2 bg-muted/20 px-3 pb-2'}>
+        <div className={hideHeader ? 'space-y-2' : 'space-y-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2'}>
           {(isRead || isWrite) && hasResult && (
             <div className="overflow-hidden rounded border border-border bg-card">
               <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-3 py-1.5 text-xs">
-                <span className="rounded border border-border bg-background px-1.5 py-0.5 font-medium text-foreground">{toolName}</span>
+                {isRead ? (
+                  <span className="flex h-5 w-5 items-center justify-center rounded border border-border bg-background text-muted-foreground">
+                    <FileCode className="h-3 w-3" />
+                  </span>
+                ) : (
+                  <span className="rounded border border-border bg-background px-1.5 py-0.5 font-medium text-foreground">{toolName}</span>
+                )}
                 <span className="truncate font-mono text-foreground">{toBaseName(filePath)}</span>
                 <span className="rounded border border-border bg-background/70 px-1.5 py-0.5 text-[10px] uppercase text-muted-foreground">{language}</span>
                 {!tool.isError && <button onClick={() => void handleCopy(codeContent)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted" title="Copy code">{copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}</button>}
@@ -182,11 +415,151 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
             </div>
           )}
           {(isRead || isWrite) && !hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for {toolName} result...</div>}
+          {isBash && (
+            <div className="overflow-hidden rounded border border-border bg-card">
+              <div className="space-y-3 p-3">
+                <div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  {bashDescription && <div className="mb-1 text-xs text-muted-foreground">{bashDescription}</div>}
+                  <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">{bashCommand || '(empty command)'}</pre>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span>Output</span>
+                    {typeof bashResult.exitCode === 'number' && (
+                      <span className={`rounded border px-1.5 py-0.5 text-[10px] ${bashResult.exitCode === 0 ? 'border-success/30 bg-success/10 text-success' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+                        exit {bashResult.exitCode}
+                      </span>
+                    )}
+                  </div>
+                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for Bash result...</div>}
+                  {hasResult && (
+                    <div className="overflow-hidden rounded border border-border bg-black/[0.035]">
+                      {bashTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+                      {bashStdoutPreview && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap px-3 py-2 font-mono text-xs text-foreground">{bashStdoutPreview}</pre>}
+                      {bashStderrPreview && <pre className={`stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap border-t border-border px-3 py-2 font-mono text-xs ${tool.isError ? 'bg-destructive/5 text-destructive' : 'text-destructive'}`}>{bashStderrPreview}</pre>}
+                      {!bashStdoutPreview && !bashStderrPreview && <div className="px-3 py-2 text-xs text-muted-foreground">(empty output)</div>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {isGlob && (
+            <div className="overflow-hidden rounded border border-border bg-card">
+              <div className="space-y-3 p-3">
+                <div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  <div className="overflow-hidden rounded border border-border bg-muted/20">
+                    <div className="flex items-start gap-2 border-b border-border px-3 py-2 text-xs">
+                      <span className="w-14 shrink-0 font-medium text-muted-foreground">pattern</span>
+                      <code className="font-mono text-foreground">{globPattern || '(not provided)'}</code>
+                    </div>
+                    <div className="flex items-start gap-2 px-3 py-2 text-xs">
+                      <span className="w-14 shrink-0 font-medium text-muted-foreground">path</span>
+                      <code className="break-all font-mono text-foreground">{globPath || '(not provided)'}</code>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span>Output</span>
+                    {globResult.matches.length > 0 && (
+                      <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] normal-case text-foreground">
+                        {globResult.matches.length} matches
+                      </span>
+                    )}
+                  </div>
+                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for Glob result...</div>}
+                  {hasResult && globMatches.length > 0 && (
+                    <div className="overflow-hidden rounded border border-border bg-black/[0.025]">
+                      {globMatchTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+                      <div className="stream-scrollbar max-h-56 overflow-auto py-1">
+                        {globMatches.map((match, idx) => (
+                          <div key={`${match}-${idx}`} className="flex items-start gap-2 px-3 py-1.5 text-xs">
+                            <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/70" />
+                            <code className="break-all font-mono text-foreground">{match}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {hasResult && globMatches.length === 0 && (
+                    <div>
+                      {globOutputTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+                      <pre className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${tool.isError ? 'border-destructive/20 bg-destructive/5 text-destructive' : 'border-border bg-card'}`}>{globOutputPreview || '(empty output)'}</pre>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {isTaskOrAgentTool && (
+            <div className="overflow-hidden rounded border border-border bg-card">
+              <div className="space-y-3 p-3">
+                <div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  {taskOrAgentInputText ? (
+                    <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">
+                      {taskOrAgentInputText}
+                    </pre>
+                  ) : taskOrAgentFallbackInput ? (
+                    <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">
+                      {taskOrAgentFallbackInput}
+                    </pre>
+                  ) : (
+                    <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      (not provided)
+                    </div>
+                  )}
+                  {taskOrAgentMetadata.length > 0 && (
+                    <div className="mt-2 overflow-hidden rounded border border-border bg-muted/10">
+                      {taskOrAgentMetadata.map((entry, index) => (
+                        <div
+                          key={`${entry.label}-${index}`}
+                          className={`flex items-start gap-2 px-3 py-2 text-xs ${index > 0 ? 'border-t border-border' : ''}`}
+                        >
+                          <span className="w-10 shrink-0 font-medium text-muted-foreground">{entry.label}</span>
+                          <code className="break-all font-mono text-foreground">{entry.value}</code>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Output</div>
+                  {!hasResult && (
+                    <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                      Waiting for {toolName} result...
+                    </div>
+                  )}
+                  {hasResult && (
+                    <div>
+                      {taskOrAgentOutputTruncated && (
+                        <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">
+                          Preview truncated for performance
+                        </div>
+                      )}
+                      <pre
+                        className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${
+                          tool.isError
+                            ? 'border-destructive/20 bg-destructive/5 text-destructive'
+                            : 'border-border bg-card'
+                        }`}
+                      >
+                        {taskOrAgentOutputPreview || '(empty output)'}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           {isEdit && hasOldString && hasNewString && renderDiffBlock(toolName, filePath, language, clipText(oldString), clipText(newString))}
           {isMultiEdit && multiEdits.map((edit, idx) => <div key={idx} className="space-y-1"><div className="text-[11px] text-muted-foreground">Edit #{idx + 1}</div>{renderDiffBlock(toolName, filePath, language, edit.oldString, edit.newString)}</div>)}
           {((isEdit && (!hasOldString || !hasNewString)) || (isMultiEdit && multiEdits.length === 0)) && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-card p-2 font-mono text-sm">{JSON.stringify(input, null, 2)}</pre>}
-          {!isRead && !isWrite && !isEdit && !isMultiEdit && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-card p-2 font-mono text-sm">{JSON.stringify(input, null, 2)}</pre>}
-          {hasResult && !(isRead || isWrite) && (
+          {!isRead && !isWrite && !isEdit && !isMultiEdit && !isBash && !isGlob && !isTaskOrAgentTool && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-card p-2 font-mono text-sm">{JSON.stringify(input, null, 2)}</pre>}
+          {hasResult && !(isRead || isWrite || isBash || isGlob || isTaskOrAgentTool) && (
             <div>
               {resultTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
               <pre className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${tool.isError ? 'border-destructive/20 bg-destructive/5 text-destructive' : 'border-border bg-card'}`}>{resultPreview}</pre>

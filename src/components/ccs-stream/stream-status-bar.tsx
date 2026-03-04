@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge'
-import { FileText } from 'lucide-react'
+import { FileText, Loader2 } from 'lucide-react'
+import { tailPathSegments } from '@/lib/session-path-utils'
 
 interface Props {
   isRunning: boolean
@@ -8,22 +9,24 @@ interface Props {
 }
 
 export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) {
+  const isDone = exitCode !== null
+  const isInProgress = isRunning && !isDone
+
   return (
     <div className="flex items-center gap-3 px-3 py-2 border-b border-border bg-muted/30 text-xs text-muted-foreground shrink-0">
-      {/* Status */}
-      {isRunning && (
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
-          <span className="text-warning font-medium">Running</span>
+      {isInProgress && (
+        <div className="inline-flex items-center gap-2 rounded-md border border-info/30 bg-info/10 px-2.5 py-1 text-info">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <span className="font-medium">Session is in progress...</span>
         </div>
       )}
-      {!isRunning && exitCode === null && (
+      {!isInProgress && !isDone && (
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
           <span>Ready</span>
         </div>
       )}
-      {!isRunning && exitCode !== null && (
+      {isDone && (
         <Badge
           variant={exitCode === 0 ? 'outline' : 'destructive'}
           className="text-[10px] h-5 px-1.5"
@@ -32,7 +35,6 @@ export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) 
         </Badge>
       )}
 
-      {/* Session log path */}
       {sessionLogPath && (
         <div className="ml-auto flex items-center gap-1.5 min-w-0">
           <FileText className="h-3 w-3 shrink-0" />
@@ -40,7 +42,7 @@ export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) 
             className="truncate max-w-[260px] font-mono text-[10px]"
             title={sessionLogPath}
           >
-            {sessionLogPath.split('/').slice(-2).join('/')}
+            {tailPathSegments(sessionLogPath, 2)}
           </span>
         </div>
       )}

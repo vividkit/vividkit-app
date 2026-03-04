@@ -251,6 +251,9 @@ const handleCcsEvent = (event: CcsRunEvent) => {
 - Emit terminal done event on process exit, not on UI unmount
 - Handle rapid output: don't block terminal on large streams
 - For stream-card UIs, keep a fixed-height outer container with internal scroll to avoid layout jumps
+- In CCS Test Console stream cards, keep tool header rows visually consistent (icon + tool name + optional summary + status dot + chevron) across tool types
+- Render linked subagents inline in the same AI detail timeline at their parent `Task`/`Agent` position; hide duplicate parent tool rows when a linked subagent exists
+- Render the final assistant markdown as a single bubble only after the latest AI turn is no longer running to avoid duplicated output in both details and bubble
 
 ### Process Control (Stop)
 

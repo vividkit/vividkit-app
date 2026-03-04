@@ -1,95 +1,365 @@
-import { useState } from 'react'
-import { ChevronRight, Bot } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Bot, ChevronRight, Circle, Clock3, Loader2, MessageSquareText } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ThinkingItem } from './thinking-item'
 import { ToolCallItem } from './tool-call-item'
-import type { AIGroup } from '@/lib/jsonl-session-parser'
+import { SubagentItem } from './subagent-item'
+import { isSubagentToolName } from '@/lib/jsonl-session-parser'
+import type {
+  AIGroup,
+  AIGroupDetailItem,
+  ToolCall,
+} from '@/lib/jsonl-session-parser'
+import {
+  compareSubagentsByStartTimeThenId,
+} from '@/lib/display-item-builder'
+import type { Process } from '@/types/subagent'
 
 interface Props {
   item: AIGroup
   isLast?: boolean
+  isSessionRunning?: boolean
+  taskIdsWithSubagents?: Set<string>
+  subagents?: Process[]
 }
 
-export function AIMessage({ item, isLast }: Props) {
-  const [toolsExpanded, setToolsExpanded] = useState(true)
-  const isInlineTool = (name: string) => /(^|[./:])(read|write|edit|multiedit)$/i.test(name)
-  const inlineTools = item.toolCalls.filter((tool) => isInlineTool(tool.name))
-  const listedTools = item.toolCalls.filter((tool) => !isInlineTool(tool.name))
-  const hasListedTools = listedTools.length > 0
-  const hasTools = item.toolCalls.length > 0
-  const hasText = item.textBlocks.length > 0
-  const showDoing = isLast && hasTools && !hasText
+type RenderDetailItem =
+  | { type: 'thinking'; thinking: string; key: string }
+  | { type: 'tool'; tool: ToolCall; key: string }
+  | { type: 'subagent'; subagent: Process; key: string }
+  | { type: 'text'; text: string; key: string }
 
-  if (!hasTools && !hasText && !item.thinking) return null
+function extractSubagentFinalOutput(subagent: Process): string {
+  for (let index = subagent.messages.length - 1; index >= 0; index -= 1) {
+    const message = subagent.messages[index]
+    if (message.type !== 'assistant') continue
+    if (typeof message.content === 'string') {
+      const trimmed = message.content.trim()
+      if (trimmed) return message.content
+      continue
+    }
+    if (!Array.isArray(message.content)) continue
+    const text = message.content
+      .filter((block): block is { type: 'text'; text: string } => block.type === 'text')
+      .map((block) => block.text)
+      .join('\n')
+      .trim()
+    if (text) return text
+  }
+  return ''
+}
+
+function createTextPreview(text: string, maxChars = 140): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxChars)
+}
+
+function formatCompactTokens(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}m`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`
+  return `${value}`
+}
+
+function formatDurationMs(value: number): string {
+  if (value < 1000) return `${value}ms`
+  const totalSeconds = Math.floor(value / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  if (hours > 0) return `${hours}h ${minutes}m`
+  if (minutes > 0) return `${minutes}m ${seconds}s`
+  return `${seconds}s`
+}
+
+function formatHeaderTime(timestamp: string | undefined): string | null {
+  if (!timestamp) return null
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return null
+  return new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(date)
+}
+
+function OutputDetailItem({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const preview = useMemo(() => createTextPreview(text), [text])
+
+  if (!preview) return null
 
   return (
-    <div className="flex gap-3 px-4">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
-        <Bot className="h-3.5 w-3.5 text-primary" />
-      </div>
-
-      <div className="min-w-0 flex-1 space-y-2">
-        {item.thinking && <ThinkingItem thinking={item.thinking} />}
-
-        {inlineTools.length > 0 && (
-          <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-2">
-            {inlineTools.map((tool) => (
-              <ToolCallItem key={tool.id} tool={tool} defaultExpanded hideHeader />
-            ))}
+    <div className="space-y-1">
+      <button
+        onClick={() => setExpanded((prev) => !prev)}
+        className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35"
+      >
+        <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <span className="shrink-0 text-xs font-semibold text-foreground">Output</span>
+        <span className="shrink-0 text-xs text-muted-foreground">-</span>
+        <span className="flex-1 truncate text-xs text-muted-foreground">{preview}</span>
+        <ChevronRight
+          className={`h-3 w-3 shrink-0 text-muted-foreground transition-transform ${
+            expanded ? 'rotate-90' : ''
+          }`}
+        />
+      </button>
+      {expanded && (
+        <div className="ml-5 overflow-hidden rounded-md border border-border/60 bg-muted/20">
+          <div className="prose-stream px-3 py-2" data-search-content>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {text}
+            </ReactMarkdown>
           </div>
-        )}
+        </div>
+      )}
+    </div>
+  )
+}
 
-        {hasListedTools && (
-          <div className="overflow-hidden rounded-lg border border-border">
-            <button
-              onClick={() => setToolsExpanded(!toolsExpanded)}
-              className="flex w-full items-center gap-2 bg-muted/40 px-3 py-2 text-left transition-colors hover:bg-muted/60"
-            >
-              <ChevronRight
-                className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${toolsExpanded ? 'rotate-90' : ''}`}
-              />
-              <span className="text-xs font-medium text-muted-foreground">
-                {listedTools.length} tool call{listedTools.length > 1 ? 's' : ''}
+function buildBaseDetailItems(item: AIGroup, thinkingBlocks: string[], visibleToolCalls: ToolCall[]): AIGroupDetailItem[] {
+  if (item.detailItems && item.detailItems.length > 0) return item.detailItems
+  return [
+    ...thinkingBlocks.map((thinking) => ({ type: 'thinking' as const, thinking })),
+    ...visibleToolCalls.map((tool) => ({ type: 'tool' as const, toolId: tool.id })),
+    ...item.textBlocks.map((text) => ({ type: 'text' as const, text })),
+  ]
+}
+
+export function AIMessage({
+  item,
+  isLast,
+  isSessionRunning,
+  subagents = [],
+}: Props) {
+  const [detailsExpanded, setDetailsExpanded] = useState(false)
+  const [hasAutoExpandedRunningState, setHasAutoExpandedRunningState] = useState(false)
+
+  const visibleToolCalls = useMemo(() => item.toolCalls, [item.toolCalls])
+  const visibleToolMap = useMemo(
+    () => new Map(visibleToolCalls.map((tool) => [tool.id, tool])),
+    [visibleToolCalls]
+  )
+  const thinkingBlocks = useMemo(() => {
+    if (item.thinkingBlocks && item.thinkingBlocks.length > 0) {
+      return item.thinkingBlocks.filter((thinking) => thinking.trim().length > 0)
+    }
+    if (item.thinking && item.thinking.trim().length > 0) return [item.thinking]
+    return []
+  }, [item.thinking, item.thinkingBlocks])
+  const baseDetailItems = useMemo(
+    () => buildBaseDetailItems(item, thinkingBlocks, visibleToolCalls),
+    [item, thinkingBlocks, visibleToolCalls]
+  )
+  const detailItems = useMemo<RenderDetailItem[]>(() => {
+    const items: RenderDetailItem[] = []
+    const insertedSubagentIds = new Set<string>()
+    const subagentsByTaskId = new Map<string, Process[]>()
+
+    for (const subagent of subagents) {
+      if (!subagent.parentTaskId) continue
+      const existing = subagentsByTaskId.get(subagent.parentTaskId) ?? []
+      existing.push(subagent)
+      subagentsByTaskId.set(subagent.parentTaskId, existing)
+    }
+    for (const list of subagentsByTaskId.values()) {
+      list.sort(compareSubagentsByStartTimeThenId)
+    }
+
+    for (let index = 0; index < baseDetailItems.length; index += 1) {
+      const detailItem = baseDetailItems[index]
+      if (detailItem.type === 'thinking') {
+        const thinking = detailItem.thinking.trim()
+        if (!thinking) continue
+        items.push({
+          type: 'thinking',
+          thinking: detailItem.thinking,
+          key: `${item.id}-thinking-${index}`,
+        })
+        continue
+      }
+
+      if (detailItem.type === 'tool') {
+        const tool = visibleToolMap.get(detailItem.toolId)
+        const linkedSubagents = subagentsByTaskId.get(detailItem.toolId) ?? []
+        if (tool) {
+          let toolForRender = tool
+          if (isSubagentToolName(tool.name) && !tool.result) {
+            const completedSubagent = linkedSubagents.find((subagent) => !(subagent.isOngoing ?? false))
+            if (completedSubagent) {
+              const fallbackOutput = extractSubagentFinalOutput(completedSubagent)
+              if (fallbackOutput.trim()) {
+                toolForRender = { ...tool, result: fallbackOutput }
+              }
+            }
+          }
+          items.push({
+            type: 'tool',
+            tool: toolForRender,
+            key: `${item.id}-tool-${detailItem.toolId}-${index}`,
+          })
+        }
+        for (const subagent of linkedSubagents) {
+          if (insertedSubagentIds.has(subagent.id)) continue
+          insertedSubagentIds.add(subagent.id)
+          items.push({
+            type: 'subagent',
+            subagent,
+            key: `${item.id}-subagent-${detailItem.toolId}-${subagent.id}`,
+          })
+        }
+        continue
+      }
+
+      const text = detailItem.text.trim()
+      if (!text) continue
+      items.push({
+        type: 'text',
+        text: detailItem.text,
+        key: `${item.id}-text-${index}`,
+      })
+    }
+
+    const orphanSubagents = subagents
+      .filter((subagent) => !insertedSubagentIds.has(subagent.id))
+      .sort(compareSubagentsByStartTimeThenId)
+    for (const orphanSubagent of orphanSubagents) {
+      items.push({
+        type: 'subagent',
+        subagent: orphanSubagent,
+        key: `${item.id}-subagent-orphan-${orphanSubagent.id}`,
+      })
+    }
+
+    return items
+  }, [baseDetailItems, item.id, subagents, visibleToolMap])
+
+  const thinkingCount = detailItems.filter((detailItem) => detailItem.type === 'thinking').length
+  const toolCount = visibleToolCalls.length
+  const subagentCount = detailItems.filter((detailItem) => detailItem.type === 'subagent').length
+  const messageCount = detailItems.filter(
+    (detailItem) => detailItem.type === 'text' && detailItem.text.trim().length > 0
+  ).length
+  const totalTokens = useMemo(() => {
+    if (!item.usage) return 0
+    return (
+      item.usage.inputTokens +
+      item.usage.outputTokens +
+      item.usage.cacheReadTokens +
+      item.usage.cacheCreationTokens
+    )
+  }, [item.usage])
+  const headerTime = useMemo(
+    () => formatHeaderTime(item.endTimestamp ?? item.timestamp),
+    [item.endTimestamp, item.timestamp]
+  )
+  const hasDetails = detailItems.length > 0
+  const isInProgressItem = Boolean(isSessionRunning && isLast)
+  useEffect(() => {
+    if (!isInProgressItem) return
+    if (hasAutoExpandedRunningState) return
+    setDetailsExpanded(true)
+    setHasAutoExpandedRunningState(true)
+  }, [isInProgressItem, hasAutoExpandedRunningState])
+  const shouldRenderDetails = hasDetails || isInProgressItem
+  const isProcessing = isInProgressItem
+  const effectiveDetailsExpanded = detailsExpanded
+  const finalBubbleText = useMemo(
+    () =>
+      detailItems
+        .filter((detailItem): detailItem is Extract<RenderDetailItem, { type: 'text' }> => detailItem.type === 'text')
+        .map((detailItem) => detailItem.text.trim())
+        .filter((text) => text.length > 0)
+        .join('\n\n')
+        .trim(),
+    [detailItems]
+  )
+  const shouldRenderFinalBubble = Boolean(finalBubbleText && !isInProgressItem)
+  const shouldShowProcessing = isProcessing && !shouldRenderFinalBubble
+
+  if (!hasDetails && !finalBubbleText) return null
+
+  return (
+    <div className="space-y-2 px-4">
+      {shouldRenderDetails && (
+        <div className="flex items-center gap-2 rounded-md bg-muted/20 px-2.5 py-2">
+          <button
+            onClick={() => {
+              setDetailsExpanded(!detailsExpanded)
+            }}
+            className={`group flex min-w-0 flex-1 items-center gap-2 text-left transition-opacity ${isInProgressItem ? '' : 'hover:opacity-90'}`}
+          >
+            <ChevronRight
+              className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${effectiveDetailsExpanded ? 'rotate-90' : ''}`}
+            />
+            <Bot className="h-3.5 w-3.5 shrink-0 text-primary" />
+            <span className="shrink-0 text-xs font-semibold text-foreground">Claude</span>
+            <span className="shrink-0 text-xs text-muted-foreground">·</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {thinkingCount} thinking, {toolCount} tool call{toolCount > 1 ? 's' : ''}, {messageCount} message{messageCount > 1 ? 's' : ''}, {subagentCount} sub-agent{subagentCount > 1 ? 's' : ''}
+            </span>
+          </button>
+
+          <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+            {totalTokens > 0 && <span className="tabular-nums">{formatCompactTokens(totalTokens)}</span>}
+            {(item.durationMs ?? 0) > 0 && (
+              <span className="inline-flex items-center gap-1 tabular-nums">
+                <Clock3 className="h-3 w-3" />
+                {formatDurationMs(item.durationMs ?? 0)}
               </span>
-              <div className="ml-auto flex gap-1">
-                {listedTools.map((tool) =>
-                  tool.result !== undefined ? (
-                    <span
-                      key={tool.id}
-                      className={`h-1.5 w-1.5 rounded-full ${tool.isError ? 'bg-destructive' : 'bg-success'}`}
-                    />
-                  ) : null,
-                )}
-              </div>
-            </button>
-            {toolsExpanded && (
-              <div className="divide-y divide-border">
-                {listedTools.map((tool) => (
-                  <ToolCallItem key={tool.id} tool={tool} />
-                ))}
-              </div>
+            )}
+            {headerTime && (
+              <span className="inline-flex items-center gap-1 tabular-nums text-[11px]">
+                <Circle className="h-2.5 w-2.5" />
+                {headerTime}
+              </span>
             )}
           </div>
-        )}
+        </div>
+      )}
 
-        {hasText && (
-          <div className="prose-stream">
-            {item.textBlocks.map((text, i) => (
-              <ReactMarkdown key={i} remarkPlugins={[remarkGfm]}>
-                {text}
+      {effectiveDetailsExpanded && shouldRenderDetails && (
+        <div className="ml-5 space-y-1.5">
+          {detailItems.map((detailItem) => {
+            if (detailItem.type === 'thinking') {
+              return <ThinkingItem key={detailItem.key} thinking={detailItem.thinking} />
+            }
+            if (detailItem.type === 'tool') {
+              return <ToolCallItem key={detailItem.key} tool={detailItem.tool} />
+            }
+            if (detailItem.type === 'subagent') {
+              return <SubagentItem key={detailItem.key} subagent={detailItem.subagent} />
+            }
+            if (shouldRenderFinalBubble) return null
+            return <OutputDetailItem key={detailItem.key} text={detailItem.text} />
+          })}
+        </div>
+      )}
+
+      {shouldShowProcessing && (
+        <div className="ml-5 flex items-center gap-2 rounded-md border border-info/30 bg-info/10 px-3 py-2 text-xs text-info">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          <span>Session is in progress...</span>
+        </div>
+      )}
+
+      {shouldRenderFinalBubble && (
+        <div className="flex gap-2 px-1">
+          <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <Bot className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-bl-sm border border-border bg-muted/20">
+            <div className="prose-stream px-4 py-3" data-search-content>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {finalBubbleText}
               </ReactMarkdown>
-            ))}
+            </div>
           </div>
-        )}
-
-        {showDoing && (
-          <div className="flex items-center gap-1.5 text-xs text-warning">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning" />
-            <span>Working...</span>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

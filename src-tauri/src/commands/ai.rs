@@ -8,12 +8,15 @@ use std::{
         atomic::{AtomicBool, AtomicU64, Ordering},
         Arc, Mutex,
     },
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 use tauri::{AppHandle, Emitter, Manager, State};
 
 const CCS_RUN_EVENT: &str = "ccs_run_event";
 static RUN_COUNTER: AtomicU64 = AtomicU64::new(1);
+const EXIT_WATCHER_POLL_INTERVAL: Duration = Duration::from_millis(120);
+const EXIT_WATCHER_GRACE_PERIOD: Duration = Duration::from_millis(350);
+const EXIT_WATCHER_MAX_ERRORS: u8 = 5;
 
 #[derive(Serialize, Deserialize)]
 pub struct AiRequest {
@@ -159,6 +162,26 @@ fn emit_ccs_run_event(
     );
 }
 
+fn emit_terminated_once(
+    app: &AppHandle,
+    run_id: &str,
+    code: i32,
+    emitted: &AtomicBool,
+) -> bool {
+    if emitted.swap(true, Ordering::AcqRel) {
+        return false;
+    }
+    emit_ccs_run_event(
+        app,
+        run_id,
+        CcsRunEventKind::Terminated,
+        None,
+        Some(code),
+        None,
+    );
+    true
+}
+
 fn cleanup_ccs_run(app: &AppHandle, run_id: &str) {
     if let Some(registry) = app.try_state::<CcsProcessRegistry>() {
         if let Ok(mut runs) = registry.runs.lock() {
@@ -167,7 +190,13 @@ fn cleanup_ccs_run(app: &AppHandle, run_id: &str) {
     }
 }
 
-fn get_ccs_run_exit_code(app: &AppHandle, run_id: &str) -> Result<Option<i32>, String> {
+enum CcsRunState {
+    Running,
+    Exited(i32),
+    Missing,
+}
+
+fn get_ccs_run_state(app: &AppHandle, run_id: &str) -> Result<CcsRunState, String> {
     let registry = app
         .try_state::<CcsProcessRegistry>()
         .ok_or_else(|| "CCS process registry unavailable".to_string())?;
@@ -177,10 +206,13 @@ fn get_ccs_run_exit_code(app: &AppHandle, run_id: &str) -> Result<Option<i32>, S
         .map_err(|_| "Failed to lock CCS process registry".to_string())?;
     let entry = match runs.get_mut(run_id) {
         Some(entry) => entry,
-        None => return Ok(Some(0)),
+        None => return Ok(CcsRunState::Missing),
     };
     let status = entry.child.try_wait().map_err(|e| e.to_string())?;
-    Ok(status.map(|s| s.exit_code() as i32))
+    Ok(match status {
+        Some(s) => CcsRunState::Exited(s.exit_code() as i32),
+        None => CcsRunState::Running,
+    })
 }
 
 #[tauri::command]
@@ -255,6 +287,8 @@ pub async fn spawn_ccs(
     // Spawn reader task
     let app_handle = app.clone();
     let run_id_for_task = run_id.clone();
+    let terminated_emitted = Arc::new(AtomicBool::new(false));
+    let reader_terminated_emitted = Arc::clone(&terminated_emitted);
     std::thread::spawn(move || {
         eprintln!("[CCS reader] started run_id={run_id_for_task}");
         let mut buf = [0u8; 4096];
@@ -263,19 +297,17 @@ pub async fn spawn_ccs(
             match reader.read(&mut buf) {
                 Ok(0) => {
                     eprintln!("[CCS reader] EOF run_id={run_id_for_task}");
-                    match get_ccs_run_exit_code(&app_handle, &run_id_for_task) {
-                        Ok(Some(code)) => {
-                            emit_ccs_run_event(
+                    match get_ccs_run_state(&app_handle, &run_id_for_task) {
+                        Ok(CcsRunState::Exited(code)) => {
+                            let _ = emit_terminated_once(
                                 &app_handle,
                                 &run_id_for_task,
-                                CcsRunEventKind::Terminated,
-                                None,
-                                Some(code),
-                                None,
+                                code,
+                                reader_terminated_emitted.as_ref(),
                             );
                             break;
                         }
-                        Ok(None) => {
+                        Ok(CcsRunState::Running) => {
                             if !warned_closed_while_running {
                                 eprintln!(
                                     "[CCS reader] EOF but process still running, keep run alive run_id={run_id_for_task}"
@@ -284,6 +316,12 @@ pub async fn spawn_ccs(
                             }
                             std::thread::sleep(std::time::Duration::from_millis(100));
                             continue;
+                        }
+                        Ok(CcsRunState::Missing) => {
+                            eprintln!(
+                                "[CCS reader] run missing after EOF, stop reader run_id={run_id_for_task}"
+                            );
+                            break;
                         }
                         Err(err) => {
                             emit_ccs_run_event(
@@ -317,19 +355,17 @@ pub async fn spawn_ccs(
                     let is_eio = os_code.map_or(false, |code| code == 5); // EIO = 5
                     eprintln!("[CCS reader] error code={os_code:?} is_eio={is_eio} run_id={run_id_for_task}");
                     if is_eio {
-                        match get_ccs_run_exit_code(&app_handle, &run_id_for_task) {
-                            Ok(Some(code)) => {
-                                emit_ccs_run_event(
+                        match get_ccs_run_state(&app_handle, &run_id_for_task) {
+                            Ok(CcsRunState::Exited(code)) => {
+                                let _ = emit_terminated_once(
                                     &app_handle,
                                     &run_id_for_task,
-                                    CcsRunEventKind::Terminated,
-                                    None,
-                                    Some(code),
-                                    None,
+                                    code,
+                                    reader_terminated_emitted.as_ref(),
                                 );
                                 break;
                             }
-                            Ok(None) => {
+                            Ok(CcsRunState::Running) => {
                                 if !warned_closed_while_running {
                                     eprintln!(
                                         "[CCS reader] EIO but process still running, keep run alive run_id={run_id_for_task}"
@@ -338,6 +374,12 @@ pub async fn spawn_ccs(
                                 }
                                 std::thread::sleep(std::time::Duration::from_millis(100));
                                 continue;
+                            }
+                            Ok(CcsRunState::Missing) => {
+                                eprintln!(
+                                    "[CCS reader] run missing after EIO, stop reader run_id={run_id_for_task}"
+                                );
+                                break;
                             }
                             Err(err) => {
                                 emit_ccs_run_event(
@@ -379,6 +421,82 @@ pub async fn spawn_ccs(
             }
         }
         cleanup_ccs_run(&app_handle, &run_id_for_task);
+    });
+    // PTY EOF/EIO is not guaranteed on every platform while keeping the slave alive.
+    // Poll child exit independently so frontend always receives a terminated event.
+    let app_handle = app.clone();
+    let run_id_for_task = run_id.clone();
+    let watcher_terminated_emitted = Arc::clone(&terminated_emitted);
+    std::thread::spawn(move || {
+        eprintln!("[CCS exit watcher] started run_id={run_id_for_task}");
+        let mut exit_observed_at: Option<Instant> = None;
+        let mut last_exit_code: i32 = 0;
+        let mut consecutive_errors: u8 = 0;
+        loop {
+            match get_ccs_run_state(&app_handle, &run_id_for_task) {
+                Ok(CcsRunState::Running) => {
+                    exit_observed_at = None;
+                    consecutive_errors = 0;
+                    std::thread::sleep(EXIT_WATCHER_POLL_INTERVAL);
+                }
+                Ok(CcsRunState::Exited(code)) => {
+                    consecutive_errors = 0;
+                    match exit_observed_at {
+                        Some(observed_at) if last_exit_code == code => {
+                            if observed_at.elapsed() < EXIT_WATCHER_GRACE_PERIOD {
+                                std::thread::sleep(Duration::from_millis(80));
+                                continue;
+                            }
+                        }
+                        _ => {
+                            exit_observed_at = Some(Instant::now());
+                            last_exit_code = code;
+                            std::thread::sleep(Duration::from_millis(80));
+                            continue;
+                        }
+                    }
+                    let _ = emit_terminated_once(
+                        &app_handle,
+                        &run_id_for_task,
+                        code,
+                        watcher_terminated_emitted.as_ref(),
+                    );
+                    cleanup_ccs_run(&app_handle, &run_id_for_task);
+                    break;
+                }
+                Ok(CcsRunState::Missing) => {
+                    if !watcher_terminated_emitted.load(Ordering::Acquire) {
+                        emit_ccs_run_event(
+                            &app_handle,
+                            &run_id_for_task,
+                            CcsRunEventKind::Error,
+                            None,
+                            None,
+                            Some("CCS run disappeared before terminated event".to_string()),
+                        );
+                    }
+                    break;
+                }
+                Err(err) => {
+                    consecutive_errors = consecutive_errors.saturating_add(1);
+                    if consecutive_errors == 1 || consecutive_errors % EXIT_WATCHER_MAX_ERRORS == 0
+                    {
+                        emit_ccs_run_event(
+                            &app_handle,
+                            &run_id_for_task,
+                            CcsRunEventKind::Error,
+                            None,
+                            None,
+                            Some(format!(
+                                "Failed to poll CCS process state (attempt {}): {err}",
+                                consecutive_errors
+                            )),
+                        );
+                    }
+                    std::thread::sleep(EXIT_WATCHER_POLL_INTERVAL);
+                }
+            }
+        }
     });
 
     Ok(CcsSpawnResult {

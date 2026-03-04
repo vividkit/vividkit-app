@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import type { RawSubagentData } from '@/types/subagent'
 
 export type CcsRunEventKind = 'stdout' | 'stderr' | 'terminated' | 'error'
 
@@ -79,4 +80,23 @@ export async function watchSessionLog(sessionId: string, path: string): Promise<
 
 export async function stopSessionLogWatch(sessionId: string): Promise<void> {
   return invoke<void>('stop_session_log_watch', { sessionId })
+}
+
+// =============================================================================
+// Subagent Commands
+// =============================================================================
+
+/** List subagent JSONL files in a session's subagents directory */
+export async function listSubagentFiles(sessionDir: string): Promise<string[]> {
+  return invoke<string[]>('list_subagent_files', { sessionDir })
+}
+
+/** Parse a single subagent JSONL file */
+export async function parseSubagentFile(filePath: string): Promise<RawSubagentData> {
+  return invoke<RawSubagentData>('parse_subagent_file', { filePath })
+}
+
+/** Resolve all subagents for a session directory */
+export async function resolveSubagents(sessionDir: string): Promise<RawSubagentData[]> {
+  return invoke<RawSubagentData[]>('resolve_subagents', { sessionDir })
 }

@@ -26,6 +26,9 @@ pub fn run() {
             commands::fs::find_new_session_log,
             commands::worktree::worktree_create,
             commands::worktree::worktree_cleanup,
+            commands::subagent::list_subagent_files,
+            commands::subagent::parse_subagent_file,
+            commands::subagent::resolve_subagents,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

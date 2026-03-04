@@ -19,8 +19,8 @@ pub async fn list_directory(path: String) -> Result<Vec<FileEntry>, String> {
 /// Path resolution is always done in Rust per cross-platform rules.
 #[tauri::command]
 pub fn resolve_home_path(relative: String) -> Result<String, String> {
-    let home = std::env::var("HOME").map_err(|e| e.to_string())?;
-    let resolved = PathBuf::from(home).join(&relative);
+    let home = dirs::home_dir().ok_or_else(|| "Unable to resolve home directory".to_string())?;
+    let resolved = home.join(&relative);
     resolved
         .to_str()
         .map(|s| s.to_string())
@@ -50,7 +50,7 @@ pub async fn find_new_session_log(
     spawn_time_ms: u64,
 ) -> Result<Option<String>, String> {
     use std::fs;
-    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+    use std::time::{Duration, UNIX_EPOCH};
 
     let dir = PathBuf::from(&projects_dir);
     if !dir.exists() {
@@ -107,4 +107,3 @@ pub async fn find_new_session_log(
 
     Ok(None)
 }
-

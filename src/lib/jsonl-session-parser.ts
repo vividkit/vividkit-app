@@ -13,11 +13,27 @@ export interface RawSessionEntry {
   uuid?: string
   timestamp?: string
   sessionId?: string
+  parentUuid?: string | null
+  parent_uuid?: string | null
   isMeta?: boolean
+  sourceToolUseID?: string
+  sourceToolUseId?: string
+  source_tool_use_id?: string
+  toolUseResult?: unknown
+  tool_use_result?: unknown
   // user/assistant entries
   message?: {
+    id?: string
+    type?: string
     role: 'user' | 'assistant'
+    model?: string
     content: string | ContentBlock[]
+    usage?: {
+      input_tokens?: number
+      output_tokens?: number
+      cache_read_input_tokens?: number
+      cache_creation_input_tokens?: number
+    }
   }
   // progress entries
   data?: {
@@ -44,6 +60,22 @@ export interface ToolCall {
   isError?: boolean
 }
 
+function splitToolNameParts(name: string): string[] {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((part) => part.length > 0)
+}
+
+export function isSubagentToolName(name: string): boolean {
+  const canonical = splitToolNameParts(name).join('')
+  return canonical === 'task'
+    || canonical === 'agent'
+    || canonical === 'taskcreate'
+    || canonical === 'agentcreate'
+}
+
 export interface UserMessage {
   type: 'user'
   id: string
@@ -57,10 +89,27 @@ export interface AIGroup {
   type: 'ai'
   id: string
   timestamp: string
+  endTimestamp?: string
+  durationMs?: number
+  usage?: AIUsage
   thinking?: string
+  thinkingBlocks?: string[]
   textBlocks: string[]
   toolCalls: ToolCall[]
+  detailItems?: AIGroupDetailItem[]
 }
+
+export interface AIUsage {
+  inputTokens: number
+  outputTokens: number
+  cacheReadTokens: number
+  cacheCreationTokens: number
+}
+
+export type AIGroupDetailItem =
+  | { type: 'thinking'; thinking: string }
+  | { type: 'tool'; toolId: string }
+  | { type: 'text'; text: string }
 
 // System/session event line (e.g. "Initialized your session")
 export interface SystemLine {
@@ -93,6 +142,24 @@ export interface QuestionCard {
 
 export type ConversationItem = UserMessage | AIGroup | SystemLine | QuestionCard
 
+type SessionActivityType =
+  | 'text_output'
+  | 'thinking'
+  | 'tool_use'
+  | 'tool_result'
+  | 'interruption'
+  | 'exit_plan_mode'
+
+interface SessionActivity {
+  type: SessionActivityType
+  index: number
+}
+
+export interface SessionStreamState {
+  isOngoing: boolean
+  hasEndingEvent: boolean
+}
+
 export function parseSessionLine(line: string): RawSessionEntry | null {
   try {
     const entry = JSON.parse(line) as RawSessionEntry
@@ -103,10 +170,143 @@ export function parseSessionLine(line: string): RawSessionEntry | null {
   }
 }
 
+function isToolUseRejection(toolUseResult: unknown): boolean {
+  return toolUseResult === 'User rejected tool use'
+}
+
+function isShutdownResponse(block: { name: string; input: Record<string, unknown> }): boolean {
+  return block.name === 'SendMessage'
+    && block.input?.type === 'shutdown_response'
+    && block.input?.approve === true
+}
+
+function isEndingActivityType(type: SessionActivityType): boolean {
+  return type === 'text_output' || type === 'interruption' || type === 'exit_plan_mode'
+}
+
+function getEntryToolUseResult(entry: RawSessionEntry): unknown {
+  if (entry.toolUseResult !== undefined) return entry.toolUseResult
+  return entry.tool_use_result
+}
+
+function buildSessionActivities(entries: RawSessionEntry[]): SessionActivity[] {
+  const activities: SessionActivity[] = []
+  const shutdownToolIds = new Set<string>()
+  let activityIndex = 0
+
+  for (const entry of entries) {
+    if (!entry.message) continue
+    const { role, content } = entry.message
+
+    if (role === 'assistant') {
+      if (typeof content === 'string') {
+        if (content.trim().length > 0) {
+          activities.push({ type: 'text_output', index: activityIndex++ })
+        }
+        continue
+      }
+
+      for (const block of content) {
+        if (block.type === 'thinking' && block.thinking.trim().length > 0) {
+          activities.push({ type: 'thinking', index: activityIndex++ })
+          continue
+        }
+
+        if (block.type === 'tool_use' && block.id) {
+          if (block.name === 'ExitPlanMode') {
+            activities.push({ type: 'exit_plan_mode', index: activityIndex++ })
+          } else if (isShutdownResponse(block)) {
+            shutdownToolIds.add(block.id)
+            activities.push({ type: 'interruption', index: activityIndex++ })
+          } else {
+            activities.push({ type: 'tool_use', index: activityIndex++ })
+          }
+          continue
+        }
+
+        if (block.type === 'text' && block.text.trim().length > 0) {
+          activities.push({ type: 'text_output', index: activityIndex++ })
+        }
+      }
+      continue
+    }
+
+    if (role !== 'user') continue
+    const isRejection = isToolUseRejection(getEntryToolUseResult(entry))
+
+    if (typeof content === 'string') {
+      if (content.startsWith('[Request interrupted by user')) {
+        activities.push({ type: 'interruption', index: activityIndex++ })
+      }
+      continue
+    }
+
+    for (const block of content) {
+      if (block.type === 'tool_result' && block.tool_use_id) {
+        if (shutdownToolIds.has(block.tool_use_id) || isRejection) {
+          activities.push({ type: 'interruption', index: activityIndex++ })
+        } else {
+          activities.push({ type: 'tool_result', index: activityIndex++ })
+        }
+        continue
+      }
+
+      if (block.type === 'text' && block.text.startsWith('[Request interrupted by user')) {
+        activities.push({ type: 'interruption', index: activityIndex++ })
+      }
+    }
+  }
+
+  return activities
+}
+
+function isOngoingFromActivities(activities: SessionActivity[]): boolean {
+  if (activities.length === 0) return false
+
+  let lastEndingIndex = -1
+  for (let i = activities.length - 1; i >= 0; i -= 1) {
+    if (isEndingActivityType(activities[i].type)) {
+      lastEndingIndex = activities[i].index
+      break
+    }
+  }
+
+  if (lastEndingIndex === -1) {
+    return activities.some(
+      (activity) =>
+        activity.type === 'thinking'
+        || activity.type === 'tool_use'
+        || activity.type === 'tool_result'
+    )
+  }
+
+  return activities.some(
+    (activity) =>
+      activity.index > lastEndingIndex
+      && (
+        activity.type === 'thinking'
+        || activity.type === 'tool_use'
+        || activity.type === 'tool_result'
+      )
+  )
+}
+
+export function analyzeSessionStreamState(entries: RawSessionEntry[]): SessionStreamState {
+  const activities = buildSessionActivities(entries)
+  return {
+    isOngoing: isOngoingFromActivities(activities),
+    hasEndingEvent: activities.some((activity) => isEndingActivityType(activity.type)),
+  }
+}
+
+export function checkSessionEntriesOngoing(entries: RawSessionEntry[]): boolean {
+  return analyzeSessionStreamState(entries).isOngoing
+}
+
 // Map tool name + input to a human-readable label (mimics Claude Code Desktop)
 export function getToolLabel(name: string, input: Record<string, unknown>): string {
   // Task tool: use subject field
-  if (name === 'Task' || name === 'TodoWrite' || name === 'TodoRead') {
+  if (isSubagentToolName(name) || name === 'TodoWrite' || name === 'TodoRead') {
     const subject = input.subject ?? input.description ?? input.prompt
     if (typeof subject === 'string') return subject.split('\n')[0].slice(0, 100)
   }
@@ -139,6 +339,49 @@ function extractText(content: string | ContentBlock[]): string {
     .filter((b): b is { type: 'text'; text: string } => b.type === 'text')
     .map((b) => b.text)
     .join('\n')
+}
+
+function toNonNegativeNumber(value: unknown): number {
+  if (typeof value === 'number') return Number.isFinite(value) && value >= 0 ? value : 0
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
+  }
+  return 0
+}
+
+function parseAIUsage(entry: RawSessionEntry): AIUsage | undefined {
+  const usage = entry.message?.usage
+  if (!usage || typeof usage !== 'object') return undefined
+  const parsed: AIUsage = {
+    inputTokens: toNonNegativeNumber(usage.input_tokens),
+    outputTokens: toNonNegativeNumber(usage.output_tokens),
+    cacheReadTokens: toNonNegativeNumber(usage.cache_read_input_tokens),
+    cacheCreationTokens: toNonNegativeNumber(usage.cache_creation_input_tokens),
+  }
+  if (
+    parsed.inputTokens === 0 &&
+    parsed.outputTokens === 0 &&
+    parsed.cacheReadTokens === 0 &&
+    parsed.cacheCreationTokens === 0
+  ) {
+    return undefined
+  }
+  return parsed
+}
+
+function toTimestampMs(timestamp: string | undefined): number | undefined {
+  if (!timestamp) return undefined
+  const ms = Date.parse(timestamp)
+  if (!Number.isFinite(ms)) return undefined
+  return ms
+}
+
+function computeDurationMs(startTimestamp: string | undefined, endTimestamp: string | undefined): number | undefined {
+  const startMs = toTimestampMs(startTimestamp)
+  const endMs = toTimestampMs(endTimestamp)
+  if (startMs === undefined || endMs === undefined) return undefined
+  return Math.max(0, endMs - startMs)
 }
 
 // Strips Claude Code XML-like injected tags from user messages
@@ -233,13 +476,26 @@ export function sessionEntriesToConversation(entries: RawSessionEntry[]): Conver
       }
     } else if (role === 'assistant') {
       const blocks = typeof content === 'string' ? [] : content
-      let thinking: string | undefined
+      const thinkingBlocks: string[] = []
       const textBlocks: string[] = []
       const toolCalls: ToolCall[] = []
+      const detailItems: AIGroupDetailItem[] = []
+      const usage = parseAIUsage(entry)
+
+      if (typeof content === 'string' && content.trim()) {
+        textBlocks.push(content)
+        detailItems.push({ type: 'text', text: content })
+      }
 
       for (const block of blocks) {
-        if (block.type === 'thinking') thinking = block.thinking
-        else if (block.type === 'text' && block.text.trim()) textBlocks.push(block.text)
+        if (block.type === 'thinking' && block.thinking.trim()) {
+          thinkingBlocks.push(block.thinking)
+          detailItems.push({ type: 'thinking', thinking: block.thinking })
+        }
+        else if (block.type === 'text' && block.text.trim()) {
+          textBlocks.push(block.text)
+          detailItems.push({ type: 'text', text: block.text })
+        }
         else if (block.type === 'tool_use') {
           // Extract AskUserQuestion as its own QuestionCard item
           if (block.name === 'AskUserQuestion') {
@@ -262,12 +518,26 @@ export function sessionEntriesToConversation(entries: RawSessionEntry[]): Conver
             }
           } else {
             toolCalls.push({ id: block.id, name: block.name, input: block.input })
+            detailItems.push({ type: 'tool', toolId: block.id })
           }
         }
       }
 
+      const thinking = thinkingBlocks.length > 0 ? thinkingBlocks.join('\n\n') : undefined
       if (thinking || textBlocks.length > 0 || toolCalls.length > 0) {
-        items.push({ type: 'ai', id, timestamp, thinking, textBlocks, toolCalls })
+        items.push({
+          type: 'ai',
+          id,
+          timestamp,
+          endTimestamp: timestamp,
+          durationMs: 0,
+          usage,
+          thinking,
+          thinkingBlocks,
+          textBlocks,
+          toolCalls,
+          detailItems,
+        })
       }
     }
   }
@@ -285,5 +555,45 @@ export function sessionEntriesToConversation(entries: RawSessionEntry[]): Conver
     }
   }
 
-  return items
+  return mergeAdjacentAIGroups(items)
+}
+
+function mergeAdjacentAIGroups(items: ConversationItem[]): ConversationItem[] {
+  const merged: ConversationItem[] = []
+
+  for (const item of items) {
+    if (item.type !== 'ai') {
+      merged.push(item)
+      continue
+    }
+
+    const previous = merged[merged.length - 1]
+    if (!previous || previous.type !== 'ai') {
+      merged.push({
+        ...item,
+        thinkingBlocks: item.thinkingBlocks ?? (item.thinking ? [item.thinking] : []),
+      })
+      continue
+    }
+
+    const previousThinkingBlocks = previous.thinkingBlocks ?? (previous.thinking ? [previous.thinking] : [])
+    const currentThinkingBlocks = item.thinkingBlocks ?? (item.thinking ? [item.thinking] : [])
+    const combinedThinkingBlocks = [...previousThinkingBlocks, ...currentThinkingBlocks]
+
+    previous.toolCalls.push(...item.toolCalls)
+    previous.textBlocks.push(...item.textBlocks)
+    previous.detailItems = [
+      ...(previous.detailItems ?? []),
+      ...(item.detailItems ?? []),
+    ]
+    previous.endTimestamp = item.endTimestamp ?? item.timestamp
+    previous.durationMs = computeDurationMs(previous.timestamp, previous.endTimestamp)
+    if (item.usage) previous.usage = item.usage
+    previous.thinkingBlocks = combinedThinkingBlocks
+    previous.thinking = combinedThinkingBlocks.length > 0
+      ? combinedThinkingBlocks.join('\n\n')
+      : undefined
+  }
+
+  return merged
 }
