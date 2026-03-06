@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AppHeader } from '@/components/layout'
 import { DeckContextBar, BrainstormTerminal, BrainstormInput, BrainstormActions } from '@/components/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstorm-store'
@@ -7,6 +8,7 @@ import { useDeckStore } from '@/stores/deck-store'
 type SessionStatus = 'idle' | 'running' | 'completed'
 
 export default function BrainstormPage() {
+  const { t } = useTranslation()
   const [status, setStatus] = useState<SessionStatus>('idle')
   const [prompt, setPrompt] = useState('')
   const addSession = useBrainstormStore((s) => s.addSession)
@@ -28,7 +30,7 @@ export default function BrainstormPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <AppHeader title="Brainstorm" />
+      <AppHeader title={t('pages.brainstorm.title')} />
       <DeckContextBar />
       <div className="flex flex-col flex-1 p-4 gap-3 min-h-0">
         <BrainstormTerminal status={status} onComplete={handleComplete} />

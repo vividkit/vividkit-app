@@ -1,0 +1,43 @@
+{
+  "groups": {
+    "active": "Active",
+    "ready": "Ready to Merge",
+    "merged": "Merged"
+  },
+  "card": {
+    "filesChanged": "{{count}} files changed",
+    "activeBadge": "Active",
+    "readyBadge": "Ready to Merge",
+    "mergedBadge": "Merged",
+    "cooking": "Cooking in progress...",
+    "viewFiles": "View Files",
+    "pause": "Pause",
+    "stop": "Stop",
+    "merge": "Merge",
+    "mergedOn": "Merged {{date}}"
+  },
+  "mergeDialog": {
+    "title": "Merge to Main",
+    "strategy": "Merge Strategy",
+    "options": "Options",
+    "runTests": "Run tests before merging",
+    "runTestsDescription": "Ensure all tests pass first",
+    "deleteAfter": "Delete worktree after merge",
+    "deleteAfterDescription": "Clean up the worktree branch",
+    "mergeToMain": "Merge to Main",
+    "strategies": {
+      "merge": {
+        "label": "Merge commit",
+        "description": "Preserves full history (Recommended)"
+      },
+      "squash": {
+        "label": "Squash & merge",
+        "description": "Combines all commits into one"
+      },
+      "rebase": {
+        "label": "Rebase",
+        "description": "Applies commits on top of main"
+      }
+    }
+  }
+}

@@ -64,7 +64,7 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 - [ ] Routing: all 13 routes wired
 - [ ] SQLite schema: all models migrated
 - [ ] CCS detection: `ccs detect` → parse accounts, save to DB
-- [ ] i18n setup: `react-i18next`, `en.json` + `vi.json` base keys
+- [x] i18n setup: `react-i18next` initialized with `vi` default + `en` secondary locale; resources split by domain under `src/locales/{vi,en}/*.json`
 - [ ] Zustand stores: project, deck, task, worktree, settings
 
 ---
@@ -149,7 +149,7 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 **Goal:** App config — language, CCS provider mapping, git defaults, editor prefs.
 
 - [ ] Settings: 4 tabs (General, AI & Commands, Git, Editor)
-- [ ] General: language selector (en/vi)
+- [x] General: language selector (en/vi) wired to persisted settings and applied at runtime
 - [ ] AI & Commands: CCS accounts list + command→provider mapping table
 - [ ] Git: default branch + worktrees directory inputs
 - [ ] Editor: theme, auto-save toggle, font size
@@ -164,6 +164,7 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 - [ ] Offline resilience (CCS not installed, git not configured)
 - [ ] CCS not installed → install guide deep-link
 - [ ] Cross-platform testing (macOS, Windows, Linux)
+- [x] i18n parity sweep: stream fallback/status labels localized (`(empty command)`, `(empty output)`, `exit {code}`, `{n} matches`, waiting/result labels)
 - [ ] App icon + metadata (Tauri `tauri.conf.json`)
 - [ ] Build pipeline (GitHub Actions)
 

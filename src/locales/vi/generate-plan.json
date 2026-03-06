@@ -1,0 +1,18 @@
+{
+  "indicator": {
+    "analyzing": "Đang phân tích báo cáo brainstorm...",
+    "generating": "Đang tạo cấu trúc kế hoạch...",
+    "creatingTasks": "Đang tạo công việc...",
+    "done": "Hoàn tất!"
+  },
+  "terminal": {
+    "searching": "$ Đang tìm báo cáo brainstorm...",
+    "found": "Đã tìm thấy: brainstorm-report.md",
+    "generating": "$ Đang tạo cấu trúc kế hoạch...",
+    "detected": "Đã nhận diện 4 pha, 12 công việc",
+    "creating": "$ Đang tạo công việc trong workspace...",
+    "created": "Đã tạo: task-1.md, task-2.md...",
+    "success": "Đã tạo kế hoạch thành công!",
+    "saved": "Kế hoạch được lưu tại: plans/mvp-plan.md"
+  }
+}

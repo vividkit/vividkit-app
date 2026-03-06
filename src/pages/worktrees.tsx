@@ -1,8 +1,10 @@
 import { AppHeader } from '@/components/layout'
+import { useTranslation } from 'react-i18next'
 import { WorktreeGroup } from '@/components/worktrees'
 import { useWorktreeStore } from '@/stores/worktree-store'
 
 export default function WorktreesPage() {
+  const { t } = useTranslation()
   const worktrees = useWorktreeStore((s) => s.worktrees)
 
   const active = worktrees.filter((w) => w.status === 'active')
@@ -11,11 +13,11 @@ export default function WorktreesPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <AppHeader title="Worktrees" subtitle={`${worktrees.length} total`} />
+      <AppHeader title={t('pages.worktrees.title')} subtitle={t('pages.worktrees.subtitleTotal', { count: worktrees.length })} />
       <div className="p-6 space-y-8">
         {worktrees.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground text-sm">
-            No worktrees yet. Cook a task to create your first worktree.
+            {t('pages.worktrees.empty')}
           </div>
         ) : (
           <>

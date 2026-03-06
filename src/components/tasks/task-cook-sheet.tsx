@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { FlameKindling } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Terminal } from '@xterm/xterm'
@@ -9,18 +10,6 @@ import { getTerminalTheme } from '@/lib/utils'
 import { useTaskStore } from '@/stores/task-store'
 import type { Task } from '@/types'
 
-const COOK_LINES = [
-  '\x1b[33m$ Creating worktree...\x1b[0m\r\n',
-  'git worktree add .worktrees/task-branch\r\n',
-  '\x1b[36mImplementing changes...\x1b[0m\r\n',
-  '> Writing code...\r\n',
-  '> Running tests...\r\n',
-  '\x1b[32m✓ Implementation complete!\x1b[0m\r\n',
-  '\x1b[36mFiles changed:\x1b[0m\r\n',
-  '  src/components/feature.tsx (+45/-2)\r\n',
-  '  src/stores/feature-store.ts (+12)\r\n',
-]
-
 interface TaskCookSheetProps {
   task: Task | null
   open: boolean
@@ -28,6 +17,21 @@ interface TaskCookSheetProps {
 }
 
 export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) {
+  const { t } = useTranslation()
+  const cookLines = useMemo(
+    () => [
+      `\x1b[33m${t('tasks.cookSheet.terminal.creatingWorktree')}\x1b[0m\r\n`,
+      `${t('tasks.cookSheet.terminal.worktreeCommand')}\r\n`,
+      `\x1b[36m${t('tasks.cookSheet.terminal.implementingChanges')}\x1b[0m\r\n`,
+      `${t('tasks.cookSheet.terminal.writingCode')}\r\n`,
+      `${t('tasks.cookSheet.terminal.runningTests')}\r\n`,
+      `\x1b[32m${t('tasks.cookSheet.terminal.implementationComplete')}\x1b[0m\r\n`,
+      `\x1b[36m${t('tasks.cookSheet.terminal.filesChanged')}\x1b[0m\r\n`,
+      `${t('tasks.cookSheet.terminal.changedFile1')}\r\n`,
+      `${t('tasks.cookSheet.terminal.changedFile2')}\r\n`,
+    ],
+    [t],
+  )
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
   const updateStatus = useTaskStore((s) => s.updateStatus)
@@ -45,7 +49,7 @@ export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) 
 
     let i = 0
     const interval = setInterval(() => {
-      if (i < COOK_LINES.length) { term.write(COOK_LINES[i++]) } else { clearInterval(interval) }
+      if (i < cookLines.length) { term.write(cookLines[i++]) } else { clearInterval(interval) }
     }, 500)
 
     return () => {
@@ -53,7 +57,7 @@ export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) 
       term.dispose()
       termRef.current = null
     }
-  }, [open, task, updateStatus])
+  }, [open, task, updateStatus, cookLines])
 
   function handleMerge() {
     if (task) updateStatus(task.id, 'done')
@@ -71,15 +75,15 @@ export function TaskCookSheet({ task, open, onOpenChange }: TaskCookSheetProps) 
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-border shrink-0">
           <div className="flex items-center gap-2">
             <FlameKindling className="size-5 text-primary" />
-            <SheetTitle className="text-base truncate">{task?.name ?? 'Cooking…'}</SheetTitle>
+            <SheetTitle className="text-base truncate">{task?.name ?? t('tasks.cookSheet.title')}</SheetTitle>
           </div>
         </SheetHeader>
         <div className="flex-1 p-4 min-h-0">
           <div ref={containerRef} className="h-full rounded-lg border border-border bg-terminal-background" style={{ minHeight: 300 }} />
         </div>
         <div className="px-4 pb-4 flex gap-2 shrink-0">
-          <Button variant="destructive" size="sm" onClick={handleDiscard}>Discard</Button>
-          <Button size="sm" className="flex-1" onClick={handleMerge}>Merge to Main</Button>
+          <Button variant="destructive" size="sm" onClick={handleDiscard}>{t('common.actions.discard')}</Button>
+          <Button size="sm" className="flex-1" onClick={handleMerge}>{t('tasks.cookSheet.mergeToMain')}</Button>
         </div>
       </SheetContent>
     </Sheet>

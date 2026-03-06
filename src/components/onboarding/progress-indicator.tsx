@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 interface ProgressIndicatorProps {
@@ -7,11 +8,13 @@ interface ProgressIndicatorProps {
 }
 
 export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="w-64 min-h-screen bg-muted/30 border-r border-border flex flex-col pt-16 px-8">
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-foreground">VividKit</h2>
-        <p className="text-xs text-muted-foreground">Setup Wizard</p>
+        <h2 className="text-lg font-bold text-foreground">{t('common.app.name')}</h2>
+        <p className="text-xs text-muted-foreground">{t('onboarding.progress.setupWizard')}</p>
       </div>
       <div className="space-y-6">
         {steps.map((label, i) => {

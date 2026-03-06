@@ -1,4 +1,5 @@
 import { GitBranch } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { Worktree } from '@/types'
@@ -8,6 +9,8 @@ interface WorktreeCardMergedProps {
 }
 
 export function WorktreeCardMerged({ worktree }: WorktreeCardMergedProps) {
+  const { t, i18n } = useTranslation()
+
   return (
     <Card className="opacity-70">
       <CardContent className="p-4 flex items-center gap-3">
@@ -20,11 +23,11 @@ export function WorktreeCardMerged({ worktree }: WorktreeCardMergedProps) {
           </p>
           {worktree.mergedAt && (
             <p className="text-xs text-muted-foreground">
-              Merged {new Date(worktree.mergedAt).toLocaleDateString()}
+              {t('worktrees.card.mergedOn', { date: new Intl.DateTimeFormat(i18n.language).format(new Date(worktree.mergedAt)) })}
             </p>
           )}
         </div>
-        <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">Merged</Badge>
+        <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">{t('worktrees.card.mergedBadge')}</Badge>
       </CardContent>
     </Card>
   )

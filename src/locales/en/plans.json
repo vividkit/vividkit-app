@@ -1,0 +1,36 @@
+{
+  "list": {
+    "empty": "No plans yet. Complete a brainstorm session to generate your first plan."
+  },
+  "card": {
+    "complete": "Complete",
+    "phases": "{{completed}}/{{total}} phases"
+  },
+  "relatedTasks": {
+    "empty": "No tasks linked to this plan.",
+    "cook": "Cook"
+  },
+  "phaseChecklist": {
+    "phaseTitle": "Phase {{order}} - {{name}}"
+  },
+  "viewToggle": {
+    "phases": "phases",
+    "preview": "preview"
+  },
+  "markdown": {
+    "created": "Created: {{date}}",
+    "phasesTitle": "Phases",
+    "noDescription": "No description."
+  },
+  "cookSheet": {
+    "badge": "{{completed}}/{{total}} phases",
+    "lines": {
+      "start": "$ Executing plan phases...",
+      "phase1": "> Phase 1: Analyzing requirements...",
+      "phase2": "> Phase 2: Setting up structure...",
+      "phase3": "> Phase 3: Implementing features...",
+      "phase4": "> Phase 4: Running tests...",
+      "done": "All phases completed successfully!"
+    }
+  }
+}

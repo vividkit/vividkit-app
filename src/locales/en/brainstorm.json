@@ -1,0 +1,58 @@
+{
+  "deckContext": {
+    "activeDeck": "Active Deck:",
+    "noneSelected": "None selected",
+    "keyInsights": "Key Insights"
+  },
+  "input": {
+    "placeholder": "Describe what you want to brainstorm..."
+  },
+  "actions": {
+    "viewReport": "View Report",
+    "createPlan": "Create Implementation Plan",
+    "saveAsInsight": "Save as Key Insight",
+    "saved": "Saved!"
+  },
+  "insightsDialog": {
+    "title": "Key Insights",
+    "empty": "No insights saved yet for this deck."
+  },
+  "reportDialog": {
+    "title": "Brainstorm Report",
+    "readTime": "5 min read",
+    "defaultTitle": "Brainstorm Session",
+    "analysisIntro": "Analysis of your project requirements and architecture suggestions based on the brainstorm session.",
+    "phases": "Phases",
+    "techStack": "Tech Stack",
+    "phaseNames": {
+      "coreArchitecture": "Core Architecture",
+      "uiComponents": "UI Components",
+      "aiIntegration": "AI Integration",
+      "testingStrategy": "Testing Strategy"
+    },
+    "phaseDescription": "Implementation details and considerations for {{phase}}."
+  },
+  "reportPage": {
+    "insights": {
+      "architecture": {
+        "title": "Architecture",
+        "desc": "Modular component design with clear separation of concerns"
+      },
+      "performance": {
+        "title": "Performance",
+        "desc": "Lazy loading and memoization for optimal render cycles"
+      },
+      "security": {
+        "title": "Security",
+        "desc": "All AI calls routed through Rust backend, no client-side keys"
+      }
+    },
+    "actionItems": {
+      "item1": "Set up Tauri v2 project structure with plugin registration",
+      "item2": "Implement Zustand stores for all domain entities",
+      "item3": "Build xterm.js terminal components with proper disposal",
+      "item4": "Create React Router layout with lazy-loaded pages",
+      "item5": "Wire Rust commands for CCS subprocess management"
+    }
+  }
+}

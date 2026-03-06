@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/task-store'
@@ -18,6 +19,7 @@ interface PreviewChangesDialogProps {
 }
 
 export function PreviewChangesDialog({ open, onOpenChange, task, onClose }: PreviewChangesDialogProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const updateStatus = useTaskStore((s) => s.updateStatus)
 
@@ -37,15 +39,15 @@ export function PreviewChangesDialog({ open, onOpenChange, task, onClose }: Prev
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Preview Changes</DialogTitle>
+          <DialogTitle>{t('cook.previewDialog.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1">Worktree</p>
-            <p className="text-sm font-mono">{task ? `task-${task.id.slice(0, 8)}` : 'unknown'}</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">{t('cook.previewDialog.worktree')}</p>
+            <p className="text-sm font-mono">{task ? `task-${task.id.slice(0, 8)}` : t('common.labels.unknown')}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2">Files Changed</p>
+            <p className="text-xs font-medium text-muted-foreground mb-2">{t('cook.previewDialog.filesChanged')}</p>
             <div className="space-y-1">
               {MOCK_FILES.map((f) => (
                 <div key={f.name} className="flex items-center justify-between text-sm">
@@ -66,9 +68,9 @@ export function PreviewChangesDialog({ open, onOpenChange, task, onClose }: Prev
           </div>
         </div>
         <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={onClose}>Back to Cook</Button>
-          <Button variant="destructive" onClick={handleDiscard}>Discard</Button>
-          <Button onClick={handleMerge}>Merge to Main</Button>
+          <Button variant="ghost" onClick={onClose}>{t('cook.previewDialog.backToCook')}</Button>
+          <Button variant="destructive" onClick={handleDiscard}>{t('common.actions.discard')}</Button>
+          <Button onClick={handleMerge}>{t('cook.previewDialog.mergeToMain')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,0 +1,87 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitleActiveDeck": "Active Deck: {{name}}"
+  },
+  "decks": {
+    "title": "Decks",
+    "subtitle": "Select or create a deck to organize your work",
+    "newDeck": "New Deck",
+    "empty": "No decks yet. Create your first deck to get started.",
+    "activeBadge": "Active",
+    "actions": {
+      "brainstorm": "Brainstorm",
+      "tasks": "Tasks"
+    },
+    "createDialog": {
+      "title": "Create New Deck",
+      "name": "Deck Name",
+      "namePlaceholder": "e.g. MVP Sprint",
+      "description": "Description",
+      "descriptionPlaceholder": "Brief description...",
+      "createButton": "Create Deck"
+    }
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitleTotal": "{{count}} total tasks"
+  },
+  "plans": {
+    "title": "Plans",
+    "subtitle": "Implementation plans generated from brainstorm sessions",
+    "createNew": "Create New Plan"
+  },
+  "planReview": {
+    "notFoundTitle": "Plan Not Found",
+    "notFoundText": "Plan not found.",
+    "backToPlans": "Back to Plans",
+    "plans": "Plans",
+    "relatedTasks": "Related Tasks",
+    "cookPlan": "Cook Plan",
+    "createdMeta": "Created {{date}} · {{count}} phases",
+    "phaseProgress": "{{completed}}/{{total}} phases completed ({{pct}}%)"
+  },
+  "generatePlan": {
+    "title": "Generate Plan",
+    "subtitle": "AI is creating your implementation plan…",
+    "viewPlan": "View Plan",
+    "goToTasks": "Go to Tasks",
+    "generatedPlanName": "Generated Plan",
+    "generatedPhaseName": "Phase {{index}}",
+    "generatedTaskName": "Generated Task {{index}}"
+  },
+  "brainstorm": {
+    "title": "Brainstorm"
+  },
+  "brainstormReport": {
+    "title": "Brainstorm Report",
+    "subtitleSession": "Session #{{id}}",
+    "back": "Back",
+    "keyInsights": "Key Insights",
+    "actionItems": "Action Items"
+  },
+  "worktrees": {
+    "title": "Worktrees",
+    "subtitleTotal": "{{count}} total",
+    "empty": "No worktrees yet. Cook a task to create your first worktree."
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "aiCommands": "AI & Commands",
+      "git": "Git",
+      "editor": "Editor"
+    }
+  },
+  "ccsTest": {
+    "title": "CCS Test Console",
+    "subtitle": "Developer tool - validate ccs subprocess + stream output"
+  },
+  "newProject": {
+    "title": "New Project"
+  },
+  "cook": {
+    "sessionTitle": "Cook Session"
+  }
+}

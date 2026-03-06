@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -18,6 +19,7 @@ const DEFAULT_COMMAND = '/ck:brainstorm write a todo app'
 const DEFAULT_RELATIVE_CWD = 'projects/solo-builder/vividkit-workspace/vividkit-testing'
 
 export function CcsTestConsole() {
+  const { t } = useTranslation()
   const mountedRef = useRef(true)
   const activeRunIdRef = useRef<string | null>(null)
   const isStartingRef = useRef(false)
@@ -135,29 +137,29 @@ export function CcsTestConsole() {
       {/* Controls */}
       <div className="grid grid-cols-1 gap-3 shrink-0">
         <div className="flex items-center gap-2">
-          <label className="w-16 shrink-0 text-xs font-medium">Profile</label>
+          <label className="w-16 shrink-0 text-xs font-medium">{t('settings.ccsTest.profile')}</label>
           <Select value={profile} onValueChange={setProfile}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>{PROFILES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <label className="w-16 shrink-0 text-xs font-medium">Command</label>
-          <Input value={command} onChange={(e) => setCommand(e.target.value)} placeholder="e.g. /ck:brainstorm ..." className="flex-1 font-mono text-sm" />
+          <label className="w-16 shrink-0 text-xs font-medium">{t('settings.ccsTest.command')}</label>
+          <Input value={command} onChange={(e) => setCommand(e.target.value)} placeholder={t('settings.ccsTest.commandPlaceholder')} className="flex-1 font-mono text-sm" />
         </div>
         <div className="flex items-center gap-2">
-          <label className="w-16 shrink-0 text-xs font-medium">CWD</label>
-          <Input value={cwd} onChange={(e) => setCwd(e.target.value)} placeholder="/path/to/project" className="flex-1 font-mono text-sm" />
+          <label className="w-16 shrink-0 text-xs font-medium">{t('settings.ccsTest.cwd')}</label>
+          <Input value={cwd} onChange={(e) => setCwd(e.target.value)} placeholder={t('settings.ccsTest.cwdPlaceholder')} className="flex-1 font-mono text-sm" />
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handleRun} disabled={isRunning || !listenerReady}>Run</Button>
+          <Button size="sm" onClick={handleRun} disabled={isRunning || !listenerReady}>{t('common.actions.run')}</Button>
           <Button size="sm" variant="outline" onClick={handleStop} disabled={!isRunning || isStopping}>
-            {isStopping ? 'Stopping...' : 'Stop'}
+            {isStopping ? t('settings.ccsTest.stopping') : t('common.actions.stop')}
           </Button>
           {activeRunId && <Badge variant="outline" className="font-mono text-xs">{activeRunId}</Badge>}
           {exitCode !== null && (
             <Badge variant={exitCode === 0 ? 'outline' : 'destructive'} className="text-xs">
-              exit {exitCode}
+              {t('settings.ccsTest.exit', { code: exitCode })}
             </Badge>
           )}
         </div>

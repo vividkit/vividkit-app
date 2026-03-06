@@ -1,4 +1,5 @@
 import { TaskListCard } from './task-list-card'
+import { useTranslation } from 'react-i18next'
 import type { Task, TaskStatus } from '@/types'
 
 interface TaskListViewProps {
@@ -9,6 +10,7 @@ interface TaskListViewProps {
 }
 
 export function TaskListView({ tasks, statusFilter, search, onCook }: TaskListViewProps) {
+  const { t } = useTranslation()
   const filtered = tasks.filter((t) => {
     const matchStatus = statusFilter === 'all' || t.status === statusFilter
     const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase())
@@ -18,7 +20,7 @@ export function TaskListView({ tasks, statusFilter, search, onCook }: TaskListVi
   if (filtered.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground text-sm">
-        {search ? `No tasks matching "${search}"` : 'No tasks found.'}
+        {search ? t('tasks.list.noTasksMatching', { search }) : t('tasks.list.noTasksFound')}
       </div>
     )
   }

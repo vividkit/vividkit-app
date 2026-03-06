@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Bot, CheckCircle, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { OnboardingState } from './onboarding-wizard'
@@ -20,6 +21,7 @@ const CCS_ACCOUNTS = [
 ]
 
 export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
+  const { t } = useTranslation()
   const [claudeStatus, setClaudeStatus] = useState<DetectStatus>('idle')
   const [ccsStatus, setCcsStatus] = useState<DetectStatus>('idle')
 
@@ -34,16 +36,16 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
 
   const statusBadge = (s: 'active' | 'paused') =>
     s === 'active' ? (
-      <Badge variant="secondary" className="bg-success/10 text-success">Active</Badge>
+      <Badge variant="secondary" className="bg-success/10 text-success">{t('onboarding.aiTools.active')}</Badge>
     ) : (
-      <Badge variant="secondary" className="bg-warning/10 text-warning">Paused</Badge>
+      <Badge variant="secondary" className="bg-warning/10 text-warning">{t('onboarding.aiTools.paused')}</Badge>
     )
 
   return (
     <div className="max-w-lg w-full space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">AI Tools</h2>
-        <p className="text-muted-foreground mt-1">Detect your installed AI tools and accounts</p>
+        <h2 className="text-2xl font-bold text-foreground">{t('onboarding.aiTools.title')}</h2>
+        <p className="text-muted-foreground mt-1">{t('onboarding.aiTools.description')}</p>
       </div>
 
       <div className="space-y-3">
@@ -52,13 +54,13 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="size-4 text-primary" />
-              <span className="font-medium text-sm">Claude Code</span>
+              <span className="font-medium text-sm">{t('onboarding.aiTools.claudeCode')}</span>
             </div>
             {claudeStatus === 'detecting' && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
             {claudeStatus === 'found' && <CheckCircle className="size-4 text-success" />}
           </div>
           {claudeStatus === 'found' && (
-            <p className="text-xs text-muted-foreground">v1.0.0 · Authenticated</p>
+            <p className="text-xs text-muted-foreground">{t('onboarding.aiTools.authenticated')}</p>
           )}
         </div>
 
@@ -67,7 +69,7 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bot className="size-4 text-primary" />
-              <span className="font-medium text-sm">CCS (Claude Code Switcher)</span>
+              <span className="font-medium text-sm">{t('onboarding.aiTools.ccs')}</span>
             </div>
             {ccsStatus === 'detecting' && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
             {ccsStatus === 'found' && <CheckCircle className="size-4 text-success" />}
@@ -87,13 +89,13 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
 
       {claudeStatus === 'idle' && (
         <Button variant="outline" className="w-full" onClick={detect}>
-          Detect AI Tools
+          {t('onboarding.aiTools.detect')}
         </Button>
       )}
 
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack} className="flex-1">Back</Button>
-        <Button onClick={onNext} className="flex-1">Continue</Button>
+        <Button variant="outline" onClick={onBack} className="flex-1">{t('common.actions.back')}</Button>
+        <Button onClick={onNext} className="flex-1">{t('common.actions.continue')}</Button>
       </div>
     </div>
   )

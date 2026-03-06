@@ -1,0 +1,53 @@
+{
+  "general": {
+    "language": "Ngôn ngữ",
+    "languageDescription": "Ngôn ngữ hiển thị giao diện",
+    "english": "Tiếng Anh",
+    "vietnamese": "Tiếng Việt"
+  },
+  "aiCommands": {
+    "providersTitle": "Nhà cung cấp AI",
+    "emptyAccountsPrefix": "Chưa kết nối tài khoản CCS. Chạy",
+    "emptyAccountsSuffix": "để thiết lập tài khoản.",
+    "mappingTitle": "Ánh xạ lệnh -> nhà cung cấp",
+    "commands": {
+      "plan": "Tạo kế hoạch triển khai",
+      "brainstorm": "Phiên lên ý tưởng với AI",
+      "cook": "Thực thi tác vụ code",
+      "review": "Review và phân tích code",
+      "test": "Sinh và chạy kiểm thử"
+    }
+  },
+  "git": {
+    "defaultBranch": "Nhánh mặc định",
+    "defaultBranchDescription": "Nhánh dùng cho commit mới",
+    "defaultBranchPlaceholder": "main",
+    "worktreesDirectory": "Thư mục worktree",
+    "worktreesDirectoryDescription": "Đường dẫn gốc cho git worktree",
+    "worktreesDirectoryPlaceholder": ".worktrees"
+  },
+  "editor": {
+    "theme": "Giao diện",
+    "themeDescription": "Màu sắc ứng dụng",
+    "light": "Sáng",
+    "dark": "Tối",
+    "autoSave": "Tự động lưu",
+    "autoSaveDescription": "Tự động lưu thay đổi tệp",
+    "fontSize": "Cỡ chữ",
+    "fontSizeDescription": "Cỡ chữ cho editor và terminal"
+  },
+  "ccsAccount": {
+    "active": "Đang hoạt động",
+    "paused": "Tạm dừng",
+    "exhausted": "Hết quota"
+  },
+  "ccsTest": {
+    "profile": "Profile",
+    "command": "Lệnh",
+    "cwd": "CWD",
+    "commandPlaceholder": "vd: /ck:brainstorm ...",
+    "cwdPlaceholder": "/path/to/project",
+    "stopping": "Đang dừng...",
+    "exit": "thoát {{code}}"
+  }
+}

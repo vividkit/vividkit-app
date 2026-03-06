@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "VividKit"
+  },
+  "actions": {
+    "back": "Quay lại",
+    "continue": "Tiếp tục",
+    "cancel": "Hủy",
+    "close": "Đóng",
+    "run": "Chạy",
+    "stop": "Dừng",
+    "save": "Lưu",
+    "create": "Tạo",
+    "merge": "Gộp",
+    "discard": "Bỏ",
+    "export": "Xuất",
+    "share": "Chia sẻ",
+    "view": "Xem",
+    "select": "Chọn...",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục"
+  },
+  "status": {
+    "ready": "Sẵn sàng",
+    "active": "Đang hoạt động",
+    "merged": "Đã gộp",
+    "done": "Hoàn tất",
+    "complete": "Hoàn thành",
+    "inProgress": "Đang thực hiện"
+  },
+  "labels": {
+    "created": "Tạo lúc",
+    "method": "Phương thức",
+    "git": "Git",
+    "worktree": "Worktree",
+    "filesChanged": "Tệp đã thay đổi",
+    "summary": "Tóm tắt",
+    "thinking": "Suy luận",
+    "output": "Kết quả",
+    "optional": "tùy chọn",
+    "unknown": "không rõ"
+  },
+  "defaults": {
+    "noPath": "(chưa có đường dẫn)",
+    "noUrl": "(chưa có URL)",
+    "none": "Không có"
+  },
+  "messages": {
+    "loading": "Đang tải...",
+    "sessionInProgress": "Phiên đang chạy...",
+    "noExecutionTrace": "Không có nhật ký thực thi"
+  }
+}

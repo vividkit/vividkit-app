@@ -1,4 +1,5 @@
 import { FlameKindling } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,6 +24,7 @@ interface TaskKanbanCardProps {
 }
 
 export function TaskKanbanCard({ task, onCook }: TaskKanbanCardProps) {
+  const { t } = useTranslation()
   const done = task.status === 'done'
 
   return (
@@ -35,13 +37,15 @@ export function TaskKanbanCard({ task, onCook }: TaskKanbanCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <span className={cn('size-2 rounded-full', PRIORITY_COLORS[task.priority])} />
-            <Badge variant="secondary" className={cn('text-xs capitalize', PRIORITY_BADGE_CLASS[task.priority])}>{task.priority}</Badge>
+            <Badge variant="secondary" className={cn('text-xs', PRIORITY_BADGE_CLASS[task.priority])}>
+              {t(`tasks.priorities.${task.priority}`)}
+            </Badge>
           </div>
           {done ? (
-            <span className="text-xs text-success font-medium">✓ Done</span>
+            <span className="text-xs text-success font-medium">✓ {t('tasks.list.done')}</span>
           ) : (
             <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => onCook(task)}>
-              <FlameKindling className="size-3 mr-0.5" /> Cook
+              <FlameKindling className="size-3 mr-0.5" /> {t('tasks.list.cook')}
             </Button>
           )}
         </div>

@@ -1,13 +1,15 @@
 import { PlanCard } from './plan-card'
+import { useTranslation } from 'react-i18next'
 import { usePlanStore } from '@/stores/plan-store'
 
 export function PlanList() {
+  const { t } = useTranslation()
   const plans = usePlanStore((s) => s.plans)
 
   if (plans.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground text-sm">
-        No plans yet. Complete a brainstorm session to generate your first plan.
+        {t('plans.list.empty')}
       </div>
     )
   }

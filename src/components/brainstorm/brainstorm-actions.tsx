@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FileText, Sparkles, Lightbulb } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { ReportPreviewDialog } from './report-preview-dialog'
 import { useBrainstormStore } from '@/stores/brainstorm-store'
@@ -12,6 +13,7 @@ interface BrainstormActionsProps {
 }
 
 export function BrainstormActions({ prompt }: BrainstormActionsProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [showReport, setShowReport] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -36,14 +38,14 @@ export function BrainstormActions({ prompt }: BrainstormActionsProps) {
     <>
       <div className="flex gap-2 flex-wrap">
         <Button variant="outline" size="sm" onClick={() => setShowReport(true)}>
-          <FileText className="size-3.5 mr-1.5" /> View Report
+          <FileText className="size-3.5 mr-1.5" /> {t('brainstorm.actions.viewReport')}
         </Button>
         <Button size="sm" onClick={() => navigate('/generate-plan')}>
-          <Sparkles className="size-3.5 mr-1.5" /> Create Implementation Plan
+          <Sparkles className="size-3.5 mr-1.5" /> {t('brainstorm.actions.createPlan')}
         </Button>
         <Button variant="ghost" size="sm" onClick={saveInsight} disabled={saved}>
           <Lightbulb className="size-3.5 mr-1.5" />
-          {saved ? 'Saved!' : 'Save as Key Insight'}
+          {saved ? t('brainstorm.actions.saved') : t('brainstorm.actions.saveAsInsight')}
         </Button>
       </div>
       <ReportPreviewDialog open={showReport} onOpenChange={setShowReport} prompt={prompt} />

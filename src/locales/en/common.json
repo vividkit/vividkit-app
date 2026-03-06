@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "VividKit"
+  },
+  "actions": {
+    "back": "Back",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "close": "Close",
+    "run": "Run",
+    "stop": "Stop",
+    "save": "Save",
+    "create": "Create",
+    "merge": "Merge",
+    "discard": "Discard",
+    "export": "Export",
+    "share": "Share",
+    "view": "View",
+    "select": "Select...",
+    "pause": "Pause",
+    "resume": "Resume"
+  },
+  "status": {
+    "ready": "Ready",
+    "active": "Active",
+    "merged": "Merged",
+    "done": "Done",
+    "complete": "Complete",
+    "inProgress": "In progress"
+  },
+  "labels": {
+    "created": "Created",
+    "method": "Method",
+    "git": "Git",
+    "worktree": "Worktree",
+    "filesChanged": "Files Changed",
+    "summary": "Summary",
+    "thinking": "Thinking",
+    "output": "Output",
+    "optional": "optional",
+    "unknown": "unknown"
+  },
+  "defaults": {
+    "noPath": "(no path)",
+    "noUrl": "(no url)",
+    "none": "None"
+  },
+  "messages": {
+    "loading": "Loading…",
+    "sessionInProgress": "Session is in progress...",
+    "noExecutionTrace": "No execution trace available"
+  }
+}

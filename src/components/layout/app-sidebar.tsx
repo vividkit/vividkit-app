@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard, Lightbulb, ListTodo, FileText, Layers, GitBranch,
   Settings, HelpCircle, PanelLeftClose, PanelLeft, Plus,
@@ -11,20 +12,21 @@ import { useTaskStore } from '@/stores/task-store'
 import { cn } from '@/lib/utils'
 
 const MAIN_NAV = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { to: '/brainstorm', label: 'Brainstorm', icon: Lightbulb },
-  { to: '/tasks', label: 'Tasks', icon: ListTodo, badge: true },
-  { to: '/plans', label: 'Plans', icon: FileText },
-  { to: '/decks', label: 'Decks', icon: Layers },
-  { to: '/worktrees', label: 'Worktrees', icon: GitBranch },
+  { to: '/', labelKey: 'navigation.main.dashboard', icon: LayoutDashboard, exact: true },
+  { to: '/brainstorm', labelKey: 'navigation.main.brainstorm', icon: Lightbulb },
+  { to: '/tasks', labelKey: 'navigation.main.tasks', icon: ListTodo, badge: true },
+  { to: '/plans', labelKey: 'navigation.main.plans', icon: FileText },
+  { to: '/decks', labelKey: 'navigation.main.decks', icon: Layers },
+  { to: '/worktrees', labelKey: 'navigation.main.worktrees', icon: GitBranch },
 ]
 
 const BOTTOM_NAV = [
-  { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/ccs-test', label: 'Dev Console', icon: HelpCircle },
+  { to: '/settings', labelKey: 'navigation.bottom.settings', icon: Settings },
+  { to: '/ccs-test', labelKey: 'navigation.bottom.devConsole', icon: HelpCircle },
 ]
 
 export function AppSidebar() {
+  const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const { projects, activeProjectId } = useProjectStore()
@@ -56,7 +58,7 @@ export function AppSidebar() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
-                {activeProject?.name ?? 'VividKit'}
+                {activeProject?.name ?? t('common.app.name')}
               </TooltipContent>
             </Tooltip>
           ) : (
@@ -70,10 +72,10 @@ export function AppSidebar() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
-                    {activeProject?.name ?? 'No Project'}
+                    {activeProject?.name ?? t('navigation.sidebar.noProject')}
                   </p>
                   <p className="text-[11px] text-muted-foreground truncate">
-                    {activeProject?.description ?? 'Select a project'}
+                    {activeProject?.description ?? t('navigation.sidebar.selectProject')}
                   </p>
                 </div>
               </button>
@@ -93,11 +95,11 @@ export function AppSidebar() {
 
         {/* Main nav */}
         <nav className="flex-1 space-y-1 px-2 py-4">
-          {MAIN_NAV.map(({ to, label, icon: Icon, exact, badge }) => (
+          {MAIN_NAV.map(({ to, labelKey, icon: Icon, exact, badge }) => (
             <NavItem
               key={to}
               to={to}
-              label={label}
+              label={t(labelKey)}
               icon={<Icon className="h-5 w-5 shrink-0" />}
               collapsed={collapsed}
               badge={badge && inProgressCount > 0 ? String(inProgressCount) : undefined}
@@ -110,11 +112,11 @@ export function AppSidebar() {
 
         {/* Bottom nav */}
         <nav className="space-y-1 px-2 py-4">
-          {BOTTOM_NAV.map(({ to, label, icon: Icon }) => (
+          {BOTTOM_NAV.map(({ to, labelKey, icon: Icon }) => (
             <NavItem
               key={to}
               to={to}
-              label={label}
+              label={t(labelKey)}
               icon={<Icon className="h-5 w-5 shrink-0" />}
               collapsed={collapsed}
             />
@@ -126,7 +128,7 @@ export function AppSidebar() {
               className="w-full mt-1 text-xs"
               onClick={() => navigate('/new-project')}
             >
-              <Plus className="h-3.5 w-3.5 mr-1" /> New Project
+              <Plus className="h-3.5 w-3.5 mr-1" /> {t('navigation.sidebar.newProject')}
             </Button>
           )}
           {collapsed && (
@@ -141,7 +143,7 @@ export function AppSidebar() {
                   <PanelLeft className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" sideOffset={8}>Expand</TooltipContent>
+              <TooltipContent side="right" sideOffset={8}>{t('navigation.sidebar.expand')}</TooltipContent>
             </Tooltip>
           )}
         </nav>

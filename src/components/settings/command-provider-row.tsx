@@ -1,4 +1,5 @@
 import { Terminal } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useSettingsStore } from '@/stores/settings-store'
 import type { Project } from '@/types'
@@ -12,6 +13,7 @@ interface CommandProviderRowProps {
 }
 
 export function CommandProviderRow({ command, description, activeAccounts }: CommandProviderRowProps) {
+  const { t } = useTranslation()
   const { settings, updateSettings } = useSettingsStore()
   const current = settings.commandProviders[command] ?? ''
 
@@ -30,7 +32,7 @@ export function CommandProviderRow({ command, description, activeAccounts }: Com
       </div>
       <Select value={current} onValueChange={handleChange} disabled={activeAccounts.length === 0}>
         <SelectTrigger className="w-36 text-xs">
-          <SelectValue placeholder="Select…" />
+          <SelectValue placeholder={t('common.actions.select')} />
         </SelectTrigger>
         <SelectContent>
           {activeAccounts.map((acc) => (

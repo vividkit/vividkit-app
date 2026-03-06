@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft, FlameKindling } from 'lucide-react'
 import { AppHeader } from '@/components/layout'
 import { PhaseChecklist, ViewToggle, PlanMarkdownPreview, RelatedTasks, CookSheet } from '@/components/plans'
@@ -10,6 +11,7 @@ import { usePlanStore } from '@/stores/plan-store'
 import type { PlanView } from '@/components/plans/view-toggle'
 
 export default function PlanReviewPage() {
+  const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -21,9 +23,10 @@ export default function PlanReviewPage() {
   if (!plan) {
     return (
       <div className="flex flex-col h-full">
-        <AppHeader title="Plan Not Found" />
+        <AppHeader title={t('pages.planReview.notFoundTitle')} />
         <div className="flex items-center justify-center flex-1 text-muted-foreground text-sm">
-          Plan not found. <Button variant="link" onClick={() => navigate('/plans')}>Back to Plans</Button>
+          {t('pages.planReview.notFoundText')}{' '}
+          <Button variant="link" onClick={() => navigate('/plans')}>{t('pages.planReview.backToPlans')}</Button>
         </div>
       </div>
     )
@@ -41,12 +44,12 @@ export default function PlanReviewPage() {
         {/* Top bar */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate('/plans')}>
-            <ChevronLeft className="size-4 mr-1" /> Plans
+            <ChevronLeft className="size-4 mr-1" /> {t('pages.planReview.plans')}
           </Button>
           <div className="flex-1" />
           <ViewToggle view={view} onChange={setView} />
           <Button size="sm" onClick={() => setCookOpen(true)}>
-            <FlameKindling className="size-4 mr-1.5" /> Cook Plan
+            <FlameKindling className="size-4 mr-1.5" /> {t('pages.planReview.cookPlan')}
           </Button>
         </div>
 
@@ -57,13 +60,18 @@ export default function PlanReviewPage() {
               <div>
                 <p className="font-semibold">{plan.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  Created {new Date(plan.createdAt).toLocaleDateString()} · {total} phases
+                  {t('pages.planReview.createdMeta', {
+                    date: new Intl.DateTimeFormat(i18n.language).format(new Date(plan.createdAt)),
+                    count: total,
+                  })}
                 </p>
               </div>
               <p className="text-sm font-medium">{pct}%</p>
             </div>
             <Progress value={pct} className="h-2" />
-            <p className="text-xs text-muted-foreground">{completed}/{total} phases completed ({pct}%)</p>
+            <p className="text-xs text-muted-foreground">
+              {t('pages.planReview.phaseProgress', { completed, total, pct })}
+            </p>
           </CardContent>
         </Card>
 
@@ -72,7 +80,7 @@ export default function PlanReviewPage() {
 
         {/* Related tasks */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold">Related Tasks</h3>
+          <h3 className="text-sm font-semibold">{t('pages.planReview.relatedTasks')}</h3>
           <RelatedTasks planId={plan.id} isNew={isNew} />
         </div>
       </div>

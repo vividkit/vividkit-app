@@ -1,0 +1,25 @@
+{
+  "controls": {
+    "resume": "Resume",
+    "pause": "Pause",
+    "stop": "Stop",
+    "previewChanges": "Preview Changes"
+  },
+  "progress": {
+    "cooking": "Cooking..."
+  },
+  "steps": {
+    "analyzing": "Analyzing",
+    "planning": "Planning",
+    "executing": "Executing",
+    "reviewing": "Reviewing",
+    "current": "Current"
+  },
+  "previewDialog": {
+    "title": "Preview Changes",
+    "worktree": "Worktree",
+    "filesChanged": "Files Changed",
+    "backToCook": "Back to Cook",
+    "mergeToMain": "Merge to Main"
+  }
+}

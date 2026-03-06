@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle, Circle, FlameKindling, StopCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,6 +26,7 @@ interface TaskListCardProps {
 }
 
 export function TaskListCard({ task, onCook }: TaskListCardProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const done = task.status === 'done'
   const running = (task.status as string) === 'in_progress'
@@ -44,24 +46,26 @@ export function TaskListCard({ task, onCook }: TaskListCardProps) {
             <p className="text-xs text-muted-foreground truncate">{task.description}</p>
           )}
           {task.planId && (
-            <p className="text-xs text-muted-foreground">📁 Plan linked</p>
+            <p className="text-xs text-muted-foreground">📁 {t('tasks.list.planLinked')}</p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-1">
             <span className={cn('size-2 rounded-full', PRIORITY_DOT[task.priority])} />
-            <span className="text-xs text-muted-foreground capitalize">{task.priority}</span>
+            <span className="text-xs text-muted-foreground">{t(`tasks.priorities.${task.priority}`)}</span>
           </div>
-          <Badge variant="secondary" className={cn('text-xs', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>{task.status}</Badge>
+          <Badge variant="secondary" className={cn('text-xs', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>
+            {t(`tasks.statuses.${task.status}`)}
+          </Badge>
           {done ? (
-            <span className="text-xs text-success font-medium">✓ Done</span>
+            <span className="text-xs text-success font-medium">✓ {t('tasks.list.done')}</span>
           ) : running ? (
             <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => navigate(`/cook/${task.id}`)}>
-              <StopCircle className="size-3 mr-1" /> Stop
+              <StopCircle className="size-3 mr-1" /> {t('tasks.list.stop')}
             </Button>
           ) : (
             <Button size="sm" className="h-7 text-xs" onClick={() => onCook(task)}>
-              <FlameKindling className="size-3 mr-1" /> Cook
+              <FlameKindling className="size-3 mr-1" /> {t('tasks.list.cook')}
             </Button>
           )}
         </div>

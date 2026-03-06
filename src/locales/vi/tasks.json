@@ -1,0 +1,64 @@
+{
+  "toolbar": {
+    "searchPlaceholder": "Tìm công việc...",
+    "addTask": "Thêm công việc",
+    "filters": {
+      "all": "Tất cả",
+      "backlog": "Backlog",
+      "todo": "Todo",
+      "inProgress": "Đang làm",
+      "done": "Hoàn thành"
+    }
+  },
+  "kanban": {
+    "columns": {
+      "backlog": "Backlog",
+      "todo": "Todo",
+      "inProgress": "Đang làm",
+      "done": "Hoàn thành"
+    },
+    "noTasks": "Không có công việc"
+  },
+  "list": {
+    "planLinked": "Đã liên kết kế hoạch",
+    "done": "Hoàn thành",
+    "cook": "Cook",
+    "stop": "Dừng",
+    "noTasksFound": "Không tìm thấy công việc.",
+    "noTasksMatching": "Không có công việc khớp \"{{search}}\""
+  },
+  "priorities": {
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao"
+  },
+  "statuses": {
+    "backlog": "Backlog",
+    "todo": "Todo",
+    "in_progress": "Đang làm",
+    "done": "Hoàn thành"
+  },
+  "addDialog": {
+    "title": "Thêm công việc",
+    "name": "Tên",
+    "namePlaceholder": "Tên công việc...",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Mô tả tùy chọn...",
+    "priority": "Độ ưu tiên"
+  },
+  "cookSheet": {
+    "title": "Đang cook...",
+    "mergeToMain": "Gộp vào nhánh chính",
+    "terminal": {
+      "creatingWorktree": "$ Đang tạo worktree...",
+      "worktreeCommand": "git worktree add .worktrees/task-branch",
+      "implementingChanges": "Đang triển khai thay đổi...",
+      "writingCode": "> Đang viết code...",
+      "runningTests": "> Đang chạy test...",
+      "implementationComplete": "✓ Triển khai hoàn tất!",
+      "filesChanged": "Tệp đã thay đổi:",
+      "changedFile1": "  src/components/feature.tsx (+45/-2)",
+      "changedFile2": "  src/stores/feature-store.ts (+12)"
+    }
+  }
+}

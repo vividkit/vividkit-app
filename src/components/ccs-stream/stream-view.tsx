@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { listen } from '@tauri-apps/api/event'
+import { useTranslation } from 'react-i18next'
 import { UserMessage } from './user-message'
 import { AIMessage } from './ai-message'
 import { SystemLine } from './system-line'
@@ -53,6 +54,7 @@ function collectTaskCalls(entries: RawSessionEntry[]): ToolCall[] {
 }
 
 export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, ccsCwd }: Props) {
+  const { t } = useTranslation()
   const [entries, setEntries] = useState<RawSessionEntry[]>([])
   const [subagents, setSubagents] = useState<Process[]>([])
   const [resolveTick, setResolveTick] = useState(0)
@@ -286,7 +288,7 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
       } else if (sessionId) {
         await resumeCcsSession(sessionId, text, ccsCwd || '.')
       } else {
-        throw new Error('No active run or session to continue')
+        throw new Error(t('ccsStream.stream.errors.noActiveRun'))
       }
       setManualInput('')
     } catch (e) {
@@ -294,7 +296,7 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
         ? e
         : e && typeof e === 'object' && 'message' in e && typeof (e as { message?: unknown }).message === 'string'
           ? (e as { message: string }).message
-          : 'Failed to send message'
+          : t('ccsStream.stream.errors.failedToSend')
       setManualError(message)
     } finally {
       setSendingManual(false)
@@ -312,8 +314,8 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
         {items.length === 0 && (
           <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
             {sessionLogPath
-              ? 'Waiting for session output...'
-              : 'Start a CCS run to see stream output here.'}
+              ? t('ccsStream.stream.waitingForOutput')
+              : t('ccsStream.stream.emptyState')}
           </div>
         )}
         {items.map((item) =>
@@ -356,7 +358,7 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
                 void handleManualSend()
               }
             }}
-            placeholder="Reply to assistant... (Cmd/Ctrl + Enter to send)"
+            placeholder={t('ccsStream.stream.replyPlaceholder')}
             className="flex-1 min-h-[72px] max-h-[200px]"
             disabled={!canSendManual || sendingManual}
           />
@@ -365,21 +367,21 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
             onClick={() => void handleManualSend()}
             disabled={!canSendManual || sendingManual || manualInput.trim().length === 0}
           >
-            {sendingManual ? 'Sending...' : 'Send'}
+            {sendingManual ? t('ccsStream.stream.sending') : t('ccsStream.stream.send')}
           </Button>
         </div>
         {manualError && <p className="text-xs text-destructive">{manualError}</p>}
         <div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2 text-[10px]">
-          <div className="mb-1 font-medium text-foreground">Session JSONL paths</div>
+          <div className="mb-1 font-medium text-foreground">{t('ccsStream.stream.sessionJsonlPaths')}</div>
           <div className="flex items-start gap-2">
-            <span className="shrink-0 text-muted-foreground">Main:</span>
+            <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.main')}</span>
             <span className="font-mono break-all text-foreground" title={sessionLogPath ?? undefined}>
               {sessionLogPath ?? '-'}
             </span>
           </div>
           <div className="mt-1 flex items-start gap-2">
             <span className="shrink-0 text-muted-foreground">
-              Sub-agent ({subagentSessionPaths.length}):
+              {t('ccsStream.stream.subagent')} ({subagentSessionPaths.length}):
             </span>
             {subagentSessionPaths.length === 0 ? (
               <span className="font-mono text-foreground">-</span>
@@ -390,7 +392,7 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
             )}
           </div>
           <div className="mt-1 flex items-start gap-2">
-            <span className="shrink-0 text-muted-foreground">Sub-agent scan dir:</span>
+            <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.subagentScanDir')}</span>
             <span className="font-mono break-all text-foreground" title={subagentScanDir}>
               {subagentScanDir ?? '-'}
             </span>

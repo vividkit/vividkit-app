@@ -1,25 +1,52 @@
 import { useNavigate } from 'react-router-dom'
 import { Lightbulb, ListTodo, Layers, GitBranch, ArrowRight, FlameKindling } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 
-const ACTIONS = [
-  { label: 'Brainstorm', desc: 'Generate ideas with AI', icon: Lightbulb, to: '/brainstorm' },
-  { label: 'Tasks', desc: 'View and manage tasks', icon: ListTodo, to: '/tasks' },
-  { label: 'Cook', desc: 'Start a cook session', icon: FlameKindling, to: '/tasks' },
-  { label: 'Decks', desc: 'Manage project decks', icon: Layers, to: '/decks' },
-  { label: 'Worktrees', desc: 'Manage git worktrees', icon: GitBranch, to: '/worktrees' },
-]
-
 export function QuickActions() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const actions = [
+    {
+      label: t('dashboard.quickActions.items.brainstorm.label'),
+      desc: t('dashboard.quickActions.items.brainstorm.desc'),
+      icon: Lightbulb,
+      to: '/brainstorm',
+    },
+    {
+      label: t('dashboard.quickActions.items.tasks.label'),
+      desc: t('dashboard.quickActions.items.tasks.desc'),
+      icon: ListTodo,
+      to: '/tasks',
+    },
+    {
+      label: t('dashboard.quickActions.items.cook.label'),
+      desc: t('dashboard.quickActions.items.cook.desc'),
+      icon: FlameKindling,
+      to: '/tasks',
+    },
+    {
+      label: t('dashboard.quickActions.items.decks.label'),
+      desc: t('dashboard.quickActions.items.decks.desc'),
+      icon: Layers,
+      to: '/decks',
+    },
+    {
+      label: t('dashboard.quickActions.items.worktrees.label'),
+      desc: t('dashboard.quickActions.items.worktrees.desc'),
+      icon: GitBranch,
+      to: '/worktrees',
+    },
+  ]
 
   return (
     <div>
       <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-        Quick Actions
+        {t('dashboard.quickActions.title')}
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-        {ACTIONS.map(({ label, desc, icon: Icon, to }) => (
+        {actions.map(({ label, desc, icon: Icon, to }) => (
           <Card
             key={label}
             className="cursor-pointer hover:border-primary/40 transition-colors"

@@ -4,6 +4,7 @@ import {
   Loader2,
   CheckCircle2,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Process } from '@/types/subagent'
 import { getSubagentTypeColorSet, getTeamColorSet } from '@/lib/team-colors'
 import { tailPathSegments } from '@/lib/session-path-utils'
@@ -21,10 +22,11 @@ function formatDuration(ms: number): string {
 }
 
 export function SubagentItem({ subagent, defaultExpanded = false }: Props) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(defaultExpanded)
 
-  const description = subagent.description ?? 'Subagent execution'
-  const subagentType = subagent.subagentType ?? 'Task'
+  const description = subagent.description ?? t('ccsStream.subagent.defaultDescription')
+  const subagentType = subagent.subagentType ?? t('ccsStream.subagent.defaultType')
   const truncatedDesc = description.length > 80 ? description.slice(0, 80) + '...' : description
 
   const teamColors = subagent.team ? getTeamColorSet(subagent.team.memberColor) : null
@@ -69,7 +71,7 @@ export function SubagentItem({ subagent, defaultExpanded = false }: Props) {
         >
           {subagent.team.memberName}
         </span>
-        <span className="text-muted-foreground">Shutdown confirmed</span>
+        <span className="text-muted-foreground">{t('ccsStream.subagent.shutdownConfirmed')}</span>
       </div>
     )
   }
@@ -106,7 +108,7 @@ export function SubagentItem({ subagent, defaultExpanded = false }: Props) {
             className="max-w-[240px] shrink-0 truncate rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
             title={sessionLogPath}
           >
-            log: {compactSessionLogPath}
+            {t('ccsStream.subagent.logPrefix')} {compactSessionLogPath}
           </span>
         )}
 
@@ -122,13 +124,13 @@ export function SubagentItem({ subagent, defaultExpanded = false }: Props) {
 
         {toolCount > 0 && !expanded && (
           <span className="shrink-0 text-[10px] text-muted-foreground">
-            {toolCount} tools
+            {t('ccsStream.subagent.toolsCount', { count: toolCount })}
           </span>
         )}
 
         {subagent.isParallel && (
           <span className="shrink-0 rounded bg-warning/20 px-1 py-0.5 text-[9px] font-medium text-warning">
-            parallel
+            {t('ccsStream.subagent.parallel')}
           </span>
         )}
       </button>
@@ -137,7 +139,7 @@ export function SubagentItem({ subagent, defaultExpanded = false }: Props) {
         <div className="border-t border-border bg-muted/10 p-3">
           {sessionLogPath && (
             <div className="mb-2 rounded border border-border/60 bg-background/70 px-2 py-1.5 text-[10px]">
-              <span className="mr-1 text-muted-foreground">Session log:</span>
+              <span className="mr-1 text-muted-foreground">{t('ccsStream.subagent.sessionLog')}</span>
               <span
                 className={`font-mono ${isOngoing ? 'text-warning' : 'text-foreground'}`}
                 title={sessionLogPath}

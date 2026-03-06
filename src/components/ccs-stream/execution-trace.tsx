@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ChevronRight, FileText, MessageSquareText } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { SubagentMessage, SubagentToolCall } from '@/types/subagent'
@@ -17,6 +18,7 @@ function createTextPreview(text: string, maxChars = 140): string {
 }
 
 function OutputDetailItem({ text }: { text: string }) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   const preview = useMemo(() => createTextPreview(text), [text])
   if (!preview) return null
@@ -28,7 +30,7 @@ function OutputDetailItem({ text }: { text: string }) {
         className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35"
       >
         <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="shrink-0 text-xs font-semibold text-foreground">Output</span>
+        <span className="shrink-0 text-xs font-semibold text-foreground">{t('common.labels.output')}</span>
         <span className="shrink-0 text-xs text-muted-foreground">-</span>
         <span className="flex-1 truncate text-xs text-muted-foreground">{preview}</span>
         <ChevronRight
@@ -51,8 +53,10 @@ function OutputDetailItem({ text }: { text: string }) {
 }
 
 export function ExecutionTrace({ messages, hideTextRows = false }: Props) {
+  const { t } = useTranslation()
+
   if (messages.length === 0) {
-    return <div className="text-xs text-muted-foreground">No execution trace available</div>
+    return <div className="text-xs text-muted-foreground">{t('common.messages.noExecutionTrace')}</div>
   }
 
   return (

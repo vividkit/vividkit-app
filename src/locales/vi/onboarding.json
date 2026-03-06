@@ -1,0 +1,53 @@
+{
+  "steps": {
+    "welcome": "Chào mừng",
+    "gitSetup": "Thiết lập Git",
+    "aiTools": "Công cụ AI",
+    "projectSetup": "Thiết lập dự án"
+  },
+  "progress": {
+    "setupWizard": "Trình thiết lập"
+  },
+  "welcome": {
+    "title": "Chào mừng đến với VividKit",
+    "description": "Trợ lý AI cho solo developer. Thiết lập nhanh chỉ với vài bước.",
+    "getStarted": "Bắt đầu"
+  },
+  "gitSetup": {
+    "title": "Thiết lập Git",
+    "description": "Chọn cách kết nối dự án của bạn",
+    "localRepository": "Kho cục bộ",
+    "localRepositoryDesc": "Dùng dự án có sẵn trên máy",
+    "cloneRepository": "Clone kho",
+    "cloneRepositoryDesc": "Clone kho Git từ xa",
+    "projectPath": "Đường dẫn dự án",
+    "repositoryUrl": "URL kho",
+    "destinationPath": "Đường dẫn đích",
+    "projectPathPlaceholder": "/Users/you/my-project",
+    "repositoryUrlPlaceholder": "https://github.com/user/repo.git",
+    "destinationPathPlaceholder": "/Users/you/projects"
+  },
+  "aiTools": {
+    "title": "Công cụ AI",
+    "description": "Phát hiện công cụ AI và tài khoản đã cài",
+    "detect": "Phát hiện công cụ AI",
+    "claudeCode": "Claude Code",
+    "ccs": "CCS (Claude Code Switcher)",
+    "authenticated": "v1.0.0 · Đã xác thực",
+    "active": "Đang hoạt động",
+    "paused": "Tạm dừng"
+  },
+  "projectSetup": {
+    "title": "Thiết lập dự án",
+    "description": "Đặt tên dự án và khởi chạy VividKit",
+    "summary": "Tóm tắt",
+    "projectName": "Tên dự án",
+    "projectNamePlaceholder": "Ứng dụng tuyệt vời của tôi",
+    "summaryLabel": "Tóm tắt",
+    "summaryPlaceholder": "Mô tả ngắn về dự án...",
+    "launch": "Khởi chạy VividKit"
+  },
+  "defaults": {
+    "myProject": "Dự án của tôi"
+  }
+}

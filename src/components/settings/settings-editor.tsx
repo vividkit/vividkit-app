@@ -1,4 +1,5 @@
 import { Palette, Save, Type } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -10,6 +11,7 @@ type FontSize = AppSettings['fontSize']
 type Theme = AppSettings['theme']
 
 export function SettingsEditor() {
+  const { t } = useTranslation()
   const { settings, updateSettings } = useSettingsStore()
   const { updateTheme } = useTheme()
 
@@ -19,16 +21,16 @@ export function SettingsEditor() {
         <CardContent className="p-4 flex items-center gap-4">
           <Palette className="size-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Theme</p>
-            <p className="text-xs text-muted-foreground">App color scheme</p>
+            <p className="text-sm font-medium">{t('settings.editor.theme')}</p>
+            <p className="text-xs text-muted-foreground">{t('settings.editor.themeDescription')}</p>
           </div>
           <Select value={settings.theme} onValueChange={(v) => updateTheme(v as Theme)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="light">{t('settings.editor.light')}</SelectItem>
+              <SelectItem value="dark">{t('settings.editor.dark')}</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -37,8 +39,8 @@ export function SettingsEditor() {
         <CardContent className="p-4 flex items-center gap-4">
           <Save className="size-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Auto-save</p>
-            <p className="text-xs text-muted-foreground">Automatically save file changes</p>
+            <p className="text-sm font-medium">{t('settings.editor.autoSave')}</p>
+            <p className="text-xs text-muted-foreground">{t('settings.editor.autoSaveDescription')}</p>
           </div>
           <Switch
             checked={settings.autoSave}
@@ -50,8 +52,8 @@ export function SettingsEditor() {
         <CardContent className="p-4 flex items-center gap-4">
           <Type className="size-5 text-muted-foreground shrink-0" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Font Size</p>
-            <p className="text-xs text-muted-foreground">Editor and terminal font size</p>
+            <p className="text-sm font-medium">{t('settings.editor.fontSize')}</p>
+            <p className="text-xs text-muted-foreground">{t('settings.editor.fontSizeDescription')}</p>
           </div>
           <Select
             value={String(settings.fontSize)}
