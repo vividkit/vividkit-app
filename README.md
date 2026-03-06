@@ -76,10 +76,14 @@ src-tauri/src/
 | Module | Directory | Purpose |
 |--------|-----------|---------|
 | Onboarding | `src/components/onboarding/` | 4-step wizard: Welcome, Git, AI Tools, Project |
+| Dashboard | `src/pages/` | Stats + quick actions |
 | Project Deck | `src/components/decks/` | Project cards, deck management |
-| Brainstorm | `src/components/brainstorm/` | AI ideation, insights, report generation |
+| Brainstorm | `src/components/brainstorm/` | AI ideation via StreamView, insights, report generation |
+| Plans | `src/components/plans/` | Plan generation, AI validation, red-team scan |
 | Tasks | `src/components/tasks/` | Kanban board (Backlog/Todo/In Progress/Done) |
-| Cook + Worktree | `src/components/cook/` | Terminal, git worktree lifecycle |
+| Cook | `src/components/cook/` | StreamView session runner per task |
+| Worktrees | `src/components/worktree/` | Git worktree lifecycle (create, merge, cleanup) |
+| Settings | `src/components/settings/` | CCS profiles, app configuration |
 
 ## Docs
 
@@ -92,4 +96,4 @@ src-tauri/src/
 
 ## License
 
-Private — not open source.
+MIT
