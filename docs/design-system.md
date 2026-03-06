@@ -43,7 +43,8 @@ Applies to all UI changes in:
 ## 4) Components + interactions
 
 - Prefer shadcn/ui primitives:
-  - `Card`, `Button`, `Badge`, `Dialog`, `Sheet`, `Tabs`, `Select`, `Input`, `Textarea`, `Switch`, `Checkbox`, `RadioGroup`, `Progress`, `Skeleton`, `Tooltip`, `DropdownMenu`, `ScrollArea`
+  - **Installed:** `Avatar`, `Badge`, `Button`, `Card`, `Dialog`, `Input`, `Progress`, `RadioGroup`, `Select`, `Separator`, `Sheet`, `Switch`, `Tabs`, `Textarea`, `Tooltip`
+  - **Install on demand:** `Checkbox`, `Skeleton`, `DropdownMenu`, `ScrollArea`
 - Card states:
   - Hover: `hover:border-primary/30 hover:shadow-md transition-all`
   - Active: `border-primary shadow-md`

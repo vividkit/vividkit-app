@@ -15,7 +15,7 @@ export function StepWelcome({ onNext }: StepWelcomeProps) {
         <Sparkles className="size-8 text-primary-foreground" />
       </div>
       <div>
-        <h1 className="text-3xl font-bold text-foreground">{t('onboarding.welcome.title')}</h1>
+        <h1 className="text-xl font-semibold text-foreground">{t('onboarding.welcome.title')}</h1>
         <p className="mt-3 text-muted-foreground leading-relaxed">
           {t('onboarding.welcome.description')}
         </p>

@@ -36,17 +36,20 @@ export function TaskToolbar({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         {/* View toggle */}
-        <div className="flex rounded-md border border-border overflow-hidden">
+        <div className="flex rounded-lg border bg-muted/50 p-0.5">
           {(['list', 'kanban'] as TaskView[]).map((v) => (
-            <Button
+            <button
               key={v}
-              variant="ghost"
-              size="sm"
-              className={cn('rounded-none h-8 px-3', view === v && 'bg-accent text-accent-foreground')}
+              className={cn(
+                'rounded-md h-7 px-3 text-sm transition-all',
+                view === v
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
               onClick={() => onViewChange(v)}
             >
               {v === 'list' ? <List className="size-3.5" /> : <LayoutGrid className="size-3.5" />}
-            </Button>
+            </button>
           ))}
         </div>
 

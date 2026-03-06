@@ -34,7 +34,7 @@ export function StatsCards() {
           <CardContent className="p-4 flex items-center gap-3">
             <div className={cn('shrink-0', colorClass)}>{icon}</div>
             <div>
-              <p className="text-2xl font-bold">{value}</p>
+              <p className="text-lg font-semibold">{value}</p>
               <p className="text-xs text-muted-foreground">{label}</p>
             </div>
           </CardContent>

@@ -21,7 +21,7 @@ export function StepProjectSetup({ state, patch, onBack, onFinish }: StepProject
   return (
     <div className="max-w-lg w-full space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground">{t('onboarding.projectSetup.title')}</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t('onboarding.projectSetup.title')}</h2>
         <p className="text-muted-foreground mt-1">{t('onboarding.projectSetup.description')}</p>
       </div>
 
