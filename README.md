@@ -12,8 +12,7 @@ VividKit wraps [Claude Code](https://claude.ai/code) and [CCS (Claude Code Switc
 - **Manage projects** — visual project cards, no path wrangling
 - **AI Brainstorm** — ideation sessions with AI, results saved locally
 - **Task board** — Kanban for solo devs, synced with project context
-- **Cook terminal** — PTY terminal running `ccs [profile]` under the hood, with git worktree support
-- **JSONL Stream View** — structured rendering of AI sessions (thinking blocks, tool calls, responses)
+- **Cook + StreamView** — JSONL session streaming with structured rendering (thinking blocks, tool calls, responses), git worktree support
 
 Everything runs locally. No cloud sync. No telemetry. API keys stay on your machine.
 
@@ -22,9 +21,9 @@ Everything runs locally. No cloud sync. No telemetry. API keys stay on your mach
 ```
 User clicks UI
   -> Zustand action -> invoke() [Tauri IPC]
-  -> Rust backend spawns PTY process: ccs [profile] [args]
-  -> JSONL session log parsed + streamed to frontend
-  -> StreamView renders structured output (or xterm.js for raw terminal)
+  -> Rust backend spawns CCS process: ccs [profile] [args]
+  -> JSONL session log watched + streamed to frontend via events
+  -> StreamView renders structured output (thinking, tool calls, responses)
 ```
 
 ## Stack
@@ -33,7 +32,6 @@ User clicks UI
 |-------|------|
 | Frontend | React 18, TypeScript, Tailwind v4, shadcn/ui, Zustand |
 | Desktop | Tauri v2, Rust |
-| Terminal | xterm.js + PTY (via Tauri shell plugin) |
 | Stream | JSONL session parser, StreamView components |
 | Storage | SQLite via rusqlite |
 | I18n | react-i18next (vi default, en secondary) |

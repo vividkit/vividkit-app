@@ -4,7 +4,7 @@
 
 **VividKit Desktop** is a GUI companion that makes **Claude Code CLI + CCS (Claude Code Switcher)** accessible to everyone—developers who dislike the terminal and non-technical users alike.
 
-VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI providers (Claude, Gemini, GLM, Kimi, Codex, etc.) without touching a single CLI command. Core mechanic: Rust spawns PTY process `ccs [profile]`, streamed to the frontend via xterm.js terminal emulator.
+VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI providers (Claude, Gemini, GLM, Kimi, Codex, etc.) without touching a single CLI command. Core mechanic: Rust spawns CCS process, watches JSONL session logs, and streams structured output to the frontend via StreamView components.
 
 **Tagline:** *Full Claude Code power without the terminal.*
 
@@ -23,7 +23,7 @@ VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI p
 
 | Prop | Rationale |
 |------|-----------|
-| **Zero terminal required** | Click buttons, use dropdowns; CCS runs invisibly in PTY |
+| **Zero terminal required** | Click buttons, use dropdowns; CCS runs invisibly in background |
 | **10+ AI providers** | One UI, any CCS profile — switch mid-session |
 | **Project-centric** | Organize work by project, deck (organizational unit), task, worktree |
 | **AI ideation built-in** | Brainstorm feature runs CCS, saves insights, generates plans |
@@ -47,8 +47,8 @@ VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI p
 - Deck concept: organizational unit linking project → sessions/plans/tasks
 
 ### 3. Brainstorm
-- Text input → CCS PTY session via xterm.js
-- Captures AI response, saves as insight/report
+- Text input → CCS session via JSONL streaming
+- Captures AI response via StreamView, saves as insight/report
 - Key insights dialog (list, continue session, delete)
 - Plan generation from brainstorm output
 
@@ -56,10 +56,10 @@ VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI p
 - Kanban board (Backlog → Todo → In Progress → Done)
 - List view with search/filter
 - Task CRUD (create, update status, priority, delete)
-- Cook integration: spawn xterm.js terminal for each task
+- Cook integration: spawn CCS session with StreamView for each task
 
 ### 5. Cook + Worktree
-- Standalone terminal (xterm.js + CCS PTY)
+- CCS session with StreamView (structured JSONL rendering)
 - Git worktree support (create, list, merge, cleanup)
 - Changed files summary on completion
 - Merge strategies: merge, squash, rebase
@@ -73,7 +73,7 @@ VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI p
 | **Offline** | Works without internet (CCS must be installed locally) |
 | **Local-first** | All data on device; no cloud dependencies |
 | **Cross-platform** | macOS, Windows, Linux (via Tauri v2) |
-| **Performance** | App launches in <2s; terminal output streams smoothly |
+| **Performance** | App launches in <2s; JSONL stream renders smoothly |
 | **Storage** | SQLite (bundled, no setup required) |
 | **I18n ready** | Structure for en + vi (expandable) |
 | **Single-user** | No multi-user auth; no concurrent session management |
@@ -84,7 +84,7 @@ VividKit wraps CCS in a polished desktop UI, enabling users to leverage 10+ AI p
 
 | Dependency | Role | Installer |
 |------------|------|-----------|
-| **CCS CLI v7+** | AI provider switcher, PTY spawning | `npm install -g @kaitranntt/ccs` |
+| **CCS CLI v7+** | AI provider switcher, session spawning | `npm install -g @kaitranntt/ccs` |
 | **Claude Code CLI** | Underlying AI sessions (managed by CCS) | `npm install -g claude` |
 | **Git** | Repo operations, worktrees | System package manager |
 | **Node.js 20+** | Frontend build & runtime | https://nodejs.org/ |
@@ -115,9 +115,11 @@ React 18 + TypeScript + Tailwind v4 + shadcn/ui
            ↓
     Rust backend (tokio)
            ↓
-   spawn PTY: ccs [profile]
+   spawn CCS: ccs [profile]
            ↓
-    xterm.js streams output
+    JSONL session log watched + streamed
+           ↓
+    StreamView renders structured output
 ```
 
 ---
@@ -125,7 +127,7 @@ React 18 + TypeScript + Tailwind v4 + shadcn/ui
 ## Success Metrics (MVP)
 
 1. **Usability:** New user onboards and runs first CCS session in <5 min
-2. **Reliability:** Terminal output streams without lag; CCS process kills cleanly
+2. **Reliability:** JSONL stream renders without lag; CCS process kills cleanly
 3. **Coverage:** 13 routes implemented; all module features functioning
 4. **Cross-platform:** App builds and runs on macOS, Windows, Linux
 
@@ -134,7 +136,7 @@ React 18 + TypeScript + Tailwind v4 + shadcn/ui
 ## Known Constraints
 
 - Depends on external CCS CLI being installed and configured
-- PTY support varies by OS (macOS `script` wrapper, Windows `taskkill`, Linux native)
+- JSONL session log path varies by OS; Rust handles cross-platform resolution
 - SQLite bundled with rusqlite (no external DB server)
 - Zustand for state (not Redux) to keep bundle small
 
@@ -158,7 +160,7 @@ React 18 + TypeScript + Tailwind v4 + shadcn/ui
 
 ## Technical Highlights
 
-- **PTY mastery:** Full terminal emulation (not pipe passthrough)
+- **JSONL streaming:** Structured session rendering via StreamView (thinking, tool calls, responses)
 - **Cross-platform paths:** `PathBuf` always, never `/` or `\`
 - **i18n structure:** Ready for locales beyond en/vi
 - **Error boundaries:** Graceful degradation when CCS unavailable
@@ -171,7 +173,7 @@ React 18 + TypeScript + Tailwind v4 + shadcn/ui
 ✓ All 5 modules implemented with full feature sets
 ✓ Onboarding → Brainstorm → Cook workflow executes end-to-end
 ✓ No hardcoded paths; all cross-platform validated
-✓ CCS TTY output renders correctly in xterm.js
+✓ CCS JSONL output renders correctly in StreamView
 ✓ Process stop command kills child within 100ms
 ✓ App bundle <50MB (Tauri v2 typical)
 ✓ Build passes on macOS, Windows, Linux CI
