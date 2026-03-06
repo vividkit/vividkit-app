@@ -1,0 +1,64 @@
+{
+  "toolbar": {
+    "searchPlaceholder": "Search tasks...",
+    "addTask": "Add Task",
+    "filters": {
+      "all": "All",
+      "backlog": "Backlog",
+      "todo": "Todo",
+      "inProgress": "In Progress",
+      "done": "Done"
+    }
+  },
+  "kanban": {
+    "columns": {
+      "backlog": "Backlog",
+      "todo": "Todo",
+      "inProgress": "In Progress",
+      "done": "Done"
+    },
+    "noTasks": "No tasks"
+  },
+  "list": {
+    "planLinked": "Plan linked",
+    "done": "Done",
+    "cook": "Cook",
+    "stop": "Stop",
+    "noTasksFound": "No tasks found.",
+    "noTasksMatching": "No tasks matching \"{{search}}\""
+  },
+  "priorities": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "statuses": {
+    "backlog": "Backlog",
+    "todo": "Todo",
+    "in_progress": "In Progress",
+    "done": "Done"
+  },
+  "addDialog": {
+    "title": "Add Task",
+    "name": "Name",
+    "namePlaceholder": "Task name...",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional description...",
+    "priority": "Priority"
+  },
+  "cookSheet": {
+    "title": "Cooking...",
+    "mergeToMain": "Merge to Main",
+    "terminal": {
+      "creatingWorktree": "$ Creating worktree...",
+      "worktreeCommand": "git worktree add .worktrees/task-branch",
+      "implementingChanges": "Implementing changes...",
+      "writingCode": "> Writing code...",
+      "runningTests": "> Running tests...",
+      "implementationComplete": "✓ Implementation complete!",
+      "filesChanged": "Files changed:",
+      "changedFile1": "  src/components/feature.tsx (+45/-2)",
+      "changedFile2": "  src/stores/feature-store.ts (+12)"
+    }
+  }
+}

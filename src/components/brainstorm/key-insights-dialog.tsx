@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ExternalLink, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useBrainstormStore } from '@/stores/brainstorm-store'
@@ -11,6 +12,7 @@ interface KeyInsightsDialogProps {
 }
 
 export function KeyInsightsDialog({ open, onOpenChange }: KeyInsightsDialogProps) {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { insights } = useBrainstormStore()
   const { activeDeckId } = useDeckStore()
@@ -21,11 +23,11 @@ export function KeyInsightsDialog({ open, onOpenChange }: KeyInsightsDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Key Insights</DialogTitle>
+          <DialogTitle>{t('brainstorm.insightsDialog.title')}</DialogTitle>
         </DialogHeader>
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-8">
-            No insights saved yet for this deck.
+            {t('brainstorm.insightsDialog.empty')}
           </p>
         ) : (
           <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -34,7 +36,7 @@ export function KeyInsightsDialog({ open, onOpenChange }: KeyInsightsDialogProps
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{insight.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(insight.createdAt).toLocaleDateString()}
+                    {new Intl.DateTimeFormat(i18n.language).format(new Date(insight.createdAt))}
                   </p>
                 </div>
                 <Button

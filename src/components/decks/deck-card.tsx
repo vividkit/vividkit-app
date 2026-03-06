@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Lightbulb, ListTodo } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ interface DeckCardProps {
 }
 
 export function DeckCard({ deck, onSelect }: DeckCardProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const tasks = useTaskStore((s) => s.tasks)
   const taskCount = tasks.filter((t) => t.deckId === deck.id).length
@@ -39,7 +41,7 @@ export function DeckCard({ deck, onSelect }: DeckCardProps) {
           </div>
           {deck.isActive && (
             <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">
-              Active
+              {t('pages.decks.activeBadge')}
             </Badge>
           )}
         </div>
@@ -50,7 +52,7 @@ export function DeckCard({ deck, onSelect }: DeckCardProps) {
             className="flex-1 text-xs h-7"
             onClick={() => navigate('/brainstorm')}
           >
-            <Lightbulb className="size-3 mr-1" /> Brainstorm
+            <Lightbulb className="size-3 mr-1" /> {t('pages.decks.actions.brainstorm')}
           </Button>
           <Button
             variant="outline"
@@ -58,7 +60,7 @@ export function DeckCard({ deck, onSelect }: DeckCardProps) {
             className="flex-1 text-xs h-7"
             onClick={() => navigate('/tasks')}
           >
-            <ListTodo className="size-3 mr-1" /> Tasks
+            <ListTodo className="size-3 mr-1" /> {t('pages.decks.actions.tasks')}
             {taskCount > 0 && (
               <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full px-1 leading-none">
                 {taskCount}

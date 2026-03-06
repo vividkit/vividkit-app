@@ -1,0 +1,18 @@
+{
+  "indicator": {
+    "analyzing": "Analyzing brainstorm report...",
+    "generating": "Generating plan structure...",
+    "creatingTasks": "Creating tasks...",
+    "done": "Done!"
+  },
+  "terminal": {
+    "searching": "$ Searching for brainstorm report...",
+    "found": "Found: brainstorm-report.md",
+    "generating": "$ Generating plan structure...",
+    "detected": "Detected 4 phases, 12 tasks",
+    "creating": "$ Creating tasks in workspace...",
+    "created": "Created: task-1.md, task-2.md...",
+    "success": "Plan generated successfully!",
+    "saved": "Plan saved to: plans/mvp-plan.md"
+  }
+}

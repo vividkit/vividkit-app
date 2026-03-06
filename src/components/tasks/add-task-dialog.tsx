@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,7 @@ interface AddTaskDialogProps {
 const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high']
 
 export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
+  const { t } = useTranslation()
   const addTask = useTaskStore((s) => s.addTask)
   const { activeDeckId } = useDeckStore()
   const [name, setName] = useState('')
@@ -43,19 +45,19 @@ export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Task</DialogTitle>
+          <DialogTitle>{t('tasks.addDialog.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name <span className="text-destructive">*</span></label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Task name…" autoFocus />
+            <label className="text-sm font-medium">{t('tasks.addDialog.name')} <span className="text-destructive">*</span></label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('tasks.addDialog.namePlaceholder')} autoFocus />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Description</label>
-            <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Optional description…" rows={2} />
+            <label className="text-sm font-medium text-muted-foreground">{t('tasks.addDialog.description')}</label>
+            <Textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={t('tasks.addDialog.descriptionPlaceholder')} rows={2} />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Priority</label>
+            <label className="text-sm font-medium">{t('tasks.addDialog.priority')}</label>
             <div className="flex gap-2">
               {PRIORITIES.map((p) => (
                 <Button
@@ -63,17 +65,17 @@ export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
                   type="button"
                   variant={priority === p ? 'default' : 'outline'}
                   size="sm"
-                  className="flex-1 capitalize"
+                  className="flex-1"
                   onClick={() => setPriority(p)}
                 >
-                  {p}
+                  {t(`tasks.priorities.${p}`)}
                 </Button>
               ))}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={!name.trim()}>Add Task</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.actions.cancel')}</Button>
+            <Button type="submit" disabled={!name.trim()}>{t('tasks.toolbar.addTask')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

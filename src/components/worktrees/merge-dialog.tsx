@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -13,18 +14,30 @@ interface MergeDialogProps {
   worktree: Worktree
 }
 
-const STRATEGIES: Array<{ value: MergeStrategy; label: string; desc: string }> = [
-  { value: 'merge', label: 'Merge commit', desc: 'Preserves full history (Recommended)' },
-  { value: 'squash', label: 'Squash & merge', desc: 'Combines all commits into one' },
-  { value: 'rebase', label: 'Rebase', desc: 'Applies commits on top of main' },
-]
-
 export function MergeDialog({ open, onOpenChange, worktree }: MergeDialogProps) {
+  const { t } = useTranslation()
   const [strategy, setStrategy] = useState<MergeStrategy>('merge')
   const [runTests, setRunTests] = useState(true)
   const [deleteAfter, setDeleteAfter] = useState(true)
   const updateWorktreeStatus = useWorktreeStore((s) => s.updateStatus)
   const updateTaskStatus = useTaskStore((s) => s.updateStatus)
+  const strategies: Array<{ value: MergeStrategy; label: string; desc: string }> = [
+    {
+      value: 'merge',
+      label: t('worktrees.mergeDialog.strategies.merge.label'),
+      desc: t('worktrees.mergeDialog.strategies.merge.description'),
+    },
+    {
+      value: 'squash',
+      label: t('worktrees.mergeDialog.strategies.squash.label'),
+      desc: t('worktrees.mergeDialog.strategies.squash.description'),
+    },
+    {
+      value: 'rebase',
+      label: t('worktrees.mergeDialog.strategies.rebase.label'),
+      desc: t('worktrees.mergeDialog.strategies.rebase.description'),
+    },
+  ]
 
   function handleMerge() {
     updateWorktreeStatus(worktree.id, 'merged')
@@ -36,13 +49,13 @@ export function MergeDialog({ open, onOpenChange, worktree }: MergeDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Merge to Main</DialogTitle>
+          <DialogTitle>{t('worktrees.mergeDialog.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-5">
           <div className="space-y-2">
-            <p className="text-sm font-medium">Merge Strategy</p>
+            <p className="text-sm font-medium">{t('worktrees.mergeDialog.strategy')}</p>
             <RadioGroup value={strategy} onValueChange={(v) => setStrategy(v as MergeStrategy)} className="space-y-2">
-              {STRATEGIES.map(({ value, label, desc }) => (
+              {strategies.map(({ value, label, desc }) => (
                 <label key={value} className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-accent/50 transition-colors">
                   <RadioGroupItem value={value} className="mt-0.5" />
                   <div>
@@ -54,26 +67,26 @@ export function MergeDialog({ open, onOpenChange, worktree }: MergeDialogProps) 
             </RadioGroup>
           </div>
           <div className="space-y-3">
-            <p className="text-sm font-medium">Options</p>
+            <p className="text-sm font-medium">{t('worktrees.mergeDialog.options')}</p>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm">Run tests before merging</p>
-                <p className="text-xs text-muted-foreground">Ensure all tests pass first</p>
+                <p className="text-sm">{t('worktrees.mergeDialog.runTests')}</p>
+                <p className="text-xs text-muted-foreground">{t('worktrees.mergeDialog.runTestsDescription')}</p>
               </div>
               <Switch checked={runTests} onCheckedChange={setRunTests} />
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm">Delete worktree after merge</p>
-                <p className="text-xs text-muted-foreground">Clean up the worktree branch</p>
+                <p className="text-sm">{t('worktrees.mergeDialog.deleteAfter')}</p>
+                <p className="text-xs text-muted-foreground">{t('worktrees.mergeDialog.deleteAfterDescription')}</p>
               </div>
               <Switch checked={deleteAfter} onCheckedChange={setDeleteAfter} />
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleMerge}>Merge to Main</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('common.actions.cancel')}</Button>
+          <Button onClick={handleMerge}>{t('worktrees.mergeDialog.mergeToMain')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

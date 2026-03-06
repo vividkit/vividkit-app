@@ -1,0 +1,58 @@
+{
+  "deckContext": {
+    "activeDeck": "Deck đang dùng:",
+    "noneSelected": "Chưa chọn",
+    "keyInsights": "Ý chính"
+  },
+  "input": {
+    "placeholder": "Mô tả điều bạn muốn brainstorm..."
+  },
+  "actions": {
+    "viewReport": "Xem báo cáo",
+    "createPlan": "Tạo kế hoạch triển khai",
+    "saveAsInsight": "Lưu làm ý chính",
+    "saved": "Đã lưu!"
+  },
+  "insightsDialog": {
+    "title": "Ý chính",
+    "empty": "Chưa có ý chính nào được lưu cho deck này."
+  },
+  "reportDialog": {
+    "title": "Báo cáo Brainstorm",
+    "readTime": "Đọc trong 5 phút",
+    "defaultTitle": "Phiên Brainstorm",
+    "analysisIntro": "Phân tích yêu cầu dự án và gợi ý kiến trúc dựa trên phiên brainstorm.",
+    "phases": "Các pha",
+    "techStack": "Công nghệ",
+    "phaseNames": {
+      "coreArchitecture": "Kiến trúc lõi",
+      "uiComponents": "Thành phần UI",
+      "aiIntegration": "Tích hợp AI",
+      "testingStrategy": "Chiến lược kiểm thử"
+    },
+    "phaseDescription": "Chi tiết triển khai và lưu ý cho {{phase}}."
+  },
+  "reportPage": {
+    "insights": {
+      "architecture": {
+        "title": "Kiến trúc",
+        "desc": "Thiết kế component mô-đun với phân tách trách nhiệm rõ ràng"
+      },
+      "performance": {
+        "title": "Hiệu năng",
+        "desc": "Lazy loading và memoization để tối ưu render"
+      },
+      "security": {
+        "title": "Bảo mật",
+        "desc": "Toàn bộ gọi AI đi qua Rust backend, không lộ key phía client"
+      }
+    },
+    "actionItems": {
+      "item1": "Thiết lập cấu trúc dự án Tauri v2 và plugin",
+      "item2": "Triển khai Zustand store cho toàn bộ domain",
+      "item3": "Xây dựng component terminal xterm.js với dispose đúng cách",
+      "item4": "Tạo layout React Router với lazy-loaded pages",
+      "item5": "Kết nối Rust commands để quản lý subprocess CCS"
+    }
+  }
+}

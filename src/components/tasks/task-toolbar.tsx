@@ -1,4 +1,5 @@
 import { List, LayoutGrid, Search, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -6,13 +7,7 @@ import type { TaskStatus } from '@/types'
 
 export type TaskView = 'list' | 'kanban'
 
-const STATUS_FILTERS: Array<{ value: TaskStatus | 'all'; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: 'backlog', label: 'Backlog' },
-  { value: 'todo', label: 'Todo' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'done', label: 'Done' },
-]
+const STATUS_FILTERS: Array<TaskStatus | 'all'> = ['all', 'backlog', 'todo', 'in_progress', 'done']
 
 interface TaskToolbarProps {
   view: TaskView
@@ -27,6 +22,16 @@ interface TaskToolbarProps {
 export function TaskToolbar({
   view, onViewChange, search, onSearchChange, statusFilter, onStatusFilterChange, onAddTask,
 }: TaskToolbarProps) {
+  const { t } = useTranslation()
+
+  const labelForStatus = (value: TaskStatus | 'all') => {
+    if (value === 'all') return t('tasks.toolbar.filters.all')
+    if (value === 'backlog') return t('tasks.toolbar.filters.backlog')
+    if (value === 'todo') return t('tasks.toolbar.filters.todo')
+    if (value === 'in_progress') return t('tasks.toolbar.filters.inProgress')
+    return t('tasks.toolbar.filters.done')
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -51,21 +56,21 @@ export function TaskToolbar({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search tasks…"
+            placeholder={t('tasks.toolbar.searchPlaceholder')}
             className="pl-8 h-8 text-sm"
           />
         </div>
 
         <div className="flex-1" />
         <Button size="sm" onClick={onAddTask}>
-          <Plus className="size-4 mr-1" /> Add Task
+          <Plus className="size-4 mr-1" /> {t('tasks.toolbar.addTask')}
         </Button>
       </div>
 
       {/* Status filter (list only) */}
       {view === 'list' && (
         <div className="flex gap-1 flex-wrap">
-          {STATUS_FILTERS.map(({ value, label }) => (
+          {STATUS_FILTERS.map((value) => (
             <Button
               key={value}
               variant={statusFilter === value ? 'default' : 'outline'}
@@ -73,7 +78,7 @@ export function TaskToolbar({
               className="h-7 text-xs"
               onClick={() => onStatusFilterChange(value)}
             >
-              {label}
+              {labelForStatus(value)}
             </Button>
           ))}
         </div>

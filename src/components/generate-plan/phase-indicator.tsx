@@ -1,21 +1,23 @@
 import { Loader2, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-
-const PHASES = [
-  'Analyzing brainstorm report...',
-  'Generating plan structure...',
-  'Creating tasks...',
-  'Done!',
-]
 
 interface PhaseIndicatorProps {
   currentPhase: number
 }
 
 export function PhaseIndicator({ currentPhase }: PhaseIndicatorProps) {
+  const { t } = useTranslation()
+  const phases = [
+    t('generatePlan.indicator.analyzing'),
+    t('generatePlan.indicator.generating'),
+    t('generatePlan.indicator.creatingTasks'),
+    t('generatePlan.indicator.done'),
+  ]
+
   return (
     <div className="space-y-2">
-      {PHASES.map((label, i) => {
+      {phases.map((label, i) => {
         const done = i < currentPhase
         const active = i === currentPhase
 

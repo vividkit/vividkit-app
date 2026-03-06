@@ -1,4 +1,5 @@
 import { GitBranch, Clock, Eye, Pause, Square } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ interface WorktreeCardActiveProps {
 }
 
 export function WorktreeCardActive({ worktree }: WorktreeCardActiveProps) {
+  const { t } = useTranslation()
   const updateStatus = useWorktreeStore((s) => s.updateStatus)
 
   return (
@@ -19,24 +21,24 @@ export function WorktreeCardActive({ worktree }: WorktreeCardActiveProps) {
           <div className="size-8 rounded-full bg-primary flex items-center justify-center shrink-0">
             <GitBranch className="size-4 text-primary-foreground" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-mono font-medium truncate">{worktree.branch}</p>
-            <p className="text-xs text-muted-foreground">{worktree.filesChanged} files changed</p>
-          </div>
-          <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">Active</Badge>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-mono font-medium truncate">{worktree.branch}</p>
+              <p className="text-xs text-muted-foreground">{t('worktrees.card.filesChanged', { count: worktree.filesChanged })}</p>
+            </div>
+          <Badge variant="secondary" className="bg-success/10 text-success text-xs shrink-0">{t('worktrees.card.activeBadge')}</Badge>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Clock className="size-3" /> Cooking in progress…
+          <Clock className="size-3" /> {t('worktrees.card.cooking')}
         </div>
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button variant="outline" size="sm" className="text-xs h-7">
-            <Eye className="size-3 mr-1" /> View Files
+            <Eye className="size-3 mr-1" /> {t('worktrees.card.viewFiles')}
           </Button>
           <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => updateStatus(worktree.id, 'ready')}>
-            <Pause className="size-3 mr-1" /> Pause
+            <Pause className="size-3 mr-1" /> {t('worktrees.card.pause')}
           </Button>
           <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => updateStatus(worktree.id, 'ready')}>
-            <Square className="size-3 mr-1" /> Stop
+            <Square className="size-3 mr-1" /> {t('worktrees.card.stop')}
           </Button>
         </div>
       </CardContent>

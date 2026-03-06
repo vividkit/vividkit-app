@@ -5,6 +5,22 @@ import { XIcon } from "lucide-react"
 import { Dialog as SheetPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import i18n from "@/i18n/i18n"
+
+function useCloseLabel(): string {
+  React.useSyncExternalStore(
+    (onStoreChange) => {
+      i18n.on('languageChanged', onStoreChange)
+      return () => {
+        i18n.off('languageChanged', onStoreChange)
+      }
+    },
+    () => i18n.resolvedLanguage ?? i18n.language,
+    () => i18n.resolvedLanguage ?? i18n.language,
+  )
+
+  return i18n.t('common.actions.close')
+}
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -54,6 +70,8 @@ function SheetContent({
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const closeLabel = useCloseLabel()
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -77,7 +95,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
             <XIcon className="size-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{closeLabel}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Content>

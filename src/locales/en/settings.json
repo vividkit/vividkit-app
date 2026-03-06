@@ -1,0 +1,53 @@
+{
+  "general": {
+    "language": "Language",
+    "languageDescription": "Interface display language",
+    "english": "English",
+    "vietnamese": "Vietnamese"
+  },
+  "aiCommands": {
+    "providersTitle": "AI Providers",
+    "emptyAccountsPrefix": "No CCS accounts connected. Run",
+    "emptyAccountsSuffix": "to set up accounts.",
+    "mappingTitle": "Command -> Provider Mapping",
+    "commands": {
+      "plan": "Generate implementation plans",
+      "brainstorm": "AI-assisted ideation sessions",
+      "cook": "Execute coding tasks",
+      "review": "Code review and analysis",
+      "test": "Test generation and execution"
+    }
+  },
+  "git": {
+    "defaultBranch": "Default Branch",
+    "defaultBranchDescription": "Branch used for new commits",
+    "defaultBranchPlaceholder": "main",
+    "worktreesDirectory": "Worktrees Directory",
+    "worktreesDirectoryDescription": "Base path for git worktrees",
+    "worktreesDirectoryPlaceholder": ".worktrees"
+  },
+  "editor": {
+    "theme": "Theme",
+    "themeDescription": "App color scheme",
+    "light": "Light",
+    "dark": "Dark",
+    "autoSave": "Auto-save",
+    "autoSaveDescription": "Automatically save file changes",
+    "fontSize": "Font Size",
+    "fontSizeDescription": "Editor and terminal font size"
+  },
+  "ccsAccount": {
+    "active": "Active",
+    "paused": "Paused",
+    "exhausted": "Exhausted"
+  },
+  "ccsTest": {
+    "profile": "Profile",
+    "command": "Command",
+    "cwd": "CWD",
+    "commandPlaceholder": "e.g. /ck:brainstorm ...",
+    "cwdPlaceholder": "/path/to/project",
+    "stopping": "Stopping...",
+    "exit": "exit {{code}}"
+  }
+}

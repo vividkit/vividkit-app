@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle, Loader2, Circle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useTaskStore } from '@/stores/task-store'
@@ -26,6 +27,7 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 }
 
 export function RelatedTasks({ planId, isNew }: RelatedTasksProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const tasks = useTaskStore((s) => s.tasks)
   const [ready, setReady] = useState(!isNew)
@@ -49,7 +51,7 @@ export function RelatedTasks({ planId, isNew }: RelatedTasksProps) {
   }
 
   if (planTasks.length === 0) {
-    return <p className="text-sm text-muted-foreground">No tasks linked to this plan.</p>
+    return <p className="text-sm text-muted-foreground">{t('plans.relatedTasks.empty')}</p>
   }
 
   return (
@@ -63,10 +65,12 @@ export function RelatedTasks({ planId, isNew }: RelatedTasksProps) {
             </p>
             {task.description && <p className="text-xs text-muted-foreground truncate">{task.description}</p>}
           </div>
-          <Badge variant="secondary" className={cn('text-xs shrink-0', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>{task.status}</Badge>
+          <Badge variant="secondary" className={cn('text-xs shrink-0', STATUS_BADGE_CLASS[task.status] ?? STATUS_BADGE_CLASS.backlog)}>
+            {t(`tasks.statuses.${task.status}`)}
+          </Badge>
           {(task.status as string) === 'in_progress' && (
             <Button size="sm" variant="outline" className="text-xs h-7 shrink-0" onClick={() => navigate(`/cook/${task.id}`)}>
-              Cook
+              {t('plans.relatedTasks.cook')}
             </Button>
           )}
         </div>

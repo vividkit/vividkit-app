@@ -1,0 +1,53 @@
+{
+  "steps": {
+    "welcome": "Welcome",
+    "gitSetup": "Git Setup",
+    "aiTools": "AI Tools",
+    "projectSetup": "Project Setup"
+  },
+  "progress": {
+    "setupWizard": "Setup Wizard"
+  },
+  "welcome": {
+    "title": "Welcome to VividKit",
+    "description": "Your AI-powered solo developer companion. Let's get you set up in just a few steps.",
+    "getStarted": "Get Started"
+  },
+  "gitSetup": {
+    "title": "Git Setup",
+    "description": "Choose how to connect your project",
+    "localRepository": "Local Repository",
+    "localRepositoryDesc": "Use an existing project on your machine",
+    "cloneRepository": "Clone Repository",
+    "cloneRepositoryDesc": "Clone a remote Git repository",
+    "projectPath": "Project Path",
+    "repositoryUrl": "Repository URL",
+    "destinationPath": "Destination Path",
+    "projectPathPlaceholder": "/Users/you/my-project",
+    "repositoryUrlPlaceholder": "https://github.com/user/repo.git",
+    "destinationPathPlaceholder": "/Users/you/projects"
+  },
+  "aiTools": {
+    "title": "AI Tools",
+    "description": "Detect your installed AI tools and accounts",
+    "detect": "Detect AI Tools",
+    "claudeCode": "Claude Code",
+    "ccs": "CCS (Claude Code Switcher)",
+    "authenticated": "v1.0.0 · Authenticated",
+    "active": "Active",
+    "paused": "Paused"
+  },
+  "projectSetup": {
+    "title": "Project Setup",
+    "description": "Name your project and launch VividKit",
+    "summary": "Summary",
+    "projectName": "Project Name",
+    "projectNamePlaceholder": "My Awesome App",
+    "summaryLabel": "Summary",
+    "summaryPlaceholder": "Brief description of this project...",
+    "launch": "Launch VividKit"
+  },
+  "defaults": {
+    "myProject": "My Project"
+  }
+}

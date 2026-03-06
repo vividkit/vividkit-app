@@ -1,0 +1,87 @@
+{
+  "dashboard": {
+    "title": "Tổng quan",
+    "subtitleActiveDeck": "Deck đang dùng: {{name}}"
+  },
+  "decks": {
+    "title": "Deck",
+    "subtitle": "Chọn hoặc tạo deck để tổ chức công việc",
+    "newDeck": "Deck mới",
+    "empty": "Chưa có deck nào. Hãy tạo deck đầu tiên để bắt đầu.",
+    "activeBadge": "Đang hoạt động",
+    "actions": {
+      "brainstorm": "Brainstorm",
+      "tasks": "Công việc"
+    },
+    "createDialog": {
+      "title": "Tạo deck mới",
+      "name": "Tên deck",
+      "namePlaceholder": "vd: MVP Sprint",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả ngắn...",
+      "createButton": "Tạo deck"
+    }
+  },
+  "tasks": {
+    "title": "Công việc",
+    "subtitleTotal": "{{count}} công việc"
+  },
+  "plans": {
+    "title": "Kế hoạch",
+    "subtitle": "Kế hoạch triển khai được tạo từ phiên brainstorm",
+    "createNew": "Tạo kế hoạch mới"
+  },
+  "planReview": {
+    "notFoundTitle": "Không tìm thấy kế hoạch",
+    "notFoundText": "Không tìm thấy kế hoạch.",
+    "backToPlans": "Quay lại danh sách kế hoạch",
+    "plans": "Kế hoạch",
+    "relatedTasks": "Công việc liên quan",
+    "cookPlan": "Cook kế hoạch",
+    "createdMeta": "Tạo ngày {{date}} · {{count}} pha",
+    "phaseProgress": "{{completed}}/{{total}} pha đã hoàn thành ({{pct}}%)"
+  },
+  "generatePlan": {
+    "title": "Tạo kế hoạch",
+    "subtitle": "AI đang tạo kế hoạch triển khai...",
+    "viewPlan": "Xem kế hoạch",
+    "goToTasks": "Đi tới công việc",
+    "generatedPlanName": "Kế hoạch đã tạo",
+    "generatedPhaseName": "Pha {{index}}",
+    "generatedTaskName": "Công việc sinh tự động {{index}}"
+  },
+  "brainstorm": {
+    "title": "Brainstorm"
+  },
+  "brainstormReport": {
+    "title": "Báo cáo Brainstorm",
+    "subtitleSession": "Phiên #{{id}}",
+    "back": "Quay lại",
+    "keyInsights": "Ý chính",
+    "actionItems": "Hạng mục hành động"
+  },
+  "worktrees": {
+    "title": "Worktree",
+    "subtitleTotal": "Tổng {{count}}",
+    "empty": "Chưa có worktree. Hãy cook một task để tạo worktree đầu tiên."
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "tabs": {
+      "general": "Chung",
+      "aiCommands": "AI & Lệnh",
+      "git": "Git",
+      "editor": "Trình soạn thảo"
+    }
+  },
+  "ccsTest": {
+    "title": "CCS Test Console",
+    "subtitle": "Công cụ dev - kiểm tra subprocess ccs và luồng output"
+  },
+  "newProject": {
+    "title": "Dự án mới"
+  },
+  "cook": {
+    "sessionTitle": "Phiên Cook"
+  }
+}

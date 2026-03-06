@@ -1,0 +1,23 @@
+{
+  "main": {
+    "dashboard": "Dashboard",
+    "brainstorm": "Brainstorm",
+    "tasks": "Tasks",
+    "plans": "Plans",
+    "decks": "Decks",
+    "worktrees": "Worktrees"
+  },
+  "bottom": {
+    "settings": "Settings",
+    "devConsole": "Dev Console"
+  },
+  "sidebar": {
+    "noProject": "No Project",
+    "selectProject": "Select a project",
+    "newProject": "New Project",
+    "expand": "Expand"
+  },
+  "header": {
+    "aiConnected": "AI Connected"
+  }
+}

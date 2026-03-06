@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AppHeader } from '@/components/layout'
 import { TaskToolbar, TaskListView, TaskKanbanView, AddTaskDialog, TaskCookSheet } from '@/components/tasks'
 import { useTaskStore } from '@/stores/task-store'
@@ -6,6 +7,7 @@ import type { Task, TaskStatus } from '@/types'
 import type { TaskView } from '@/components/tasks/task-toolbar'
 
 export default function TasksPage() {
+  const { t } = useTranslation()
   const tasks = useTaskStore((s) => s.tasks)
   const [view, setView] = useState<TaskView>('list')
   const [search, setSearch] = useState('')
@@ -15,7 +17,7 @@ export default function TasksPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <AppHeader title="Tasks" subtitle={`${tasks.length} total tasks`} />
+      <AppHeader title={t('pages.tasks.title')} subtitle={t('pages.tasks.subtitleTotal', { count: tasks.length })} />
       <div className="p-6 space-y-4">
         <TaskToolbar
           view={view}

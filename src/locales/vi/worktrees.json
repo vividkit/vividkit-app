@@ -1,0 +1,43 @@
+{
+  "groups": {
+    "active": "Đang hoạt động",
+    "ready": "Sẵn sàng gộp",
+    "merged": "Đã gộp"
+  },
+  "card": {
+    "filesChanged": "{{count}} tệp đã thay đổi",
+    "activeBadge": "Đang hoạt động",
+    "readyBadge": "Sẵn sàng gộp",
+    "mergedBadge": "Đã gộp",
+    "cooking": "Đang cook...",
+    "viewFiles": "Xem tệp",
+    "pause": "Tạm dừng",
+    "stop": "Dừng",
+    "merge": "Gộp",
+    "mergedOn": "Đã gộp {{date}}"
+  },
+  "mergeDialog": {
+    "title": "Gộp vào nhánh chính",
+    "strategy": "Chiến lược gộp",
+    "options": "Tùy chọn",
+    "runTests": "Chạy test trước khi gộp",
+    "runTestsDescription": "Đảm bảo tất cả test đều pass",
+    "deleteAfter": "Xóa worktree sau khi gộp",
+    "deleteAfterDescription": "Dọn dẹp nhánh worktree",
+    "mergeToMain": "Gộp vào nhánh chính",
+    "strategies": {
+      "merge": {
+        "label": "Merge commit",
+        "description": "Giữ toàn bộ lịch sử commit (Khuyến nghị)"
+      },
+      "squash": {
+        "label": "Squash & merge",
+        "description": "Gộp tất cả commit thành một"
+      },
+      "rebase": {
+        "label": "Rebase",
+        "description": "Áp commit lên trên nhánh chính"
+      }
+    }
+  }
+}

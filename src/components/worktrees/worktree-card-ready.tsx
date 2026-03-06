@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { GitBranch, Eye, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ interface WorktreeCardReadyProps {
 }
 
 export function WorktreeCardReady({ worktree }: WorktreeCardReadyProps) {
+  const { t } = useTranslation()
   const [showMerge, setShowMerge] = useState(false)
   const worktrees = useWorktreeStore((s) => s.worktrees)
   const addWorktree = useWorktreeStore((s) => s.addWorktree)
@@ -33,18 +35,18 @@ export function WorktreeCardReady({ worktree }: WorktreeCardReadyProps) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-mono font-medium truncate">{worktree.branch}</p>
-              <p className="text-xs text-muted-foreground">{worktree.filesChanged} files changed</p>
+              <p className="text-xs text-muted-foreground">{t('worktrees.card.filesChanged', { count: worktree.filesChanged })}</p>
             </div>
             <Badge variant="secondary" className="bg-warning/10 text-warning text-xs shrink-0">
-              Ready to Merge
+              {t('worktrees.card.readyBadge')}
             </Badge>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="text-xs h-7">
-              <Eye className="size-3 mr-1" /> View Files
+              <Eye className="size-3 mr-1" /> {t('worktrees.card.viewFiles')}
             </Button>
             <Button size="sm" className="text-xs h-7" onClick={() => setShowMerge(true)}>
-              Merge
+              {t('worktrees.card.merge')}
             </Button>
             <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive" onClick={handleDelete}>
               <Trash2 className="size-3" />

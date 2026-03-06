@@ -1,0 +1,33 @@
+{
+  "quickActions": {
+    "title": "Quick Actions",
+    "items": {
+      "brainstorm": {
+        "label": "Brainstorm",
+        "desc": "Generate ideas with AI"
+      },
+      "tasks": {
+        "label": "Tasks",
+        "desc": "View and manage tasks"
+      },
+      "cook": {
+        "label": "Cook",
+        "desc": "Start a cook session"
+      },
+      "decks": {
+        "label": "Decks",
+        "desc": "Manage project decks"
+      },
+      "worktrees": {
+        "label": "Worktrees",
+        "desc": "Manage git worktrees"
+      }
+    }
+  },
+  "stats": {
+    "activeTasks": "Active Tasks",
+    "totalTasks": "Total Tasks",
+    "completed": "Completed",
+    "worktrees": "Worktrees"
+  }
+}

@@ -1,4 +1,5 @@
 import { Bot } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { CcsAccountCard } from './ccs-account-card'
 import { CommandProviderRow } from './command-provider-row'
 import { useProjectStore } from '@/stores/project-store'
@@ -6,30 +7,31 @@ import type { Project } from '@/types'
 
 type CcsAccount = Project['ccsAccounts'][number]
 
-const COMMANDS = [
-  { command: '/plan', description: 'Generate implementation plans' },
-  { command: '/brainstorm', description: 'AI-assisted ideation sessions' },
-  { command: '/cook', description: 'Execute coding tasks' },
-  { command: '/review', description: 'Code review and analysis' },
-  { command: '/test', description: 'Test generation and execution' },
-]
-
 export function SettingsAiCommands() {
+  const { t } = useTranslation()
   const { projects, activeProjectId } = useProjectStore()
   const activeProject = projects.find((p: Project) => p.id === activeProjectId)
   const accounts: CcsAccount[] = activeProject?.ccsAccounts ?? []
   const activeAccounts = accounts.filter((a) => a.status === 'active')
+  const commands = [
+    { command: '/plan', description: t('settings.aiCommands.commands.plan') },
+    { command: '/brainstorm', description: t('settings.aiCommands.commands.brainstorm') },
+    { command: '/cook', description: t('settings.aiCommands.commands.cook') },
+    { command: '/review', description: t('settings.aiCommands.commands.review') },
+    { command: '/test', description: t('settings.aiCommands.commands.test') },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Bot className="size-4" /> AI Providers
+          <Bot className="size-4" /> {t('settings.aiCommands.providersTitle')}
         </h3>
         {accounts.length === 0 ? (
           <p className="text-sm text-muted-foreground p-4 border border-dashed border-border rounded-lg">
-            No CCS accounts connected. Run{' '}
-            <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">ccs detect</code> to set up accounts.
+            {t('settings.aiCommands.emptyAccountsPrefix')}{' '}
+            <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">ccs detect</code>{' '}
+            {t('settings.aiCommands.emptyAccountsSuffix')}
           </p>
         ) : (
           <div className="space-y-2">
@@ -41,8 +43,8 @@ export function SettingsAiCommands() {
       </div>
 
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold mb-3">Command → Provider Mapping</h3>
-        {COMMANDS.map(({ command, description }) => (
+        <h3 className="text-sm font-semibold mb-3">{t('settings.aiCommands.mappingTitle')}</h3>
+        {commands.map(({ command, description }) => (
           <CommandProviderRow
             key={command}
             command={command}

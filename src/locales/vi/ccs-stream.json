@@ -1,0 +1,80 @@
+{
+  "ai": {
+    "output": "Kết quả",
+    "assistant": "Claude",
+    "sessionInProgress": "Phiên đang chạy...",
+    "detailsSummary": "{{thinkingCount}} suy luận, {{toolCalls}}, {{messages}}, {{subagents}}",
+    "toolCallCount_one": "{{count}} lần gọi công cụ",
+    "toolCallCount_other": "{{count}} lần gọi công cụ",
+    "messageCount_one": "{{count}} thông điệp",
+    "messageCount_other": "{{count}} thông điệp",
+    "subagentCount_one": "{{count}} sub-agent",
+    "subagentCount_other": "{{count}} sub-agent"
+  },
+  "question": {
+    "typeSomethingElse": "Nhập nội dung khác...",
+    "typeYourAnswer": "Nhập câu trả lời...",
+    "awaitingInput": "Đang chờ nhập...",
+    "allAnswersSent": "Đã gửi tất cả câu trả lời.",
+    "prev": "Trước",
+    "next": "Tiếp",
+    "fallbackHeader": "C{{index}}",
+    "sending": "Đang gửi...",
+    "submitAnswer": "Gửi câu trả lời",
+    "submitAnswers": "Gửi {{count}} câu trả lời",
+    "errors": {
+      "missingRunId": "Thiếu mã run đang hoạt động",
+      "failedToSendWithDetail": "Không gửi được câu trả lời vào stdin của CCS: {{detail}}",
+      "failedToSend": "Không gửi được câu trả lời vào stdin của CCS. Hãy thử lại khi run đang hoạt động."
+    }
+  },
+  "subagent": {
+    "shutdownConfirmed": "Đã xác nhận tắt",
+    "sessionLog": "Nhật ký phiên:",
+    "defaultDescription": "Thực thi sub-agent",
+    "defaultType": "Tác vụ",
+    "logPrefix": "log:",
+    "toolsCount_one": "{{count}} công cụ",
+    "toolsCount_other": "{{count}} công cụ",
+    "parallel": "song song"
+  },
+  "stream": {
+    "replyPlaceholder": "Trả lời trợ lý... (Cmd/Ctrl + Enter để gửi)",
+    "send": "Gửi",
+    "sending": "Đang gửi...",
+    "waitingForOutput": "Đang chờ output của phiên...",
+    "emptyState": "Hãy chạy CCS để xem luồng output tại đây.",
+    "sessionJsonlPaths": "Đường dẫn JSONL của phiên",
+    "main": "Chính:",
+    "subagent": "Sub-agent",
+    "subagentScanDir": "Thư mục quét sub-agent:",
+    "errors": {
+      "noActiveRun": "Không có run hoặc phiên nào đang hoạt động để tiếp tục",
+      "failedToSend": "Không gửi được tin nhắn"
+    }
+  },
+  "tool": {
+    "copyCode": "Sao chép code",
+    "previewTruncated": "Bản xem trước đã rút gọn để tối ưu hiệu năng",
+    "input": "Đầu vào",
+    "output": "Đầu ra",
+    "status": {
+      "error": "lỗi",
+      "done": "xong"
+    },
+    "waitingBash": "Đang chờ kết quả Bash...",
+    "waitingGlob": "Đang chờ kết quả Glob...",
+    "waitingForResult": "Đang chờ kết quả {{toolName}}...",
+    "exitCode": "thoát {{code}}",
+    "matches_one": "{{count}} kết quả khớp",
+    "matches_other": "{{count}} kết quả khớp",
+    "emptyCommand": "(lệnh trống)",
+    "emptyOutput": "(output trống)",
+    "notProvided": "(chưa cung cấp)",
+    "metadataType": "loại",
+    "metadataId": "id",
+    "editNumber": "Chỉnh sửa #{{index}}",
+    "pattern": "mẫu",
+    "path": "đường dẫn"
+  }
+}

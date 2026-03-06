@@ -1,0 +1,25 @@
+{
+  "controls": {
+    "resume": "Tiếp tục",
+    "pause": "Tạm dừng",
+    "stop": "Dừng",
+    "previewChanges": "Xem trước thay đổi"
+  },
+  "progress": {
+    "cooking": "Đang cook..."
+  },
+  "steps": {
+    "analyzing": "Phân tích",
+    "planning": "Lập kế hoạch",
+    "executing": "Thực thi",
+    "reviewing": "Rà soát",
+    "current": "Hiện tại"
+  },
+  "previewDialog": {
+    "title": "Xem trước thay đổi",
+    "worktree": "Worktree",
+    "filesChanged": "Tệp đã thay đổi",
+    "backToCook": "Quay lại Cook",
+    "mergeToMain": "Gộp vào nhánh chính"
+  }
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Bot, ChevronRight, Circle, Clock3, Loader2, MessageSquareText } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ThinkingItem } from './thinking-item'
@@ -86,6 +87,7 @@ function formatHeaderTime(timestamp: string | undefined): string | null {
 }
 
 function OutputDetailItem({ text }: { text: string }) {
+  const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   const preview = useMemo(() => createTextPreview(text), [text])
 
@@ -98,7 +100,7 @@ function OutputDetailItem({ text }: { text: string }) {
         className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left transition-colors hover:bg-muted/35"
       >
         <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="shrink-0 text-xs font-semibold text-foreground">Output</span>
+        <span className="shrink-0 text-xs font-semibold text-foreground">{t('ccsStream.ai.output')}</span>
         <span className="shrink-0 text-xs text-muted-foreground">-</span>
         <span className="flex-1 truncate text-xs text-muted-foreground">{preview}</span>
         <ChevronRight
@@ -135,6 +137,7 @@ export function AIMessage({
   isSessionRunning,
   subagents = [],
 }: Props) {
+  const { t } = useTranslation()
   const [detailsExpanded, setDetailsExpanded] = useState(false)
   const [hasAutoExpandedRunningState, setHasAutoExpandedRunningState] = useState(false)
 
@@ -243,6 +246,16 @@ export function AIMessage({
   const messageCount = detailItems.filter(
     (detailItem) => detailItem.type === 'text' && detailItem.text.trim().length > 0
   ).length
+  const detailsSummary = useMemo(
+    () =>
+      t('ccsStream.ai.detailsSummary', {
+        thinkingCount,
+        toolCalls: t('ccsStream.ai.toolCallCount', { count: toolCount }),
+        messages: t('ccsStream.ai.messageCount', { count: messageCount }),
+        subagents: t('ccsStream.ai.subagentCount', { count: subagentCount }),
+      }),
+    [t, thinkingCount, toolCount, messageCount, subagentCount],
+  )
   const totalTokens = useMemo(() => {
     if (!item.usage) return 0
     return (
@@ -296,10 +309,10 @@ export function AIMessage({
               className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${effectiveDetailsExpanded ? 'rotate-90' : ''}`}
             />
             <Bot className="h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="shrink-0 text-xs font-semibold text-foreground">Claude</span>
+            <span className="shrink-0 text-xs font-semibold text-foreground">{t('ccsStream.ai.assistant')}</span>
             <span className="shrink-0 text-xs text-muted-foreground">·</span>
             <span className="truncate text-xs text-muted-foreground">
-              {thinkingCount} thinking, {toolCount} tool call{toolCount > 1 ? 's' : ''}, {messageCount} message{messageCount > 1 ? 's' : ''}, {subagentCount} sub-agent{subagentCount > 1 ? 's' : ''}
+              {detailsSummary}
             </span>
           </button>
 
@@ -342,7 +355,7 @@ export function AIMessage({
       {shouldShowProcessing && (
         <div className="ml-5 flex items-center gap-2 rounded-md border border-info/30 bg-info/10 px-3 py-2 text-xs text-info">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          <span>Session is in progress...</span>
+          <span>{t('ccsStream.ai.sessionInProgress')}</span>
         </div>
       )}
 

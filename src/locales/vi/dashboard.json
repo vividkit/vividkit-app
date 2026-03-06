@@ -1,0 +1,33 @@
+{
+  "quickActions": {
+    "title": "Thao tác nhanh",
+    "items": {
+      "brainstorm": {
+        "label": "Brainstorm",
+        "desc": "Tạo ý tưởng với AI"
+      },
+      "tasks": {
+        "label": "Công việc",
+        "desc": "Xem và quản lý công việc"
+      },
+      "cook": {
+        "label": "Cook",
+        "desc": "Bắt đầu một phiên cook"
+      },
+      "decks": {
+        "label": "Deck",
+        "desc": "Quản lý deck dự án"
+      },
+      "worktrees": {
+        "label": "Worktree",
+        "desc": "Quản lý git worktree"
+      }
+    }
+  },
+  "stats": {
+    "activeTasks": "Task đang làm",
+    "totalTasks": "Tổng task",
+    "completed": "Đã hoàn thành",
+    "worktrees": "Worktree"
+  }
+}

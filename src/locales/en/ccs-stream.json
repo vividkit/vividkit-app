@@ -1,0 +1,80 @@
+{
+  "ai": {
+    "output": "Output",
+    "assistant": "Claude",
+    "sessionInProgress": "Session is in progress...",
+    "detailsSummary": "{{thinkingCount}} thinking, {{toolCalls}}, {{messages}}, {{subagents}}",
+    "toolCallCount_one": "{{count}} tool call",
+    "toolCallCount_other": "{{count}} tool calls",
+    "messageCount_one": "{{count}} message",
+    "messageCount_other": "{{count}} messages",
+    "subagentCount_one": "{{count}} sub-agent",
+    "subagentCount_other": "{{count}} sub-agents"
+  },
+  "question": {
+    "typeSomethingElse": "Type something else...",
+    "typeYourAnswer": "Type your answer...",
+    "awaitingInput": "Awaiting input...",
+    "allAnswersSent": "All answers sent.",
+    "prev": "Prev",
+    "next": "Next",
+    "fallbackHeader": "Q{{index}}",
+    "sending": "Sending...",
+    "submitAnswer": "Submit answer",
+    "submitAnswers": "Submit {{count}} answers",
+    "errors": {
+      "missingRunId": "Missing active run id",
+      "failedToSendWithDetail": "Failed to send answers to CCS stdin: {{detail}}",
+      "failedToSend": "Failed to send answers to CCS stdin. Retry while run is active."
+    }
+  },
+  "subagent": {
+    "shutdownConfirmed": "Shutdown confirmed",
+    "sessionLog": "Session log:",
+    "defaultDescription": "Subagent execution",
+    "defaultType": "Task",
+    "logPrefix": "log:",
+    "toolsCount_one": "{{count}} tool",
+    "toolsCount_other": "{{count}} tools",
+    "parallel": "parallel"
+  },
+  "stream": {
+    "replyPlaceholder": "Reply to assistant... (Cmd/Ctrl + Enter to send)",
+    "send": "Send",
+    "sending": "Sending...",
+    "waitingForOutput": "Waiting for session output...",
+    "emptyState": "Start a CCS run to see stream output here.",
+    "sessionJsonlPaths": "Session JSONL paths",
+    "main": "Main:",
+    "subagent": "Sub-agent",
+    "subagentScanDir": "Sub-agent scan dir:",
+    "errors": {
+      "noActiveRun": "No active run or session to continue",
+      "failedToSend": "Failed to send message"
+    }
+  },
+  "tool": {
+    "copyCode": "Copy code",
+    "previewTruncated": "Preview truncated for performance",
+    "input": "Input",
+    "output": "Output",
+    "status": {
+      "error": "error",
+      "done": "done"
+    },
+    "waitingBash": "Waiting for Bash result...",
+    "waitingGlob": "Waiting for Glob result...",
+    "waitingForResult": "Waiting for {{toolName}} result...",
+    "exitCode": "exit {{code}}",
+    "matches_one": "{{count}} match",
+    "matches_other": "{{count}} matches",
+    "emptyCommand": "(empty command)",
+    "emptyOutput": "(empty output)",
+    "notProvided": "(not provided)",
+    "metadataType": "type",
+    "metadataId": "id",
+    "editNumber": "Edit #{{index}}",
+    "pattern": "pattern",
+    "path": "path"
+  }
+}

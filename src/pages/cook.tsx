@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { AppHeader } from '@/components/layout'
 import { CookProgressBar, CookSteps, CookTerminal, CookControls, PreviewChangesDialog } from '@/components/cook'
 import { useTaskStore } from '@/stores/task-store'
 
 export default function CookPage() {
+  const { t } = useTranslation()
   const { taskId } = useParams<{ taskId: string }>()
   const navigate = useNavigate()
   const task = useTaskStore((s) => s.tasks.find((t) => t.id === taskId) ?? null)
@@ -36,7 +38,7 @@ export default function CookPage() {
     navigate('/tasks')
   }
 
-  const taskName = (task as { name?: string } | null)?.name ?? 'Cook Session'
+  const taskName = (task as { name?: string } | null)?.name ?? t('pages.cook.sessionTitle')
 
   return (
     <div className="flex flex-col h-full">

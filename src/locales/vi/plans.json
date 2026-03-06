@@ -1,0 +1,36 @@
+{
+  "list": {
+    "empty": "Chưa có kế hoạch. Hãy hoàn thành một phiên brainstorm để tạo kế hoạch đầu tiên."
+  },
+  "card": {
+    "complete": "Hoàn thành",
+    "phases": "{{completed}}/{{total}} pha"
+  },
+  "relatedTasks": {
+    "empty": "Không có công việc liên kết với kế hoạch này.",
+    "cook": "Cook"
+  },
+  "phaseChecklist": {
+    "phaseTitle": "Pha {{order}} - {{name}}"
+  },
+  "viewToggle": {
+    "phases": "pha",
+    "preview": "xem trước"
+  },
+  "markdown": {
+    "created": "Tạo: {{date}}",
+    "phasesTitle": "Các pha",
+    "noDescription": "Không có mô tả."
+  },
+  "cookSheet": {
+    "badge": "{{completed}}/{{total}} pha",
+    "lines": {
+      "start": "$ Đang thực thi các pha kế hoạch...",
+      "phase1": "> Pha 1: Phân tích yêu cầu...",
+      "phase2": "> Pha 2: Thiết lập cấu trúc...",
+      "phase3": "> Pha 3: Triển khai tính năng...",
+      "phase4": "> Pha 4: Chạy kiểm thử...",
+      "done": "Tất cả pha đã hoàn thành thành công!"
+    }
+  }
+}

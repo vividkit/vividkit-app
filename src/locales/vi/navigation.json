@@ -1,0 +1,23 @@
+{
+  "main": {
+    "dashboard": "Tổng quan",
+    "brainstorm": "Brainstorm",
+    "tasks": "Công việc",
+    "plans": "Kế hoạch",
+    "decks": "Deck",
+    "worktrees": "Worktree"
+  },
+  "bottom": {
+    "settings": "Cài đặt",
+    "devConsole": "Dev Console"
+  },
+  "sidebar": {
+    "noProject": "Chưa có dự án",
+    "selectProject": "Chọn một dự án",
+    "newProject": "Dự án mới",
+    "expand": "Mở rộng"
+  },
+  "header": {
+    "aiConnected": "AI đã kết nối"
+  }
+}

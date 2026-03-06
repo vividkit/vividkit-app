@@ -1,4 +1,5 @@
 import { Check, Circle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { usePlanStore } from '@/stores/plan-store'
 import type { Plan } from '@/types'
@@ -8,6 +9,7 @@ interface PhaseChecklistProps {
 }
 
 export function PhaseChecklist({ plan }: PhaseChecklistProps) {
+  const { t } = useTranslation()
   const updatePhaseStatus = usePlanStore((s) => s.updatePhaseStatus)
 
   function toggle(phaseId: string, current: string) {
@@ -36,7 +38,7 @@ export function PhaseChecklist({ plan }: PhaseChecklistProps) {
             </div>
             <div className="flex-1 min-w-0">
               <p className={cn('text-sm font-medium', done && 'line-through text-muted-foreground')}>
-                Phase {phase.order} — {phase.name}
+                {t('plans.phaseChecklist.phaseTitle', { order: phase.order, name: phase.name })}
               </p>
               {phase.description && (
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">{phase.description}</p>

@@ -1,13 +1,15 @@
 import { DeckCard } from './deck-card'
+import { useTranslation } from 'react-i18next'
 import { useDeckStore } from '@/stores/deck-store'
 
 export function DeckList() {
+  const { t } = useTranslation()
   const { decks, setActiveDeck } = useDeckStore()
 
   if (decks.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground text-sm">
-        No decks yet. Create your first deck to get started.
+        {t('pages.decks.empty')}
       </div>
     )
   }

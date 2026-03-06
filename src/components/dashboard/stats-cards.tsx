@@ -1,4 +1,5 @@
 import { Flame, ListTodo, GitBranch } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { useTaskStore } from '@/stores/task-store'
 import { useWorktreeStore } from '@/stores/worktree-store'
@@ -12,6 +13,7 @@ interface StatCard {
 }
 
 export function StatsCards() {
+  const { t } = useTranslation()
   const tasks = useTaskStore((s) => s.tasks)
   const worktrees = useWorktreeStore((s) => s.worktrees)
 
@@ -19,10 +21,10 @@ export function StatsCards() {
   const done = tasks.filter((t) => t.status === 'done').length
 
   const stats: StatCard[] = [
-    { label: 'Active Tasks', value: active, icon: <Flame className="size-5" />, colorClass: 'text-primary' },
-    { label: 'Total Tasks', value: tasks.length, icon: <ListTodo className="size-5" />, colorClass: 'text-info' },
-    { label: 'Completed', value: done, icon: <ListTodo className="size-5" />, colorClass: 'text-success' },
-    { label: 'Worktrees', value: worktrees.length, icon: <GitBranch className="size-5" />, colorClass: 'text-warning' },
+    { label: t('dashboard.stats.activeTasks'), value: active, icon: <Flame className="size-5" />, colorClass: 'text-primary' },
+    { label: t('dashboard.stats.totalTasks'), value: tasks.length, icon: <ListTodo className="size-5" />, colorClass: 'text-info' },
+    { label: t('dashboard.stats.completed'), value: done, icon: <ListTodo className="size-5" />, colorClass: 'text-success' },
+    { label: t('dashboard.stats.worktrees'), value: worktrees.length, icon: <GitBranch className="size-5" />, colorClass: 'text-warning' },
   ]
 
   return (

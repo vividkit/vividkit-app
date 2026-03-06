@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { resumeCcsSession, sendCcsInput, stopCcs } from '@/lib/tauri'
@@ -107,6 +108,7 @@ function QuestionField({
   onSingleSelectOption?: () => void
   disabled: boolean
 }) {
+  const { t } = useTranslation()
   const [showCustom, setShowCustom] = useState(false)
   const [customText, setCustomText] = useState('')
 
@@ -173,7 +175,7 @@ function QuestionField({
             <span className="shrink-0 mt-0.5 flex h-5 w-5 items-center justify-center rounded bg-muted-foreground/10 text-[10px] font-semibold">
               {q.options.length + 1}
             </span>
-            <span className="italic">Type something else...</span>
+            <span className="italic">{t('ccsStream.question.typeSomethingElse')}</span>
           </button>
         )}
         {isCustomActive && !disabled && (
@@ -182,7 +184,7 @@ function QuestionField({
               autoFocus
               value={customText}
               onChange={(e) => handleCustomChange(e.target.value)}
-              placeholder="Type your answer..."
+              placeholder={t('ccsStream.question.typeYourAnswer')}
               className="text-sm h-8 flex-1"
             />
             <button
@@ -200,6 +202,7 @@ function QuestionField({
 
 // Collects all answers then sends them sequentially via stdin
 export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
+  const { t } = useTranslation()
   const questions = item.questions
   // answers[i] is string (single) or string[] (multiSelect)
   const [answers, setAnswers] = useState<(string | string[])[]>(() =>
@@ -240,7 +243,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
         setSubmitted(true)
         return
       }
-      if (!activeRunId) throw new Error('Missing active run id')
+      if (!activeRunId) throw new Error(t('ccsStream.question.errors.missingRunId'))
       // AskUserQuestion in CCS is an interactive TUI; send key sequences, not plain labels.
       for (let i = 0; i < questions.length; i += 1) {
         const chunks = buildQuestionInputChunks(questions[i], answers[i])
@@ -259,8 +262,8 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
       const detail = errorMessage(e)
       setSubmitError(
         detail
-          ? `Failed to send answers to CCS stdin: ${detail}`
-          : 'Failed to send answers to CCS stdin. Retry while run is active.',
+          ? t('ccsStream.question.errors.failedToSendWithDetail', { detail })
+          : t('ccsStream.question.errors.failedToSend'),
       )
     } finally {
       setSubmitting(false)
@@ -275,7 +278,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
       {!submitted && (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-warning animate-pulse" />
-          <span>Awaiting input...</span>
+          <span>{t('ccsStream.question.awaitingInput')}</span>
         </div>
       )}
 
@@ -296,7 +299,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                       : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40'
                     }`}
                 >
-                  {q.header || `Q${i + 1}`}
+                  {q.header || t('ccsStream.question.fallbackHeader', { index: i + 1 })}
                   {/* Answered indicator dot */}
                   {answered && (
                     <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
@@ -349,7 +352,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                   disabled={activeTab === 0}
                   className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  ← Prev
+                  ← {t('ccsStream.question.prev')}
                 </button>
                 <span className="text-[10px] text-muted-foreground">
                   {activeTab + 1} / {questions.length}
@@ -359,7 +362,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                   disabled={activeTab === questions.length - 1}
                   className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  Next →
+                  {t('ccsStream.question.next')} →
                 </button>
               </div>
             </div>
@@ -373,10 +376,14 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
               onClick={handleSubmit}
               disabled={!allAnswered || submitting || (!activeRunId && !sessionId)}
             >
-              {submitting ? 'Sending...' : `Submit ${questions.length > 1 ? `${questions.length} answers` : 'answer'}`}
+              {submitting
+                ? t('ccsStream.question.sending')
+                : (questions.length > 1
+                  ? t('ccsStream.question.submitAnswers', { count: questions.length })
+                  : t('ccsStream.question.submitAnswer'))}
             </Button>
           ) : (
-            <p className="text-xs text-muted-foreground italic text-center">All answers sent.</p>
+            <p className="text-xs text-muted-foreground italic text-center">{t('ccsStream.question.allAnswersSent')}</p>
           )}
           {submitError && (
             <p className="text-xs text-destructive text-center">{submitError}</p>

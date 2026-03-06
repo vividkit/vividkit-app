@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { diffLines } from 'diff'
 import { Check, ChevronRight, Copy, FileCode, PenLine, Search, Terminal, Wrench } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash'
@@ -243,6 +244,7 @@ function renderDiffBlock(toolName: string, filePath: string, language: string, o
   )
 }
 export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false }: Props) {
+  const { t } = useTranslation()
   const { theme } = useTheme()
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [copied, setCopied] = useState(false)
@@ -324,8 +326,8 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
     'query'
   )
   const taskOrAgentMetadata = [
-    { label: 'type', value: readString(input, 'subagent_type', 'subagentType', 'agent_type', 'agentType') },
-    { label: 'id', value: readString(input, 'agent_id', 'agentId', 'teammate_id', 'teammateId') },
+    { label: t('ccsStream.tool.metadataType'), value: readString(input, 'subagent_type', 'subagentType', 'agent_type', 'agentType') },
+    { label: t('ccsStream.tool.metadataId'), value: readString(input, 'agent_id', 'agentId', 'teammate_id', 'teammateId') },
   ].filter((entry): entry is { label: string; value: string } => entry.value.length > 0)
   const taskOrAgentFallbackInput = useMemo(() => {
     if (taskOrAgentInputText || taskOrAgentMetadata.length > 0) return ''
@@ -379,7 +381,7 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
           {hasResult ? (
             <span
               className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-full ${tool.isError ? 'bg-destructive' : 'bg-success'}`}
-              title={tool.isError ? 'error' : 'done'}
+              title={tool.isError ? t('ccsStream.tool.status.error') : t('ccsStream.tool.status.done')}
             />
           ) : (
             <span className="ml-auto h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-warning" />
@@ -402,9 +404,9 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
                 )}
                 <span className="truncate font-mono text-foreground">{toBaseName(filePath)}</span>
                 <span className="rounded border border-border bg-background/70 px-1.5 py-0.5 text-[10px] uppercase text-muted-foreground">{language}</span>
-                {!tool.isError && <button onClick={() => void handleCopy(codeContent)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted" title="Copy code">{copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}</button>}
+                {!tool.isError && <button onClick={() => void handleCopy(codeContent)} className="ml-auto rounded p-1 text-muted-foreground hover:bg-muted" title={t('ccsStream.tool.copyCode')}>{copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}</button>}
               </div>
-              {(previewTruncated || resultTruncated) && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+              {(previewTruncated || resultTruncated) && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">{t('ccsStream.tool.previewTruncated')}</div>}
               {tool.isError ? (
                 <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap bg-destructive/5 p-2 font-mono text-sm text-destructive">{resultPreview}</pre>
               ) : (
@@ -414,31 +416,31 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
               )}
             </div>
           )}
-          {(isRead || isWrite) && !hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for {toolName} result...</div>}
+          {(isRead || isWrite) && !hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t('ccsStream.tool.waitingForResult', { toolName })}</div>}
           {isBash && (
             <div className="overflow-hidden rounded border border-border bg-card">
               <div className="space-y-3 p-3">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('ccsStream.tool.input')}</div>
                   {bashDescription && <div className="mb-1 text-xs text-muted-foreground">{bashDescription}</div>}
-                  <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">{bashCommand || '(empty command)'}</pre>
+                  <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">{bashCommand || t('ccsStream.tool.emptyCommand')}</pre>
                 </div>
                 <div>
                   <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    <span>Output</span>
+                    <span>{t('ccsStream.tool.output')}</span>
                     {typeof bashResult.exitCode === 'number' && (
                       <span className={`rounded border px-1.5 py-0.5 text-[10px] ${bashResult.exitCode === 0 ? 'border-success/30 bg-success/10 text-success' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
-                        exit {bashResult.exitCode}
+                        {t('ccsStream.tool.exitCode', { code: bashResult.exitCode })}
                       </span>
                     )}
                   </div>
-                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for Bash result...</div>}
+                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t('ccsStream.tool.waitingBash')}</div>}
                   {hasResult && (
                     <div className="overflow-hidden rounded border border-border bg-black/[0.035]">
-                      {bashTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+                      {bashTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">{t('ccsStream.tool.previewTruncated')}</div>}
                       {bashStdoutPreview && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap px-3 py-2 font-mono text-xs text-foreground">{bashStdoutPreview}</pre>}
                       {bashStderrPreview && <pre className={`stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap border-t border-border px-3 py-2 font-mono text-xs ${tool.isError ? 'bg-destructive/5 text-destructive' : 'text-destructive'}`}>{bashStderrPreview}</pre>}
-                      {!bashStdoutPreview && !bashStderrPreview && <div className="px-3 py-2 text-xs text-muted-foreground">(empty output)</div>}
+                      {!bashStdoutPreview && !bashStderrPreview && <div className="px-3 py-2 text-xs text-muted-foreground">{t('ccsStream.tool.emptyOutput')}</div>}
                     </div>
                   )}
                 </div>
@@ -449,31 +451,31 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
             <div className="overflow-hidden rounded border border-border bg-card">
               <div className="space-y-3 p-3">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('ccsStream.tool.input')}</div>
                   <div className="overflow-hidden rounded border border-border bg-muted/20">
                     <div className="flex items-start gap-2 border-b border-border px-3 py-2 text-xs">
-                      <span className="w-14 shrink-0 font-medium text-muted-foreground">pattern</span>
-                      <code className="font-mono text-foreground">{globPattern || '(not provided)'}</code>
+                      <span className="w-14 shrink-0 font-medium text-muted-foreground">{t('ccsStream.tool.pattern')}</span>
+                      <code className="font-mono text-foreground">{globPattern || t('common.defaults.noPath')}</code>
                     </div>
                     <div className="flex items-start gap-2 px-3 py-2 text-xs">
-                      <span className="w-14 shrink-0 font-medium text-muted-foreground">path</span>
-                      <code className="break-all font-mono text-foreground">{globPath || '(not provided)'}</code>
+                      <span className="w-14 shrink-0 font-medium text-muted-foreground">{t('ccsStream.tool.path')}</span>
+                      <code className="break-all font-mono text-foreground">{globPath || t('common.defaults.noPath')}</code>
                     </div>
                   </div>
                 </div>
                 <div>
                   <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    <span>Output</span>
+                    <span>{t('ccsStream.tool.output')}</span>
                     {globResult.matches.length > 0 && (
                       <span className="rounded border border-border bg-background px-1.5 py-0.5 text-[10px] normal-case text-foreground">
-                        {globResult.matches.length} matches
+                        {t('ccsStream.tool.matches', { count: globResult.matches.length })}
                       </span>
                     )}
                   </div>
-                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">Waiting for Glob result...</div>}
+                  {!hasResult && <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">{t('ccsStream.tool.waitingGlob')}</div>}
                   {hasResult && globMatches.length > 0 && (
                     <div className="overflow-hidden rounded border border-border bg-black/[0.025]">
-                      {globMatchTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+                      {globMatchTruncated && <div className="border-b border-border bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">{t('ccsStream.tool.previewTruncated')}</div>}
                       <div className="stream-scrollbar max-h-56 overflow-auto py-1">
                         {globMatches.map((match, idx) => (
                           <div key={`${match}-${idx}`} className="flex items-start gap-2 px-3 py-1.5 text-xs">
@@ -486,8 +488,8 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
                   )}
                   {hasResult && globMatches.length === 0 && (
                     <div>
-                      {globOutputTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
-                      <pre className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${tool.isError ? 'border-destructive/20 bg-destructive/5 text-destructive' : 'border-border bg-card'}`}>{globOutputPreview || '(empty output)'}</pre>
+                      {globOutputTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">{t('ccsStream.tool.previewTruncated')}</div>}
+                      <pre className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${tool.isError ? 'border-destructive/20 bg-destructive/5 text-destructive' : 'border-border bg-card'}`}>{globOutputPreview || t('ccsStream.tool.emptyOutput')}</pre>
                     </div>
                   )}
                 </div>
@@ -498,7 +500,7 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
             <div className="overflow-hidden rounded border border-border bg-card">
               <div className="space-y-3 p-3">
                 <div>
-                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Input</div>
+                  <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('ccsStream.tool.input')}</div>
                   {taskOrAgentInputText ? (
                     <pre className="stream-scrollbar max-h-40 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-muted/20 px-2.5 py-2 font-mono text-xs text-foreground">
                       {taskOrAgentInputText}
@@ -509,7 +511,7 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
                     </pre>
                   ) : (
                     <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                      (not provided)
+                      {t('ccsStream.tool.notProvided')}
                     </div>
                   )}
                   {taskOrAgentMetadata.length > 0 && (
@@ -527,17 +529,17 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
                   )}
                 </div>
                 <div>
-                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Output</div>
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t('ccsStream.tool.output')}</div>
                   {!hasResult && (
                     <div className="rounded border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                      Waiting for {toolName} result...
+                      {t('ccsStream.tool.waitingForResult', { toolName })}
                     </div>
                   )}
                   {hasResult && (
                     <div>
                       {taskOrAgentOutputTruncated && (
                         <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">
-                          Preview truncated for performance
+                          {t('ccsStream.tool.previewTruncated')}
                         </div>
                       )}
                       <pre
@@ -547,7 +549,7 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
                             : 'border-border bg-card'
                         }`}
                       >
-                        {taskOrAgentOutputPreview || '(empty output)'}
+                        {taskOrAgentOutputPreview || t('ccsStream.tool.emptyOutput')}
                       </pre>
                     </div>
                   )}
@@ -556,12 +558,12 @@ export function ToolCallItem({ tool, defaultExpanded = false, hideHeader = false
             </div>
           )}
           {isEdit && hasOldString && hasNewString && renderDiffBlock(toolName, filePath, language, clipText(oldString), clipText(newString))}
-          {isMultiEdit && multiEdits.map((edit, idx) => <div key={idx} className="space-y-1"><div className="text-[11px] text-muted-foreground">Edit #{idx + 1}</div>{renderDiffBlock(toolName, filePath, language, edit.oldString, edit.newString)}</div>)}
+          {isMultiEdit && multiEdits.map((edit, idx) => <div key={idx} className="space-y-1"><div className="text-[11px] text-muted-foreground">{t('ccsStream.tool.editNumber', { index: idx + 1 })}</div>{renderDiffBlock(toolName, filePath, language, edit.oldString, edit.newString)}</div>)}
           {((isEdit && (!hasOldString || !hasNewString)) || (isMultiEdit && multiEdits.length === 0)) && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-card p-2 font-mono text-sm">{JSON.stringify(input, null, 2)}</pre>}
           {!isRead && !isWrite && !isEdit && !isMultiEdit && !isBash && !isGlob && !isTaskOrAgentTool && <pre className="stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border border-border bg-card p-2 font-mono text-sm">{JSON.stringify(input, null, 2)}</pre>}
           {hasResult && !(isRead || isWrite || isBash || isGlob || isTaskOrAgentTool) && (
             <div>
-              {resultTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">Preview truncated for performance</div>}
+              {resultTruncated && <div className="rounded-t border border-border border-b-0 bg-muted/20 px-3 py-1 text-[11px] text-muted-foreground">{t('ccsStream.tool.previewTruncated')}</div>}
               <pre className={`stream-scrollbar max-h-48 overflow-x-auto whitespace-pre-wrap rounded border p-2 font-mono text-sm ${tool.isError ? 'border-destructive/20 bg-destructive/5 text-destructive' : 'border-border bg-card'}`}>{resultPreview}</pre>
             </div>
           )}

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { AppLayout } from '@/components/layout'
 
 const Onboarding = lazy(() => import('@/pages/onboarding'))
@@ -18,9 +19,11 @@ const Settings = lazy(() => import('@/pages/settings'))
 const CcsTest = lazy(() => import('@/pages/ccs-test'))
 
 function PageLoader() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex items-center justify-center h-full min-h-[200px] text-muted-foreground text-sm">
-      Loading…
+      {t('common.messages.loading')}
     </div>
   )
 }

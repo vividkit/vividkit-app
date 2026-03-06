@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { FileText, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { tailPathSegments } from '@/lib/session-path-utils'
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) {
+  const { t } = useTranslation()
   const isDone = exitCode !== null
   const isInProgress = isRunning && !isDone
 
@@ -17,13 +19,13 @@ export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) 
       {isInProgress && (
         <div className="inline-flex items-center gap-2 rounded-md border border-info/30 bg-info/10 px-2.5 py-1 text-info">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          <span className="font-medium">Session is in progress...</span>
+          <span className="font-medium">{t('common.messages.sessionInProgress')}</span>
         </div>
       )}
       {!isInProgress && !isDone && (
         <div className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-muted-foreground/40" />
-          <span>Ready</span>
+          <span>{t('common.status.ready')}</span>
         </div>
       )}
       {isDone && (
@@ -31,7 +33,7 @@ export function StreamStatusBar({ isRunning, exitCode, sessionLogPath }: Props) 
           variant={exitCode === 0 ? 'outline' : 'destructive'}
           className="text-[10px] h-5 px-1.5"
         >
-          exit {exitCode}
+          {t('ccsStream.tool.exitCode', { code: exitCode })}
         </Badge>
       )}
 

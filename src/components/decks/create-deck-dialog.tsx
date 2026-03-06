@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,7 @@ interface CreateDeckDialogProps {
 }
 
 export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) {
+  const { t } = useTranslation()
   const addDeck = useDeckStore((s) => s.addDeck)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
@@ -35,37 +37,37 @@ export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Deck</DialogTitle>
+          <DialogTitle>{t('pages.decks.createDialog.title')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Deck Name <span className="text-destructive">*</span>
+              {t('pages.decks.createDialog.name')} <span className="text-destructive">*</span>
             </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. MVP Sprint"
+              placeholder={t('pages.decks.createDialog.namePlaceholder')}
               autoFocus
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-muted-foreground">
-              Description <span className="text-xs">(optional)</span>
+              {t('pages.decks.createDialog.description')} <span className="text-xs">({t('common.labels.optional')})</span>
             </label>
             <Textarea
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              placeholder="Brief description…"
+              placeholder={t('pages.decks.createDialog.descriptionPlaceholder')}
               rows={3}
             />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t('common.actions.cancel')}
             </Button>
             <Button type="submit" disabled={!name.trim()}>
-              Create Deck
+              {t('pages.decks.createDialog.createButton')}
             </Button>
           </DialogFooter>
         </form>

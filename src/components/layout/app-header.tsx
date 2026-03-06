@@ -1,4 +1,5 @@
 import { Bell, Moon, Sun } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useTheme } from './theme-provider'
@@ -9,6 +10,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, subtitle }: AppHeaderProps) {
+  const { t } = useTranslation()
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
 
@@ -21,7 +23,7 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
       <div className="flex items-center gap-2">
         <div className="mr-2 flex items-center gap-1.5 text-xs text-muted-foreground">
           <span className="size-2 rounded-full bg-success animate-pulse" />
-          AI Connected
+          {t('navigation.header.aiConnected')}
         </div>
         <Button variant="ghost" size="icon" onClick={toggleTheme}>
           {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}

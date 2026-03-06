@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { FlameKindling } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
 import { Terminal } from '@xterm/xterm'
@@ -7,14 +8,6 @@ import { FitAddon } from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
 import { getTerminalTheme } from '@/lib/utils'
 import type { Plan } from '@/types'
-const COOK_LINES = [
-  '\x1b[33m$ Executing plan phases...\x1b[0m\r\n',
-  '> Phase 1: Analyzing requirements...\r\n',
-  '> Phase 2: Setting up structure...\r\n',
-  '> Phase 3: Implementing features...\r\n',
-  '> Phase 4: Running tests...\r\n',
-  '\x1b[32m✓ All phases completed successfully!\x1b[0m\r\n',
-]
 
 interface CookSheetProps {
   open: boolean
@@ -23,8 +16,20 @@ interface CookSheetProps {
 }
 
 export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<Terminal | null>(null)
+  const cookLines = useMemo(
+    () => [
+      `\x1b[33m${t('plans.cookSheet.lines.start')}\x1b[0m\r\n`,
+      `${t('plans.cookSheet.lines.phase1')}\r\n`,
+      `${t('plans.cookSheet.lines.phase2')}\r\n`,
+      `${t('plans.cookSheet.lines.phase3')}\r\n`,
+      `${t('plans.cookSheet.lines.phase4')}\r\n`,
+      `\x1b[32m✓ ${t('plans.cookSheet.lines.done')}\x1b[0m\r\n`,
+    ],
+    [t],
+  )
 
   useEffect(() => {
     if (!open || !containerRef.current) return
@@ -37,7 +42,7 @@ export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
 
     let i = 0
     const interval = setInterval(() => {
-      if (i < COOK_LINES.length) { term.write(COOK_LINES[i++]) } else { clearInterval(interval) }
+      if (i < cookLines.length) { term.write(cookLines[i++]) } else { clearInterval(interval) }
     }, 600)
 
     return () => {
@@ -45,7 +50,7 @@ export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
       term.dispose()
       termRef.current = null
     }
-  }, [open])
+  }, [cookLines, open])
 
   const completed = plan.phases.filter((p) => p.status === 'done').length
 
@@ -58,7 +63,7 @@ export function CookSheet({ open, onOpenChange, plan }: CookSheetProps) {
             <SheetTitle className="text-base">{plan.name}</SheetTitle>
           </div>
           <Badge variant="outline" className="w-fit text-xs">
-            {completed}/{plan.phases.length} phases
+            {t('plans.cookSheet.badge', { completed, total: plan.phases.length })}
           </Badge>
         </SheetHeader>
         <div className="flex-1 p-4 min-h-0">

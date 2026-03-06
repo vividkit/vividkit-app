@@ -1,4 +1,5 @@
 import { Bot } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/types'
@@ -6,10 +7,10 @@ import type { Project } from '@/types'
 type CcsAccount = Project['ccsAccounts'][number]
 type AccountStatus = CcsAccount['status']
 
-const STATUS_MAP: Record<AccountStatus, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'bg-success/10 text-success' },
-  paused: { label: 'Paused', className: 'bg-warning/10 text-warning' },
-  exhausted: { label: 'Exhausted', className: 'bg-destructive/10 text-destructive' },
+const STATUS_CLASS: Record<AccountStatus, string> = {
+  active: 'bg-success/10 text-success',
+  paused: 'bg-warning/10 text-warning',
+  exhausted: 'bg-destructive/10 text-destructive',
 }
 
 interface CcsAccountCardProps {
@@ -17,7 +18,7 @@ interface CcsAccountCardProps {
 }
 
 export function CcsAccountCard({ account }: CcsAccountCardProps) {
-  const status = STATUS_MAP[account.status]
+  const { t } = useTranslation()
   const providerLabel = account.provider.charAt(0).toUpperCase() + account.provider.slice(1)
 
   return (
@@ -29,8 +30,8 @@ export function CcsAccountCard({ account }: CcsAccountCardProps) {
         <p className="text-sm font-medium">{providerLabel}</p>
         <p className="text-xs text-muted-foreground truncate">{account.email}</p>
       </div>
-      <Badge variant="secondary" className={cn('text-xs', status.className)}>
-        {status.label}
+      <Badge variant="secondary" className={cn('text-xs', STATUS_CLASS[account.status])}>
+        {t(`settings.ccsAccount.${account.status}`)}
       </Badge>
     </div>
   )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Send } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -9,6 +10,7 @@ interface BrainstormInputProps {
 }
 
 export function BrainstormInput({ onSubmit, disabled }: BrainstormInputProps) {
+  const { t } = useTranslation()
   const [value, setValue] = useState('')
 
   function handleSubmit(e: { preventDefault: () => void }) {
@@ -23,7 +25,7 @@ export function BrainstormInput({ onSubmit, disabled }: BrainstormInputProps) {
       <Input
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Describe what you want to brainstorm…"
+        placeholder={t('brainstorm.input.placeholder')}
         disabled={disabled}
         className="flex-1 font-mono text-sm"
       />
