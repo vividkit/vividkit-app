@@ -48,7 +48,7 @@ When implementing/reviewing UI in `src/components/**`, `src/pages/**`, `src/App.
 ## I18n — Structure-Ready (MANDATORY)
 
 - NO hardcoded user-facing strings in JSX — all text via `t('key')` from `react-i18next`
-- Locale files: `src/locales/{lang}.json` (en as default, vi as second)
+- Locale files: `src/locales/{lang}/*.json` (vi as default, en as secondary)
 - Date/time: store UTC internally, format at display layer via `Intl.DateTimeFormat`
 - Numbers: use `Intl.NumberFormat` for locale-aware formatting
 - CSS: prefer logical props (`margin-inline-start` over `margin-left`) for RTL readiness
@@ -123,28 +123,9 @@ When working on this project, activate these skills:
 - `frontend-development` — React/TypeScript components, hooks, Zustand
 - `tailwind-v4-styling` — Tailwind v4 utility classes, shadcn/ui components
 
-## Supervisor Workflow
-
-After completing each plan phase, submit for cross-review:
-
-```
-/submit-to-mentor
-```
-
-Report goes to `../vividkit-supervisor/inbox/pending/`.
-Mentor reviews code against plan, asks questions, issues verdict.
-See full protocol: `../vividkit-supervisor/docs/mentor-protocol.md`
-
-**Automation:** Start the mentor daemon once per session before coding:
-```bash
-cd ../vividkit-supervisor && make mentor-start
-```
-After that, submit-to-mentor and mentor-review run automatically when a cook phase ends.
-Manual steps remaining: write response to questions + accept verdict.
-
 ## File References
 
 - Architecture: `docs/system-architecture.md`
 - Code standards: `docs/code-standards.md`
+- Design system: `docs/design-system.md`
 - Plans: `plans/` — active implementation plans with phase files
-- Supervisor: `../vividkit-supervisor/` — cross-review system

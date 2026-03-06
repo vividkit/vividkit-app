@@ -65,7 +65,7 @@ Core mechanic: Rust spawns PTY `ccs [profile]`, streamed via xterm.js. UI hides 
 - [ ] SQLite schema: all models migrated
 - [ ] CCS detection: `ccs detect` → parse accounts, save to DB
 - [x] i18n setup: `react-i18next` initialized with `vi` default + `en` secondary locale; resources split by domain under `src/locales/{vi,en}/*.json`
-- [ ] Zustand stores: project, deck, task, worktree, settings
+- [x] Zustand stores: project, deck, task, worktree, settings, brainstorm, plan, ui
 
 ---
 

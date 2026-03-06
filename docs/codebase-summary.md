@@ -27,7 +27,7 @@ vividkit-app/
 │   ├── lib/                      # Utilities
 │   │   ├── tauri.ts             # Tauri IPC wrappers (spawn_ccs, stop_ccs, etc.)
 │   │   └── utils.ts             # Format, parse, helpers
-│   ├── locales/                  # i18n JSON (en.json, vi.json)
+│   ├── locales/                  # i18n JSON (vi default, en secondary) split by domain
 │   ├── pages/                    # 14 route pages (lazy-loaded)
 │   ├── stores/                   # 8 Zustand stores (project, task, deck, etc.)
 │   ├── types/                    # TypeScript interfaces (project, task, plan, etc.)
@@ -55,8 +55,9 @@ vividkit-app/
 │   ├── codebase-summary.md      # This file
 │   ├── system-architecture.md   # Deep architecture docs
 │   ├── code-standards.md        # Coding conventions
+│   ├── design-system.md         # UI design tokens, typography, components
 │   ├── development-roadmap.md   # 9-phase MVP timeline
-│   └── *.md                     # Setup, usage guides
+│   └── project-changelog.md     # Change history
 │
 ├── plans/                        # Implementation plans with phase files
 │   ├── 260222-1340-vividkit-project-setup/
@@ -305,7 +306,7 @@ Frontend: transitions to "done" state, terminal stays alive for review
 - ⬜ fs.rs — file operations
 - ⬜ worktree.rs — git worktree (create, list, merge, cleanup)
 - ⬜ SQLite schema + migrations
-- ⬜ i18n keys (en.json, vi.json content)
+- ✅ i18n: vi default + en secondary, domain-split JSON, react-i18next wired
 
 ---
 
