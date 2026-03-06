@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 /// Aggregated metrics for a subagent session
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct SessionMetrics {
     pub duration_ms: u64,
     pub total_tokens: u64,
@@ -19,6 +20,7 @@ pub struct SessionMetrics {
 
 /// Team metadata for team member subagents
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct TeamInfo {
     pub team_name: String,
     pub member_name: String,
@@ -27,6 +29,7 @@ pub struct TeamInfo {
 
 /// Main session impact tokens
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct MainSessionImpact {
     pub call_tokens: u64,
     pub result_tokens: u64,

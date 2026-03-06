@@ -57,7 +57,6 @@ pub struct CcsStopResult {
 #[serde(rename_all = "lowercase")]
 pub enum CcsRunEventKind {
     Stdout,
-    Stderr,
     Terminated,
     Error,
 }
@@ -352,7 +351,7 @@ pub async fn spawn_ccs(
                 }
                 Err(e) => {
                     let os_code = e.raw_os_error();
-                    let is_eio = os_code.map_or(false, |code| code == 5); // EIO = 5
+                    let is_eio = os_code == Some(5); // EIO = 5
                     eprintln!("[CCS reader] error code={os_code:?} is_eio={is_eio} run_id={run_id_for_task}");
                     if is_eio {
                         match get_ccs_run_state(&app_handle, &run_id_for_task) {
@@ -398,7 +397,7 @@ pub async fn spawn_ccs(
                         }
                     }
                     // EAGAIN/EWOULDBLOCK = no data yet, retry
-                    let is_retry = os_code.map_or(false, |code| code == 4 || code == 11 || code == 35);
+                    let is_retry = os_code.is_some_and(|code| code == 4 || code == 11 || code == 35);
                     if is_retry {
                         warned_closed_while_running = false;
                         std::thread::sleep(std::time::Duration::from_millis(10));
@@ -479,7 +478,7 @@ pub async fn spawn_ccs(
                 }
                 Err(err) => {
                     consecutive_errors = consecutive_errors.saturating_add(1);
-                    if consecutive_errors == 1 || consecutive_errors % EXIT_WATCHER_MAX_ERRORS == 0
+                    if consecutive_errors == 1 || consecutive_errors.is_multiple_of(EXIT_WATCHER_MAX_ERRORS)
                     {
                         emit_ccs_run_event(
                             &app_handle,
@@ -501,7 +500,7 @@ pub async fn spawn_ccs(
 
     Ok(CcsSpawnResult {
         run_id,
-        pid: pid.map(|p| p as u32),
+        pid,
     })
 }
 
@@ -674,12 +673,12 @@ pub async fn watch_session_log(
                         .trim_end_matches('\r')
                         .to_string();
                     if !trimmed.is_empty() {
+                        let mut payload = serde_json::Map::new();
+                        payload.insert("session_id".into(), serde_json::Value::String(session_id_clone.clone()));
+                        payload.insert("line".into(), serde_json::Value::String(trimmed));
                         let _ = app_clone.emit(
                             "ccs_session_log_line",
-                            serde_json::json!({
-                                "session_id": session_id_clone,
-                                "line": trimmed
-                            }),
+                            serde_json::Value::Object(payload),
                         );
                     }
                 }

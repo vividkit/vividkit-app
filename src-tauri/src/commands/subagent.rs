@@ -90,7 +90,7 @@ pub fn parse_subagent_file(file_path: String) -> Result<RawSubagentData, String>
         message_count,
         first_user_message,
         is_warmup,
-        is_compact: is_compact,
+        is_compact,
     })
 }
 
@@ -161,8 +161,8 @@ fn parse_subagent_metadata(
         }
     }
 
-    let start = first_timestamp.unwrap_or_else(|| "".to_string());
-    let end = last_timestamp.unwrap_or_else(|| "".to_string());
+    let start = first_timestamp.unwrap_or_default();
+    let end = last_timestamp.unwrap_or_default();
 
     Ok((start, end, first_user_message, is_warmup))
 }

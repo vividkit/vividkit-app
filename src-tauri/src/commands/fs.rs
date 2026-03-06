@@ -21,10 +21,7 @@ pub async fn list_directory(path: String) -> Result<Vec<FileEntry>, String> {
 pub fn resolve_home_path(relative: String) -> Result<String, String> {
     let home = dirs::home_dir().ok_or_else(|| "Unable to resolve home directory".to_string())?;
     let resolved = home.join(&relative);
-    resolved
-        .to_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| "Invalid path encoding".to_string())
+    Ok(resolved.to_string_lossy().into_owned())
 }
 
 /// Encode a cwd path the way Claude Code names its project directories:
@@ -32,8 +29,7 @@ pub fn resolve_home_path(relative: String) -> Result<String, String> {
 /// e.g. "/Users/foo/myproject" → "Users-foo-myproject"
 fn encode_cwd_to_project_dir(cwd: &str) -> String {
     cwd.trim_start_matches('/')
-        .replace('/', "-")
-        .replace('\\', "-")
+        .replace(['/', '\\'], "-")
 }
 
 /// Poll `projects_dir` for a new `.jsonl` session log file that was created
