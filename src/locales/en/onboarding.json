@@ -25,7 +25,11 @@
     "destinationPath": "Destination Path",
     "projectPathPlaceholder": "/Users/you/my-project",
     "repositoryUrlPlaceholder": "https://github.com/user/repo.git",
-    "destinationPathPlaceholder": "/Users/you/projects"
+    "destinationPathPlaceholder": "/Users/you/projects",
+    "notAGitRepo": "This directory is not a git repository.",
+    "validGitRepo": "Valid git repository",
+    "initGit": "Run git init",
+    "initializing": "Initializing..."
   },
   "aiTools": {
     "title": "AI Tools",
@@ -35,7 +39,8 @@
     "ccs": "CCS (Claude Code Switcher)",
     "authenticated": "v1.0.0 · Authenticated",
     "active": "Active",
-    "paused": "Paused"
+    "paused": "Paused",
+    "notFound": "CCS not installed. Install: npm install -g @kaitranntt/ccs"
   },
   "projectSetup": {
     "title": "Project Setup",

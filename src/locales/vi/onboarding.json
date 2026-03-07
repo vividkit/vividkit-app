@@ -16,16 +16,20 @@
   "gitSetup": {
     "title": "Thiết lập Git",
     "description": "Chọn cách kết nối dự án của bạn",
-    "localRepository": "Kho cục bộ",
-    "localRepositoryDesc": "Dùng dự án có sẵn trên máy",
-    "cloneRepository": "Clone kho",
-    "cloneRepositoryDesc": "Clone kho Git từ xa",
+    "localRepository": "Repo trên máy",
+    "localRepositoryDesc": "Chọn dự án Git có sẵn",
+    "cloneRepository": "Clone từ remote",
+    "cloneRepositoryDesc": "Clone repo Git từ URL",
     "projectPath": "Đường dẫn dự án",
-    "repositoryUrl": "URL kho",
-    "destinationPath": "Đường dẫn đích",
+    "repositoryUrl": "URL repo",
+    "destinationPath": "Thư mục đích",
     "projectPathPlaceholder": "/Users/you/my-project",
     "repositoryUrlPlaceholder": "https://github.com/user/repo.git",
-    "destinationPathPlaceholder": "/Users/you/projects"
+    "destinationPathPlaceholder": "/Users/you/projects",
+    "notAGitRepo": "Thư mục này chưa có git repo.",
+    "validGitRepo": "Git repo hợp lệ",
+    "initGit": "Khởi tạo git init",
+    "initializing": "Đang khởi tạo..."
   },
   "aiTools": {
     "title": "Công cụ AI",
@@ -35,7 +39,8 @@
     "ccs": "CCS (Claude Code Switcher)",
     "authenticated": "v1.0.0 · Đã xác thực",
     "active": "Đang hoạt động",
-    "paused": "Tạm dừng"
+    "paused": "Tạm dừng",
+    "notFound": "Chưa cài CCS. Cài đặt: npm install -g @kaitranntt/ccs"
   },
   "projectSetup": {
     "title": "Thiết lập dự án",
