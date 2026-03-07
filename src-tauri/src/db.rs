@@ -49,10 +49,10 @@ fn run_migrations(conn: &Connection) -> Result<(), String> {
         )
         .map_err(|e| format!("read schema version: {e}"))?;
 
-    let migrations: Vec<(i64, &str)> = vec![(
-        1,
-        include_str!("../migrations/001_initial_schema.sql"),
-    )];
+    let migrations: Vec<(i64, &str)> = vec![
+        (1, include_str!("../migrations/001_initial_schema.sql")),
+        (2, include_str!("../migrations/002_app_settings.sql")),
+    ];
 
     for (version, sql) in migrations {
         if version > current_version {

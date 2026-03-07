@@ -1,7 +1,10 @@
 pub mod ai;
 pub mod ccs;
+pub mod dashboard;
 pub mod db;
 pub mod fs;
 pub mod git;
+pub mod project;
+pub mod settings;
 pub mod subagent;
 pub mod worktree;

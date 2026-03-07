@@ -54,6 +54,19 @@ pub fn run() {
             commands::subagent::list_subagent_files,
             commands::subagent::parse_subagent_file,
             commands::subagent::resolve_subagents,
+            // Project
+            commands::project::create_project,
+            commands::project::list_projects,
+            commands::project::get_active_project,
+            commands::project::set_active_project,
+            commands::project::validate_git_repo,
+            commands::project::init_git_repo,
+            commands::project::list_decks,
+            // Dashboard
+            commands::dashboard::get_dashboard_stats,
+            // Settings
+            commands::settings::get_settings,
+            commands::settings::update_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
