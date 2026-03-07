@@ -6,4 +6,5 @@ export interface Deck {
   isActive: boolean
   basedOnInsightId?: string
   createdAt: string
+  updatedAt?: string
 }

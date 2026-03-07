@@ -15,8 +15,8 @@ created: 2026-03-07
 
 | # | Phase | Milestone | Status | Effort | Depends On |
 |---|-------|-----------|--------|--------|------------|
-| 00 | [Global Tech Spec](phase-00-global-tech-spec.md) | D0 | pending | 2h | — |
-| 01 | [Foundation](phase-01-foundation.md) | M0 | pending | 4h | D0 |
+| 00 | [Global Tech Spec](phase-00-global-tech-spec.md) | D0 | done | 2h | — |
+| 01 | [Foundation](phase-01-foundation.md) | M0 | done | 4h | D0 |
 | 02 | [Brainstorm](phase-02-brainstorm.md) | M1 | pending | 5h | M0 |
 | 03 | [Onboarding](phase-03-onboarding.md) | M2 | pending | 3h | M0 |
 | 04 | [Dashboard](phase-04-dashboard.md) | M3 | pending | 2h | M0 |
@@ -118,8 +118,8 @@ M11 (Polish)
 - Task state machine: Rust-only enforcement — single source of truth
 
 #### Action Items
-- [ ] Phase 01: Add WAL mode pragma to init_db()
-- [ ] Phase 01: Add schema_version table + migration runner
+- [x] Phase 01: Add WAL mode pragma to init_db()
+- [x] Phase 01: Add schema_version table + migration runner
 - [ ] Phase 01: Add CCS-not-found banner component
 - [ ] Phase 05: Implement global context-changed event emitter
 - [ ] Phase 08: Task state machine validation in Rust only

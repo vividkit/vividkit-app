@@ -1,5 +1,8 @@
 mod commands;
+mod db;
 mod models;
+
+use tauri::Manager;
 
 #[allow(clippy::disallowed_methods)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -9,11 +12,29 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        .setup(|app| {
+            // Initialize SQLite database at app data dir
+            let app_data_dir = app
+                .path()
+                .app_data_dir()
+                .map_err(|e| format!("app data dir: {e}"))?;
+            let db_state =
+                db::init_database(app_data_dir).map_err(|e| format!("init db: {e}"))?;
+            app.manage(db_state);
+            Ok(())
+        })
         .manage(commands::ai::CcsProcessRegistry::default())
         .manage(commands::ai::SessionLogWatcher::default())
         .invoke_handler(tauri::generate_handler![
+            // DB
+            commands::db::check_db,
+            // CCS
+            commands::ccs::discover_ccs_profiles,
+            commands::ccs::get_ccs_accounts,
+            // Git
             commands::git::git_status,
             commands::git::git_commit,
+            // AI / CCS process
             commands::ai::ai_complete,
             commands::ai::spawn_ccs,
             commands::ai::stop_ccs,
@@ -22,11 +43,14 @@ pub fn run() {
             commands::ai::list_ccs_profiles,
             commands::ai::watch_session_log,
             commands::ai::stop_session_log_watch,
+            // Filesystem
             commands::fs::list_directory,
             commands::fs::resolve_home_path,
             commands::fs::find_new_session_log,
+            // Worktree
             commands::worktree::worktree_create,
             commands::worktree::worktree_cleanup,
+            // Subagent
             commands::subagent::list_subagent_files,
             commands::subagent::parse_subagent_file,
             commands::subagent::resolve_subagents,

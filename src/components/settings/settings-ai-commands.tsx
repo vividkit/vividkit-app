@@ -2,16 +2,11 @@ import { Bot } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { CcsAccountCard } from './ccs-account-card'
 import { CommandProviderRow } from './command-provider-row'
-import { useProjectStore } from '@/stores/project-store'
-import type { Project } from '@/types'
-
-type CcsAccount = Project['ccsAccounts'][number]
+import { useCcsAccountStore } from '@/stores/ccs-account-store'
 
 export function SettingsAiCommands() {
   const { t } = useTranslation()
-  const { projects, activeProjectId } = useProjectStore()
-  const activeProject = projects.find((p: Project) => p.id === activeProjectId)
-  const accounts: CcsAccount[] = activeProject?.ccsAccounts ?? []
+  const { accounts } = useCcsAccountStore()
   const activeAccounts = accounts.filter((a) => a.status === 'active')
   const commands = [
     { command: '/plan', description: t('settings.aiCommands.commands.plan') },

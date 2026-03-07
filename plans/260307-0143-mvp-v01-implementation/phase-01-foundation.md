@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** pending
+- **Status:** done
 - **Goal:** SQLite init + migrations, CCS profile discovery, app layout finalization, connect stores to real DB.
 
 ## Key Insights
@@ -64,13 +64,13 @@ App launch → init_db() → run migrations → discover_ccs_profiles()
 9. Call `init_db` + `discover_ccs_profiles` on app startup (Tauri setup hook or first render)
 
 ## Todo List
-- [ ] db.rs — SQLite connection manager
-- [ ] commands/db.rs — init_db + migrations
-- [ ] commands/ccs.rs — profile discovery
-- [ ] lib.rs — register commands + DB state
-- [ ] tauri.ts — typed wrappers
-- [ ] Stores wired to real DB
-- [ ] App startup sequence (init → discover → load)
+- [x] db.rs — SQLite connection manager
+- [x] commands/db.rs — init_db + migrations
+- [x] commands/ccs.rs — profile discovery
+- [x] lib.rs — register commands + DB state
+- [x] tauri.ts — typed wrappers
+- [x] Stores wired to real DB
+- [x] App startup sequence (init → discover → load)
 
 ## Success Criteria
 - `init_db` creates SQLite file with all 10 tables

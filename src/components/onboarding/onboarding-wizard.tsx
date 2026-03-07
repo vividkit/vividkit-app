@@ -52,8 +52,8 @@ export function OnboardingWizard() {
       description: state.projectSummary,
       gitPath: state.gitMethod === 'local' ? state.gitPath : state.cloneUrl,
       ccsConnected: false,
-      ccsAccounts: [],
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     })
     navigate('/')
   }

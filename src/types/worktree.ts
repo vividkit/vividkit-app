@@ -4,10 +4,12 @@ export type MergeStrategy = 'merge' | 'squash' | 'rebase'
 export interface Worktree {
   id: string
   projectId: string
-  taskId: string
+  taskId?: string
   branch: string
+  path: string
   status: WorktreeStatus
   filesChanged: number
   mergedAt?: string
   createdAt: string
+  updatedAt: string
 }

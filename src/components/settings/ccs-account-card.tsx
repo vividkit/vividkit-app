@@ -2,10 +2,7 @@ import { Bot } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { Project } from '@/types'
-
-type CcsAccount = Project['ccsAccounts'][number]
-type AccountStatus = CcsAccount['status']
+import type { CcsAccount, AccountStatus } from '@/types'
 
 const STATUS_CLASS: Record<AccountStatus, string> = {
   active: 'bg-success/10 text-success',

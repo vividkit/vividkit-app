@@ -83,6 +83,31 @@ export async function stopSessionLogWatch(sessionId: string): Promise<void> {
 }
 
 // =============================================================================
+// DB Commands
+// =============================================================================
+
+/** Health check — returns number of tables */
+export async function checkDb(): Promise<number> {
+  return invoke<number>('check_db')
+}
+
+// =============================================================================
+// CCS Account Commands
+// =============================================================================
+
+import type { CcsAccount } from '@/types'
+
+/** Discover CCS profiles from ~/.ccs/ and save to DB */
+export async function discoverCcsProfiles(): Promise<CcsAccount[]> {
+  return invoke<CcsAccount[]>('discover_ccs_profiles')
+}
+
+/** Get all CCS accounts from DB */
+export async function getCcsAccounts(): Promise<CcsAccount[]> {
+  return invoke<CcsAccount[]>('get_ccs_accounts')
+}
+
+// =============================================================================
 // Subagent Commands
 // =============================================================================
 

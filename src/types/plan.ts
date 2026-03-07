@@ -7,7 +7,10 @@ export interface Phase {
   description?: string
   filePath?: string
   order: number
+  orderIndex?: number
   status: PhaseStatus
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Plan {
@@ -18,4 +21,5 @@ export interface Plan {
   planPath?: string
   phases: Phase[]
   createdAt: string
+  updatedAt?: string
 }

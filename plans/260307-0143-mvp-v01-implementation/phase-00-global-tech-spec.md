@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** pending
+- **Status:** done
 - **Type:** Documentation only — no code changes
 - **Goal:** Define DB schema SQL, shared TS types, Rust model structs, Tauri IPC contract for ALL models before any implementation begins.
 
@@ -71,12 +71,12 @@ Define CREATE TABLE statements for all 10 models with:
 9. Update `docs/system-architecture.md` — remove Validate/RedTeam references
 
 ## Todo List
-- [ ] SQLite schema SQL for all 10 tables
-- [ ] Rust model structs (10 files)
-- [ ] TypeScript interfaces (10 files)
-- [ ] IPC contract signatures documented
-- [ ] models/mod.rs + types/index.ts updated
-- [ ] system-architecture.md updated
+- [x] SQLite schema SQL for all 10 tables
+- [x] Rust model structs (10 files)
+- [x] TypeScript interfaces (10 files)
+- [x] IPC contract signatures documented
+- [x] models/mod.rs + types/index.ts updated
+- [x] system-architecture.md updated
 
 ## Success Criteria
 - All 10 model structs compile in Rust

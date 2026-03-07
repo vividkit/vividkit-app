@@ -7,7 +7,11 @@ const COLUMN_META: Record<TaskStatus, { dot: string }> = {
   backlog: { dot: 'bg-muted-foreground' },
   todo: { dot: 'bg-warning' },
   in_progress: { dot: 'bg-primary' },
+  cooking: { dot: 'bg-primary' },
+  paused: { dot: 'bg-muted-foreground' },
+  review: { dot: 'bg-warning' },
   done: { dot: 'bg-success' },
+  failed: { dot: 'bg-destructive' },
 }
 
 interface TaskKanbanColumnProps {
@@ -23,7 +27,11 @@ export function TaskKanbanColumn({ status, tasks, onCook }: TaskKanbanColumnProp
     backlog: t('tasks.kanban.columns.backlog'),
     todo: t('tasks.kanban.columns.todo'),
     in_progress: t('tasks.kanban.columns.inProgress'),
+    cooking: t('tasks.kanban.columns.cooking', 'Cooking'),
+    paused: t('tasks.kanban.columns.paused', 'Paused'),
+    review: t('tasks.kanban.columns.review', 'Review'),
     done: t('tasks.kanban.columns.done'),
+    failed: t('tasks.kanban.columns.failed', 'Failed'),
   }
 
   return (

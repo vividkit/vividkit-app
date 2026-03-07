@@ -2,9 +2,7 @@ import { Terminal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useSettingsStore } from '@/stores/settings-store'
-import type { Project } from '@/types'
-
-type CcsAccount = Project['ccsAccounts'][number]
+import type { CcsAccount } from '@/types'
 
 interface CommandProviderRowProps {
   command: string

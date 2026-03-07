@@ -1,23 +1,12 @@
+export type BrainstormStatus = 'idle' | 'running' | 'completed'
+
 export interface BrainstormSession {
   id: string
   deckId: string
   prompt: string
   reportPath?: string
-  status: 'idle' | 'running' | 'completed'
+  sessionLogPath?: string
+  status: BrainstormStatus
   createdAt: string
-}
-
-export interface KeyInsight {
-  id: string
-  projectId: string
-  deckId: string
-  title: string
-  reportPath: string
-  createdAt: string
-}
-
-export interface Idea {
-  id: string
-  content: string
-  createdAt: string
+  updatedAt?: string
 }

@@ -25,8 +25,8 @@ export default function NewProjectPage() {
       name: baseNameFromPath(state.gitPath) ?? t('navigation.sidebar.newProject'),
       gitPath: state.gitMethod === 'local' ? state.gitPath : state.cloneUrl,
       ccsConnected: false,
-      ccsAccounts: [],
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     })
     navigate('/')
   }
