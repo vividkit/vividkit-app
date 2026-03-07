@@ -95,7 +95,7 @@ export async function checkDb(): Promise<number> {
 // CCS Account Commands
 // =============================================================================
 
-import type { CcsAccount } from '@/types'
+import type { CcsAccount, Project, Deck, AppSettings } from '@/types'
 
 /** Discover CCS profiles from ~/.ccs/ and save to DB */
 export async function discoverCcsProfiles(): Promise<CcsAccount[]> {
@@ -105,6 +105,69 @@ export async function discoverCcsProfiles(): Promise<CcsAccount[]> {
 /** Get all CCS accounts from DB */
 export async function getCcsAccounts(): Promise<CcsAccount[]> {
   return invoke<CcsAccount[]>('get_ccs_accounts')
+}
+
+// =============================================================================
+// Project Commands
+// =============================================================================
+
+export async function createProject(
+  name: string,
+  description: string | undefined,
+  gitPath: string,
+): Promise<Project> {
+  return invoke<Project>('create_project', { name, description, gitPath })
+}
+
+export async function listProjects(): Promise<Project[]> {
+  return invoke<Project[]>('list_projects')
+}
+
+export async function getActiveProject(): Promise<Project | null> {
+  return invoke<Project | null>('get_active_project')
+}
+
+export async function setActiveProject(id: string): Promise<void> {
+  return invoke<void>('set_active_project', { id })
+}
+
+export async function validateGitRepo(path: string): Promise<boolean> {
+  return invoke<boolean>('validate_git_repo', { path })
+}
+
+export async function listDecks(projectId: string): Promise<Deck[]> {
+  return invoke<Deck[]>('list_decks', { projectId })
+}
+
+// =============================================================================
+// Dashboard Commands
+// =============================================================================
+
+export interface DashboardStats {
+  activeTasks: number
+  totalTasks: number
+  doneTasks: number
+  worktreeCount: number
+  brainstormCount: number
+}
+
+export async function getDashboardStats(
+  deckId: string | null,
+  projectId: string | null,
+): Promise<DashboardStats> {
+  return invoke<DashboardStats>('get_dashboard_stats', { deckId, projectId })
+}
+
+// =============================================================================
+// Settings Commands
+// =============================================================================
+
+export async function getSettings(): Promise<AppSettings> {
+  return invoke<AppSettings>('get_settings')
+}
+
+export async function updateSettingsDb(settings: AppSettings): Promise<AppSettings> {
+  return invoke<AppSettings>('update_settings', { settings })
 }
 
 // =============================================================================

@@ -1,10 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { AppSettings } from '@/types'
+import { getSettings, updateSettingsDb } from '@/lib/tauri'
 
 interface SettingsStore {
   settings: AppSettings
+  dbLoaded: boolean
   updateSettings: (patch: Partial<AppSettings>) => void
+  loadFromDb: () => Promise<void>
 }
 
 export const SETTINGS_STORAGE_KEY = 'vividkit-settings'
@@ -75,11 +78,36 @@ function readStoredSettingsFromLocalStorage(): unknown {
 
 const initialSettings = normalizeSettings(readStoredSettingsFromLocalStorage())
 
+// Debounced DB save — avoids excessive writes
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+function debouncedSaveToDb(settings: AppSettings) {
+  if (saveTimer) clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    void updateSettingsDb(settings).catch((e) => console.error('[settings] db save:', e))
+  }, 500)
+}
+
 export const useSettingsStore = create<SettingsStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       settings: initialSettings,
-      updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+      dbLoaded: false,
+      updateSettings: (patch) => {
+        const merged = { ...get().settings, ...patch }
+        set({ settings: merged })
+        debouncedSaveToDb(merged)
+      },
+      loadFromDb: async () => {
+        if (get().dbLoaded) return
+        try {
+          const dbSettings = await getSettings()
+          const normalized = normalizeSettings(dbSettings)
+          set({ settings: normalized, dbLoaded: true })
+        } catch (e) {
+          console.error('[settings] db load:', e)
+          set({ dbLoaded: true })
+        }
+      },
     }),
     {
       name: SETTINGS_STORAGE_KEY,
