@@ -1,39 +1,16 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useProjectStore } from '@/stores/project-store'
+import { useOnboarding } from '@/hooks/use-onboarding'
 import { ProgressIndicator } from './progress-indicator'
 import { StepWelcome } from './step-welcome'
 import { StepGitSetup } from './step-git-setup'
 import { StepAiTools } from './step-ai-tools'
 import { StepProjectSetup } from './step-project-setup'
 
-export type GitMethod = 'local' | 'clone'
-
-export interface OnboardingState {
-  gitMethod: GitMethod
-  gitPath: string
-  cloneUrl: string
-  projectName: string
-  projectSummary: string
-}
+export type { OnboardingFormData as OnboardingState, GitMethod } from '@/hooks/use-onboarding'
 
 export function OnboardingWizard() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const addProject = useProjectStore((s) => s.addProject)
-  const [step, setStep] = useState(0)
-  const [state, setState] = useState<OnboardingState>({
-    gitMethod: 'local',
-    gitPath: '',
-    cloneUrl: '',
-    projectName: '',
-    projectSummary: '',
-  })
-
-  function patch(updates: Partial<OnboardingState>) {
-    setState((s) => ({ ...s, ...updates }))
-  }
+  const { step, formData, patch, next, back, finish, creating, error } = useOnboarding()
 
   const steps = [
     t('onboarding.steps.welcome'),
@@ -42,23 +19,7 @@ export function OnboardingWizard() {
     t('onboarding.steps.projectSetup'),
   ]
 
-  function next() { setStep((s) => Math.min(s + 1, steps.length - 1)) }
-  function back() { setStep((s) => Math.max(s - 1, 0)) }
-
-  function finish() {
-    addProject({
-      id: crypto.randomUUID(),
-      name: state.projectName || t('onboarding.defaults.myProject'),
-      description: state.projectSummary,
-      gitPath: state.gitMethod === 'local' ? state.gitPath : state.cloneUrl,
-      ccsConnected: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    })
-    navigate('/')
-  }
-
-  const stepProps = { state, patch, onNext: next, onBack: back, onFinish: finish }
+  const stepProps = { state: formData, patch, onNext: next, onBack: back, onFinish: finish, creating, error }
 
   return (
     <div className="flex min-h-screen bg-background">

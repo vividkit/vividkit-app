@@ -1,40 +1,38 @@
 import { useState } from 'react'
-import { Bot, CheckCircle, Loader2 } from 'lucide-react'
+import { Bot, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import type { OnboardingState } from './onboarding-wizard'
+import { discoverCcsProfiles } from '@/lib/tauri'
+import type { CcsAccount } from '@/types'
+import type { OnboardingFormData } from '@/hooks/use-onboarding'
 
-type DetectStatus = 'idle' | 'detecting' | 'found'
+type DetectStatus = 'idle' | 'detecting' | 'found' | 'not_found'
 
 interface StepAiToolsProps {
-  state: OnboardingState
-  patch: (u: Partial<OnboardingState>) => void
+  state: OnboardingFormData
+  patch: (u: Partial<OnboardingFormData>) => void
   onNext: () => void
   onBack: () => void
 }
 
-const CCS_ACCOUNTS = [
-  { provider: 'Claude', status: 'active' as const },
-  { provider: 'Gemini', status: 'active' as const },
-  { provider: 'Copilot', status: 'paused' as const },
-]
-
 export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
   const { t } = useTranslation()
-  const [claudeStatus, setClaudeStatus] = useState<DetectStatus>('idle')
   const [ccsStatus, setCcsStatus] = useState<DetectStatus>('idle')
+  const [accounts, setAccounts] = useState<CcsAccount[]>([])
 
-  function detect() {
-    setClaudeStatus('detecting')
+  async function detect() {
     setCcsStatus('detecting')
-    setTimeout(() => {
-      setClaudeStatus('found')
-      setCcsStatus('found')
-    }, 1200)
+    try {
+      const result = await discoverCcsProfiles()
+      setAccounts(result)
+      setCcsStatus(result.length > 0 ? 'found' : 'not_found')
+    } catch {
+      setCcsStatus('not_found')
+    }
   }
 
-  const statusBadge = (s: 'active' | 'paused') =>
+  const statusBadge = (s: string) =>
     s === 'active' ? (
       <Badge variant="secondary" className="bg-success/10 text-success">{t('onboarding.aiTools.active')}</Badge>
     ) : (
@@ -49,22 +47,7 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
       </div>
 
       <div className="space-y-3">
-        {/* Claude Code */}
-        <div className="p-4 rounded-lg border border-border bg-card space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bot className="size-4 text-primary" />
-              <span className="font-medium text-sm">{t('onboarding.aiTools.claudeCode')}</span>
-            </div>
-            {claudeStatus === 'detecting' && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
-            {claudeStatus === 'found' && <CheckCircle className="size-4 text-success" />}
-          </div>
-          {claudeStatus === 'found' && (
-            <p className="text-xs text-muted-foreground">{t('onboarding.aiTools.authenticated')}</p>
-          )}
-        </div>
-
-        {/* CCS */}
+        {/* CCS Profiles */}
         <div className="p-4 rounded-lg border border-border bg-card space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -73,21 +56,25 @@ export function StepAiTools({ onNext, onBack }: StepAiToolsProps) {
             </div>
             {ccsStatus === 'detecting' && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
             {ccsStatus === 'found' && <CheckCircle className="size-4 text-success" />}
+            {ccsStatus === 'not_found' && <AlertCircle className="size-4 text-warning" />}
           </div>
           {ccsStatus === 'found' && (
             <div className="flex gap-2 flex-wrap">
-              {CCS_ACCOUNTS.map(({ provider, status }) => (
-                <div key={provider} className="flex items-center gap-1.5">
-                  <span className="text-xs font-medium">{provider}</span>
-                  {statusBadge(status)}
+              {accounts.map((acc) => (
+                <div key={acc.id} className="flex items-center gap-1.5">
+                  <span className="text-xs font-medium">{acc.name}</span>
+                  {statusBadge(acc.status)}
                 </div>
               ))}
             </div>
           )}
+          {ccsStatus === 'not_found' && (
+            <p className="text-xs text-muted-foreground">{t('onboarding.aiTools.notFound')}</p>
+          )}
         </div>
       </div>
 
-      {claudeStatus === 'idle' && (
+      {ccsStatus === 'idle' && (
         <Button variant="outline" className="w-full" onClick={detect}>
           {t('onboarding.aiTools.detect')}
         </Button>

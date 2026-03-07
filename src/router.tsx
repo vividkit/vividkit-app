@@ -1,7 +1,8 @@
-import { lazy, Suspense } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AppLayout } from '@/components/layout'
+import { useProjectStore } from '@/stores/project-store'
 
 const Onboarding = lazy(() => import('@/pages/onboarding'))
 const NewProject = lazy(() => import('@/pages/new-project'))
@@ -17,6 +18,30 @@ const Cook = lazy(() => import('@/pages/cook'))
 const Worktrees = lazy(() => import('@/pages/worktrees'))
 const Settings = lazy(() => import('@/pages/settings'))
 const CcsTest = lazy(() => import('@/pages/ccs-test'))
+
+/** Redirect to /onboarding if no projects exist */
+function RootRedirect() {
+  const { t } = useTranslation()
+  const { loaded, projects, loadProjects } = useProjectStore()
+
+  useEffect(() => {
+    void loadProjects()
+  }, [loadProjects])
+
+  if (!loaded) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[200px] text-muted-foreground text-sm">
+        {t('common.messages.loading')}
+      </div>
+    )
+  }
+
+  if (projects.length === 0) {
+    return <Navigate to="/onboarding" replace />
+  }
+
+  return <Dashboard />
+}
 
 function PageLoader() {
   const { t } = useTranslation()
@@ -45,7 +70,7 @@ const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      { path: '/', element: wrap(<Dashboard />) },
+      { path: '/', element: <Suspense fallback={<PageLoader />}><RootRedirect /></Suspense> },
       { path: '/decks', element: wrap(<Decks />) },
       { path: '/brainstorm', element: wrap(<Brainstorm />) },
       { path: '/brainstorm/:id', element: wrap(<BrainstormReport />) },

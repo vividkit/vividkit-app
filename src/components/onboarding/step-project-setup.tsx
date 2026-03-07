@@ -1,18 +1,21 @@
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useTranslation } from 'react-i18next'
-import type { OnboardingState } from './onboarding-wizard'
+import type { OnboardingFormData } from '@/hooks/use-onboarding'
 
 interface StepProjectSetupProps {
-  state: OnboardingState
-  patch: (u: Partial<OnboardingState>) => void
+  state: OnboardingFormData
+  patch: (u: Partial<OnboardingFormData>) => void
   onNext: () => void
   onBack: () => void
   onFinish: () => void
+  creating?: boolean
+  error?: string | null
 }
 
-export function StepProjectSetup({ state, patch, onBack, onFinish }: StepProjectSetupProps) {
+export function StepProjectSetup({ state, patch, onBack, onFinish, creating, error }: StepProjectSetupProps) {
   const { t } = useTranslation()
   const gitSummary = state.gitMethod === 'local'
     ? state.gitPath || t('common.defaults.noPath')
@@ -58,13 +61,18 @@ export function StepProjectSetup({ state, patch, onBack, onFinish }: StepProject
         </div>
       </div>
 
+      {error && (
+        <p className="text-sm text-destructive">{error}</p>
+      )}
+
       <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack} className="flex-1">{t('common.actions.back')}</Button>
+        <Button variant="outline" onClick={onBack} className="flex-1" disabled={creating}>{t('common.actions.back')}</Button>
         <Button
           onClick={onFinish}
           className="flex-1"
-          disabled={!state.projectName.trim()}
+          disabled={!state.projectName.trim() || creating}
         >
+          {creating && <Loader2 className="size-4 animate-spin mr-2" />}
           {t('onboarding.projectSetup.launch')}
         </Button>
       </div>

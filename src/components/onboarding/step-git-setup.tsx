@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, GitBranch } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { open } from '@tauri-apps/plugin-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { invoke } from '@tauri-apps/api/core'
+import { validateGitRepo } from '@/lib/tauri'
 import { cn } from '@/lib/utils'
-import type { OnboardingState, GitMethod } from './onboarding-wizard'
+import type { OnboardingFormData, GitMethod } from '@/hooks/use-onboarding'
 
 interface StepGitSetupProps {
-  state: OnboardingState
-  patch: (u: Partial<OnboardingState>) => void
+  state: OnboardingFormData
+  patch: (u: Partial<OnboardingFormData>) => void
   onNext: () => void
   onBack: () => void
 }
@@ -17,16 +18,45 @@ interface StepGitSetupProps {
 export function StepGitSetup({ state, patch, onNext, onBack }: StepGitSetupProps) {
   const { t } = useTranslation()
   const [browsing, setBrowsing] = useState(false)
+  const [gitValid, setGitValid] = useState<boolean | null>(null)
+  const [initializing, setInitializing] = useState(false)
 
   async function browse() {
     setBrowsing(true)
     try {
-      const selected = await invoke<string | null>('open_directory_dialog')
-      if (selected) patch({ gitPath: selected })
+      const selected = await open({ directory: true, multiple: false })
+      if (selected) {
+        patch({ gitPath: selected })
+        const valid = await validateGitRepo(selected)
+        setGitValid(valid)
+      }
     } catch {
       // dialog cancelled or failed
     } finally {
       setBrowsing(false)
+    }
+  }
+
+  async function onPathBlur() {
+    if (state.gitPath.trim()) {
+      const valid = await validateGitRepo(state.gitPath.trim())
+      setGitValid(valid)
+    } else {
+      setGitValid(null)
+    }
+  }
+
+  async function handleInitGit() {
+    if (!state.gitPath.trim() || initializing) return
+    setInitializing(true)
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('init_git_repo', { path: state.gitPath.trim() })
+      setGitValid(true)
+    } catch {
+      // init failed
+    } finally {
+      setInitializing(false)
     }
   }
 
@@ -75,6 +105,7 @@ export function StepGitSetup({ state, patch, onNext, onBack }: StepGitSetupProps
             <Input
               value={state.gitPath}
               onChange={(e) => patch({ gitPath: e.target.value })}
+              onBlur={onPathBlur}
               placeholder={t('onboarding.gitSetup.projectPathPlaceholder')}
               className="flex-1 font-mono text-sm"
             />
@@ -82,6 +113,23 @@ export function StepGitSetup({ state, patch, onNext, onBack }: StepGitSetupProps
               <FolderOpen className="size-4" />
             </Button>
           </div>
+          {gitValid === false && (
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-destructive">{t('onboarding.gitSetup.notAGitRepo')}</p>
+              <button
+                type="button"
+                onClick={handleInitGit}
+                disabled={initializing}
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-50"
+              >
+                <GitBranch className="size-3" />
+                {initializing ? t('onboarding.gitSetup.initializing') : t('onboarding.gitSetup.initGit')}
+              </button>
+            </div>
+          )}
+          {gitValid === true && (
+            <p className="text-xs text-success">{t('onboarding.gitSetup.validGitRepo')}</p>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
