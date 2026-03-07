@@ -18,15 +18,15 @@ created: 2026-03-07
 | 00 | [Global Tech Spec](phase-00-global-tech-spec.md) | D0 | done | 2h | — |
 | 01 | [Foundation](phase-01-foundation.md) | M0 | done | 4h | D0 |
 | 02 | [Brainstorm](phase-02-brainstorm.md) | M1 | pending | 5h | M0 |
-| 03 | [Onboarding](phase-03-onboarding.md) | M2 | pending | 3h | M0 |
-| 04 | [Dashboard](phase-04-dashboard.md) | M3 | pending | 2h | M0 |
+| 03 | [Onboarding](phase-03-onboarding.md) | M2 | done | 3h | M0 |
+| 04 | [Dashboard](phase-04-dashboard.md) | M3 | done | 2h | M0 |
 | 05 | [Decks + Project Switcher](phase-05-decks-project-switcher.md) | M4 | pending | 3h | M0, M2 |
 | 06 | [Generate Plan](phase-06-generate-plan.md) | M5 | pending | 3h | M1 |
 | 07 | [Plans List + Review](phase-07-plans-list-review.md) | M6 | pending | 3h | M5 |
 | 08 | [Tasks](phase-08-tasks.md) | M7 | pending | 4h | M0 |
 | 09 | [Cook](phase-09-cook.md) | M8 | pending | 5h | M7 |
 | 10 | [Worktrees](phase-10-worktrees.md) | M9 | pending | 3h | M8 |
-| 11 | [Settings](phase-11-settings.md) | M10 | pending | 2h | M0 |
+| 11 | [Settings](phase-11-settings.md) | M10 | done | 2h | M0 |
 | 12 | [Polish + Release](phase-12-polish-release.md) | M11 | pending | 3h | All |
 
 ## Dependency Graph
@@ -120,7 +120,7 @@ M11 (Polish)
 #### Action Items
 - [x] Phase 01: Add WAL mode pragma to init_db()
 - [x] Phase 01: Add schema_version table + migration runner
-- [ ] Phase 01: Add CCS-not-found banner component
+- [x] Phase 01: Add CCS-not-found banner component (done via onboarding step-ai-tools notFound state)
 - [ ] Phase 05: Implement global context-changed event emitter
 - [ ] Phase 08: Task state machine validation in Rust only
 - [ ] Phase 09: Confirm dialog before stopping existing cook

@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** pending
+- **Status:** done
 - **Goal:** Stats cards (aggregate queries) + quick actions grid.
 
 ## Key Insights
@@ -42,10 +42,10 @@
 5. Show active deck name in dashboard header area
 
 ## Todo List
-- [ ] commands/dashboard.rs — aggregate queries
-- [ ] use-dashboard.ts hook
-- [ ] Dashboard page wired to real data
-- [ ] Quick actions navigation working
+- [x] commands/dashboard.rs — aggregate queries
+- [x] use-dashboard.ts hook
+- [x] Dashboard page wired to real data
+- [x] Quick actions navigation working
 
 ## Success Criteria
 - Stats reflect actual DB counts

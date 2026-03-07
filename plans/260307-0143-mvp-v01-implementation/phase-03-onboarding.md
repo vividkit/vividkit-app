@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** pending
+- **Status:** done
 - **Goal:** 4-step wizard — Welcome, Git Setup, AI Tools Detection, Project Creation. User exits with project + deck created.
 
 ## Key Insights
@@ -52,12 +52,12 @@
 6. Update project-store to load active project on init
 
 ## Todo List
-- [ ] commands/project.rs — CRUD + validate
-- [ ] use-onboarding.ts hook
-- [ ] Wire 4 wizard steps
-- [ ] Router redirect logic
-- [ ] Project creation auto-creates default deck
-- [ ] project-store wired to DB
+- [x] commands/project.rs — CRUD + validate
+- [x] use-onboarding.ts hook
+- [x] Wire 4 wizard steps
+- [x] Router redirect logic
+- [x] Project creation auto-creates default deck
+- [x] project-store wired to DB
 
 ## Success Criteria
 - New user completes 4-step wizard in <2 minutes

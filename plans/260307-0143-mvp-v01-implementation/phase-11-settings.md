@@ -2,7 +2,7 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** pending
+- **Status:** done
 - **Goal:** 4 tabs (General, AI & Commands, Git, Editor), persist to DB. CCS Test Console behind dev mode.
 
 ## Key Insights
@@ -52,14 +52,14 @@
 9. Conditionally show CCS Test Console tab when devMode=true
 
 ## Todo List
-- [ ] commands/settings.rs — get/set
-- [ ] use-settings.ts hook
-- [ ] General tab functional
-- [ ] AI & Commands tab with profiles + mapping
-- [ ] Git tab with preferences
-- [ ] Editor tab with options
-- [ ] Settings persisted to DB
-- [ ] Dev mode toggle for CCS Test Console
+- [x] commands/settings.rs — get/set
+- [x] use-settings.ts hook
+- [x] General tab functional
+- [x] AI & Commands tab with profiles + mapping
+- [x] Git tab with preferences
+- [x] Editor tab with options
+- [x] Settings persisted to DB
+- [x] Dev mode toggle for CCS Test Console
 
 ## Success Criteria
 - All 4 tabs display and save settings
