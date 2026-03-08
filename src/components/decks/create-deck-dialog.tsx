@@ -4,7 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import { useDeckStore } from '@/stores/deck-store'
+import { useProjectStore } from '@/stores/project-store'
 
 interface CreateDeckDialogProps {
   open: boolean
@@ -13,24 +16,28 @@ interface CreateDeckDialogProps {
 
 export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) {
   const { t } = useTranslation()
-  const addDeck = useDeckStore((s) => s.addDeck)
+  const createDeck = useDeckStore((s) => s.createDeck)
+  const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
+  const [setActive, setSetActive] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: { preventDefault: () => void }) {
+  async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault()
-    if (!name.trim()) return
-    addDeck({
-      id: crypto.randomUUID(),
-      projectId: '',
-      name: name.trim(),
-      description: desc.trim() || undefined,
-      isActive: false,
-      createdAt: new Date().toISOString(),
-    })
-    setName('')
-    setDesc('')
-    onOpenChange(false)
+    if (!name.trim() || !activeProjectId) return
+    setLoading(true)
+    try {
+      await createDeck(activeProjectId, name.trim(), desc.trim() || undefined, undefined, setActive)
+      setName('')
+      setDesc('')
+      setSetActive(false)
+      onOpenChange(false)
+    } catch (err) {
+      console.error('[CreateDeckDialog]', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -62,11 +69,21 @@ export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) 
               rows={3}
             />
           </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="set-active"
+              checked={setActive}
+              onCheckedChange={(checked) => setSetActive(checked === true)}
+            />
+            <Label htmlFor="set-active" className="text-sm font-normal cursor-pointer">
+              {t('pages.decks.createDialog.setActive')}
+            </Label>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t('common.actions.cancel')}
             </Button>
-            <Button type="submit" disabled={!name.trim()}>
+            <Button type="submit" disabled={!name.trim() || loading}>
               {t('pages.decks.createDialog.createButton')}
             </Button>
           </DialogFooter>

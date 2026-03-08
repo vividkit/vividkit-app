@@ -99,7 +99,7 @@ export async function checkDb(): Promise<number> {
 // CCS Account Commands
 // =============================================================================
 
-import type { CcsAccount, Project, Deck, AppSettings, BrainstormSession, KeyInsight } from '@/types'
+import type { CcsAccount, Project, Deck, AppSettings, BrainstormSession, KeyInsight, Task, TaskPriority, TaskType } from '@/types'
 
 /** Discover CCS profiles from ~/.ccs/ and save to DB */
 export async function discoverCcsProfiles(): Promise<CcsAccount[]> {
@@ -141,6 +141,24 @@ export async function validateGitRepo(path: string): Promise<boolean> {
 
 export async function listDecks(projectId: string): Promise<Deck[]> {
   return invoke<Deck[]>('list_decks', { projectId })
+}
+
+export async function createDeck(
+  projectId: string,
+  name: string,
+  description?: string,
+  basedOnInsightId?: string,
+  setActive?: boolean,
+): Promise<Deck> {
+  return invoke<Deck>('create_deck', { projectId, name, description, basedOnInsightId, setActive: setActive ?? false })
+}
+
+export async function setActiveDeck(projectId: string, deckId: string): Promise<void> {
+  return invoke<void>('set_active_deck', { projectId, deckId })
+}
+
+export async function deleteDeck(id: string): Promise<void> {
+  return invoke<void>('delete_deck', { id })
 }
 
 // =============================================================================
@@ -318,4 +336,40 @@ export async function parseSubagentFile(filePath: string): Promise<RawSubagentDa
 /** Resolve all subagents for a session directory */
 export async function resolveSubagents(sessionDir: string): Promise<RawSubagentData[]> {
   return invoke<RawSubagentData[]>('resolve_subagents', { sessionDir })
+}
+
+// =============================================================================
+// Task Commands
+// =============================================================================
+
+export async function createTask(
+  deckId: string,
+  name: string,
+  priority: TaskPriority,
+  taskType: TaskType,
+  description?: string,
+  planId?: string,
+  phaseId?: string,
+): Promise<Task> {
+  return invoke<Task>('create_task', { deckId, name, priority, taskType, description, planId, phaseId })
+}
+
+export async function listTasks(deckId: string): Promise<Task[]> {
+  return invoke<Task[]>('list_tasks', { deckId })
+}
+
+export async function getTask(id: string): Promise<Task | null> {
+  return invoke<Task | null>('get_task', { id })
+}
+
+export async function updateTask(id: string, name?: string, description?: string, priority?: string): Promise<Task> {
+  return invoke<Task>('update_task', { id, name, description, priority })
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  return invoke<void>('delete_task', { id })
+}
+
+export async function updateTaskStatus(id: string, newStatus: string): Promise<Task> {
+  return invoke<Task>('update_task_status', { id, newStatus })
 }

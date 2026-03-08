@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useProjectStore } from '@/stores/project-store'
 import { useTaskStore } from '@/stores/task-store'
+import { ProjectSwitcher } from './project-switcher'
 import { cn } from '@/lib/utils'
 
 const MAIN_NAV = [
@@ -34,7 +35,7 @@ export function AppSidebar() {
 
   const activeProject = projects.find((p) => p.id === activeProjectId)
   const projectInitial = activeProject?.name?.charAt(0)?.toUpperCase() ?? 'V'
-  const inProgressCount = tasks.filter((t) => (t.status as string) === 'in_progress').length
+  const inProgressCount = tasks.filter((tk) => (tk.status as string) === 'in_progress').length
 
   return (
     <TooltipProvider>
@@ -63,22 +64,7 @@ export function AppSidebar() {
             </Tooltip>
           ) : (
             <>
-              <button
-                className="flex flex-1 min-w-0 items-center gap-2.5 rounded-lg px-1.5 py-1 hover:bg-secondary transition-colors text-left"
-                onClick={() => navigate('/decks')}
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-sm shrink-0">
-                  {projectInitial}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {activeProject?.name ?? t('navigation.sidebar.noProject')}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {activeProject?.description ?? t('navigation.sidebar.selectProject')}
-                  </p>
-                </div>
-              </button>
+              <ProjectSwitcher />
               <Button
                 variant="ghost"
                 size="icon"
