@@ -7,6 +7,7 @@ import {
   resolveHomePath,
   createBrainstormSession,
   updateBrainstormSession,
+  extractReportPathFromJsonl,
   type CcsRunEventPayload,
 } from '@/lib/tauri'
 import { useDeckStore } from '@/stores/deck-store'
@@ -24,6 +25,7 @@ export function useBrainstorm() {
   const [isStopping, setIsStopping] = useState(false)
   const [exitCode, setExitCode] = useState<number | null>(null)
   const [sessionLogPath, setSessionLogPath] = useState<string | null>(null)
+  const [reportPath, setReportPath] = useState<string | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [streamKey, setStreamKey] = useState(0)
   const [listenerReady, setListenerReady] = useState(false)
@@ -90,15 +92,26 @@ export function useBrainstorm() {
     }
   }, [])
 
-  // Mark session completed when run terminates
+  // Mark session completed and extract report path when run terminates
   useEffect(() => {
-    if (exitCode !== null && sessionId) {
-      const status = exitCode === 0 ? 'completed' : 'completed'
-      updateBrainstormSession(sessionId, status).catch((e) =>
-        console.error('[useBrainstorm] update session status:', e),
-      )
-    }
-  }, [exitCode, sessionId])
+    if (exitCode === null || !sessionId) return
+    updateBrainstormSession(sessionId, 'completed').catch((e) =>
+      console.error('[useBrainstorm] update session status:', e),
+    )
+    // Extract brainstorm report path from JSONL after session ends
+    const logPath = sessionLogPath
+    if (!logPath) return
+    extractReportPathFromJsonl(logPath)
+      .then((path) => {
+        if (path && mountedRef.current) {
+          setReportPath(path)
+          updateBrainstormSession(sessionId, undefined, undefined, path).catch((e) =>
+            console.error('[useBrainstorm] update report path:', e),
+          )
+        }
+      })
+      .catch((e) => console.error('[useBrainstorm] extract report path:', e))
+  }, [exitCode, sessionId, sessionLogPath])
 
   const startSession = useCallback(async (profile: string, prompt: string) => {
     if (!listenerReady || isRunning || !activeDeckId) {
@@ -111,6 +124,7 @@ export function useBrainstorm() {
     setExitCode(null)
     setActiveRun(null)
     setSessionLogPath(null)
+    setReportPath(null)
     setStreamKey((k) => k + 1)
     isStartingRef.current = true
     stopRequestedRef.current = false
@@ -199,6 +213,7 @@ export function useBrainstorm() {
     isStopping,
     exitCode,
     sessionLogPath,
+    reportPath,
     activeRunId,
     streamKey,
     listenerReady,

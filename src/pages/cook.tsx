@@ -42,7 +42,7 @@ export default function CookPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <AppHeader title={taskName} subtitle={`/cook/${taskId?.slice(0, 8)}`} />
+      <AppHeader title={taskName} subtitle={`/ck:cook/${taskId?.slice(0, 8)}`} />
       <div className="flex flex-col flex-1 p-6 gap-4 min-h-0">
         <CookProgressBar progress={progress} />
         <CookSteps progress={progress} />

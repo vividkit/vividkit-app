@@ -9,11 +9,11 @@ export function SettingsAiCommands() {
   const { accounts } = useCcsAccountStore()
   const activeAccounts = accounts.filter((a) => a.status === 'active')
   const commands = [
-    { command: '/plan', description: t('settings.aiCommands.commands.plan') },
-    { command: '/brainstorm', description: t('settings.aiCommands.commands.brainstorm') },
-    { command: '/cook', description: t('settings.aiCommands.commands.cook') },
-    { command: '/review', description: t('settings.aiCommands.commands.review') },
-    { command: '/test', description: t('settings.aiCommands.commands.test') },
+    { command: '/ck:plan', description: t('settings.aiCommands.commands.plan') },
+    { command: '/ck:brainstorm', description: t('settings.aiCommands.commands.brainstorm') },
+    { command: '/ck:cook', description: t('settings.aiCommands.commands.cook') },
+    { command: '/ck:review', description: t('settings.aiCommands.commands.review') },
+    { command: '/ck:test', description: t('settings.aiCommands.commands.test') },
   ]
 
   return (

@@ -6,6 +6,7 @@
 
 /* ─── Design Tokens: Light Mode ─── */
 :root {
+  color-scheme: light;
   font-family: 'Inter Variable', Inter, 'Segoe UI', Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
@@ -17,6 +18,11 @@
   -webkit-text-size-adjust: 100%;
 
   --radius: 0.75rem;
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.28);
+  --scrollbar-thumb-active: rgba(0, 0, 0, 0.4);
 
   --background: hsl(0 0% 98%);
   --foreground: hsl(220 20% 20%);
@@ -70,6 +76,13 @@
 
 /* ─── Design Tokens: Dark Mode ─── */
 .dark {
+  color-scheme: dark;
+
+  /* Scrollbar — match claude-devtools reference */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+  --scrollbar-thumb-active: rgba(255, 255, 255, 0.35);
+
   --background: hsl(222 47% 8%);
   --foreground: hsl(210 40% 95%);
   --card: hsl(222 47% 11%);
@@ -273,24 +286,27 @@
 .prose-stream-invert code { background: rgba(0,0,0,0.2); color: var(--primary-foreground); }
 .prose-stream-invert a { color: var(--primary-foreground); }
 
-/* Stream scrollbars */
-.stream-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 45%, transparent) transparent;
+/* ─── Global Scrollbar (dark-mode compatible) ─── */
+*,
+*::before,
+*::after {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--scrollbar-thumb) transparent !important;
 }
-.stream-scrollbar::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
 }
-.stream-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track {
+  background: transparent !important;
 }
-.stream-scrollbar::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted-foreground) 35%, transparent);
-  border: 2px solid transparent;
-  border-radius: 9999px;
-  background-clip: padding-box;
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb) !important;
+  border-radius: 4px !important;
 }
-.stream-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover) !important;
+}
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active) !important;
 }

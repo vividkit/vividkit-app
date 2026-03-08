@@ -47,6 +47,7 @@ pub fn run() {
             commands::fs::list_directory,
             commands::fs::resolve_home_path,
             commands::fs::find_new_session_log,
+            commands::fs::extract_report_path_from_jsonl,
             // Worktree
             commands::worktree::worktree_create,
             commands::worktree::worktree_cleanup,

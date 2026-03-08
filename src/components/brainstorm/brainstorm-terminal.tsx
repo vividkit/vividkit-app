@@ -7,7 +7,7 @@ import { getTerminalTheme } from '@/lib/utils'
 const IDLE_MESSAGE = '$ Ready to brainstorm. Enter your idea below.\r\n'
 
 const STREAM_LINES = [
-  '\x1b[33m$ ccs glm "/brainstorm"\x1b[0m\r\n',
+  '\x1b[33m$ ccs glm "/ck:brainstorm"\x1b[0m\r\n',
   '\x1b[36mAnalyzing your project structure...\x1b[0m\r\n',
   'Found: src/components/, src/stores/, src-tauri/\r\n',
   '\x1b[36mGenerating brainstorm report...\x1b[0m\r\n',

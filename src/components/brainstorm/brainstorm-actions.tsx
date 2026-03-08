@@ -8,10 +8,11 @@ import { useKeyInsights } from '@/hooks/use-key-insights'
 interface BrainstormActionsProps {
   prompt: string
   sessionLogPath?: string | null
+  reportPath?: string | null
   onViewReport?: () => void
 }
 
-export function BrainstormActions({ prompt, sessionLogPath, onViewReport }: BrainstormActionsProps) {
+export function BrainstormActions({ prompt, sessionLogPath, reportPath, onViewReport }: BrainstormActionsProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
@@ -25,9 +26,11 @@ export function BrainstormActions({ prompt, sessionLogPath, onViewReport }: Brai
 
   return (
     <div className="flex gap-2 flex-wrap">
-      <Button variant="outline" size="sm" onClick={onViewReport}>
-        <FileText className="size-3.5 mr-1.5" /> {t('brainstorm.actions.viewReport')}
-      </Button>
+      {reportPath && (
+        <Button variant="outline" size="sm" onClick={onViewReport}>
+          <FileText className="size-3.5 mr-1.5" /> {t('brainstorm.actions.viewReport')}
+        </Button>
+      )}
       <Button size="sm" onClick={() => navigate('/generate-plan')}>
         <Sparkles className="size-3.5 mr-1.5" /> {t('brainstorm.actions.createPlan')}
       </Button>

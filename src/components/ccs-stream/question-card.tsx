@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { resumeCcsSession, sendCcsInput, stopCcs } from '@/lib/tauri'
+import { resumeCcsSession, sendCcsInput } from '@/lib/tauri'
 import type { QuestionCard as QuestionCardType, Question } from '@/lib/jsonl-session-parser'
 
 interface Props {
@@ -100,12 +101,14 @@ function QuestionField({
   value,
   onChange,
   onSingleSelectOption,
+  onMultiSelectConfirm,
   disabled,
 }: {
   q: Question
   value: string | string[]
   onChange: (val: string | string[]) => void
   onSingleSelectOption?: () => void
+  onMultiSelectConfirm?: () => void
   disabled: boolean
 }) {
   const { t } = useTranslation()
@@ -195,6 +198,19 @@ function QuestionField({
             </button>
           </div>
         )}
+
+        {/* Confirm button for multi-select */}
+        {q.multiSelect && !disabled && onMultiSelectConfirm && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full mt-2"
+            disabled={Array.isArray(value) ? value.length === 0 : !value}
+            onClick={onMultiSelectConfirm}
+          >
+            {t('ccsStream.question.confirmSelection')} →
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -228,35 +244,39 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
   const allAnswered = answers.every(isAnswered)
 
   async function handleSubmit() {
-    console.log('[QuestionCard] handleSubmit activeRunId=', activeRunId, 'submitted=', submitted)
+    console.log('[QuestionCard] handleSubmit activeRunId=', activeRunId, 'sessionId=', sessionId, 'submitted=', submitted)
     if (submitted || submitting) return
     setSubmitting(true)
     setSubmitError(null)
     try {
-      if (sessionId) {
-        const summary = toAnswerSummary(questions, answers)
-        const output = await resumeCcsSession(sessionId, summary, ccsCwd || '.')
-        console.log('[QuestionCard] resumeCcsSession sessionId=', sessionId, 'output_len=', output.length)
-        if (activeRunId) {
-          await stopCcs(activeRunId).catch(() => {})
+      // Prefer sending via PTY stdin when the process is still alive.
+      // resumeCcsSession runs a blocking `claude --resume -p` subprocess which
+      // doesn't stream output back through the live PTY, leaving the UI stuck.
+      if (activeRunId) {
+        // AskUserQuestion in CCS is an interactive TUI; send key sequences, not plain labels.
+        for (let i = 0; i < questions.length; i += 1) {
+          const chunks = buildQuestionInputChunks(questions[i], answers[i])
+          console.log('[QuestionCard] sendCcsInput run_id=', activeRunId, 'q=', i, 'chunks=', chunks.length)
+          for (const chunk of chunks) {
+            await sendCcsInput(activeRunId, chunk)
+            // Let TUI consume key events in order.
+            await waitMs(120)
+          }
+          // Give prompt time to render the next question before continuing.
+          await waitMs(180)
         }
         setSubmitted(true)
         return
       }
-      if (!activeRunId) throw new Error(t('ccsStream.question.errors.missingRunId'))
-      // AskUserQuestion in CCS is an interactive TUI; send key sequences, not plain labels.
-      for (let i = 0; i < questions.length; i += 1) {
-        const chunks = buildQuestionInputChunks(questions[i], answers[i])
-        console.log('[QuestionCard] sendCcsInput run_id=', activeRunId, 'q=', i, 'chunks=', chunks.length)
-        for (const chunk of chunks) {
-          await sendCcsInput(activeRunId, chunk)
-          // Let TUI consume key events in order.
-          await waitMs(120)
-        }
-        // Give prompt time to render the next question before continuing.
-        await waitMs(180)
+      // Fallback: no live PTY — resume the session via CLI subprocess.
+      if (sessionId) {
+        const summary = toAnswerSummary(questions, answers)
+        const output = await resumeCcsSession(sessionId, summary, ccsCwd || '.')
+        console.log('[QuestionCard] resumeCcsSession sessionId=', sessionId, 'output_len=', output.length)
+        setSubmitted(true)
+        return
       }
-      setSubmitted(true)
+      throw new Error(t('ccsStream.question.errors.missingRunId'))
     } catch (e) {
       console.error('[QuestionCard] sendCcsInput error:', e)
       const detail = errorMessage(e)
@@ -324,6 +344,7 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                 value={answers[0]}
                 onChange={(val) => setAnswer(0, val)}
                 onSingleSelectOption={undefined}
+                onMultiSelectConfirm={undefined}
                 disabled={submitted || submitting}
               />
             </>
@@ -343,6 +364,9 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                     setActiveTab((t) => Math.min(questions.length - 1, t + 1))
                   }
                 }}
+                onMultiSelectConfirm={activeTab < questions.length - 1
+                  ? () => setActiveTab((t) => Math.min(questions.length - 1, t + 1))
+                  : undefined}
                 disabled={submitted || submitting}
               />
               {/* Tab navigation arrows */}
@@ -383,7 +407,27 @@ export function QuestionCard({ item, activeRunId, sessionId, ccsCwd }: Props) {
                   : t('ccsStream.question.submitAnswer'))}
             </Button>
           ) : (
-            <p className="text-xs text-muted-foreground italic text-center">{t('ccsStream.question.allAnswersSent')}</p>
+            <div className="space-y-2">
+              {/* Show submitted answers immediately */}
+              <div className="rounded-md bg-muted/50 px-3 py-2 space-y-1">
+                {questions.map((q, i) => {
+                  const raw = answers[i]
+                  const value = Array.isArray(raw) ? raw.join(', ') : raw
+                  const header = q.header?.trim() || t('ccsStream.question.fallbackHeader', { index: i + 1 })
+                  return (
+                    <p key={i} className="text-sm text-foreground">
+                      <span className="font-medium text-muted-foreground">{header}:</span>{' '}
+                      {value.trim()}
+                    </p>
+                  )
+                })}
+              </div>
+              {/* Loading indicator while waiting for AI to resume */}
+              <div className="flex items-center gap-1.5 justify-center">
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{t('ccsStream.question.resumingSession')}</span>
+              </div>
+            </div>
           )}
           {submitError && (
             <p className="text-xs text-destructive text-center">{submitError}</p>

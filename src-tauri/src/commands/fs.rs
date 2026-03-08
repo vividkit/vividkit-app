@@ -1,5 +1,6 @@
 use serde::Serialize;
 use std::path::PathBuf;
+use std::io::BufRead;
 
 #[derive(Serialize)]
 pub struct FileEntry {
@@ -102,4 +103,75 @@ pub async fn find_new_session_log(
     }
 
     Ok(None)
+}
+
+/// Parse a JSONL session log (and its subagent logs) to find the report file path.
+/// Scans all lines for any absolute path containing "plans/reports/" ending in ".md".
+/// Works regardless of which tool (Write, Bash, Edit) was used to create the report.
+/// Also scans subagent JSONL files in the session's `subagents/` directory.
+/// Returns the last matching report path found (most likely the final report), or None.
+#[tauri::command]
+pub fn extract_report_path_from_jsonl(jsonl_path: String) -> Result<Option<String>, String> {
+    let main_path = PathBuf::from(&jsonl_path);
+
+    // Collect all JSONL files to scan: main session + subagents
+    let mut files_to_scan = vec![main_path.clone()];
+
+    // Check for subagents directory: {session_id}/subagents/*.jsonl
+    let session_id = main_path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("");
+    if let Some(parent) = main_path.parent() {
+        let subagents_dir = parent.join(session_id).join("subagents");
+        if subagents_dir.is_dir() {
+            if let Ok(entries) = std::fs::read_dir(&subagents_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.extension().and_then(|e| e.to_str()) == Some("jsonl") {
+                        files_to_scan.push(path);
+                    }
+                }
+            }
+        }
+    }
+
+    let mut last_match: Option<String> = None;
+
+    for file_path in &files_to_scan {
+        let file = match std::fs::File::open(file_path) {
+            Ok(f) => f,
+            Err(_) => continue,
+        };
+        let reader = std::io::BufReader::new(file);
+
+        for line in reader.lines() {
+            let line = match line {
+                Ok(l) => l,
+                Err(_) => continue,
+            };
+            if !line.contains("plans/reports/") {
+                continue;
+            }
+            // Extract path: find "plans/reports/" then expand left/right
+            let mut search_from = 0;
+            while let Some(idx) = line[search_from..].find("plans/reports/") {
+                let abs_idx = search_from + idx;
+                let path_start = line[..abs_idx]
+                    .rfind(|c: char| c == '"' || c == '\'' || c == ' ' || c == '\\')
+                    .map(|i| i + 1)
+                    .unwrap_or(0);
+                let after_reports = abs_idx + "plans/reports/".len();
+                if let Some(md_offset) = line[after_reports..].find(".md") {
+                    let path_end = after_reports + md_offset + 3;
+                    let candidate = &line[path_start..path_end];
+                    if candidate.starts_with('/') && !candidate.contains(' ') {
+                        last_match = Some(candidate.to_string());
+                    }
+                }
+                search_from = abs_idx + 1;
+            }
+        }
+    }
+    Ok(last_match)
 }

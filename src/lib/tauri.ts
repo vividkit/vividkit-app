@@ -74,6 +74,10 @@ export async function findNewSessionLog(
   return invoke<string | null>('find_new_session_log', { projectsDir, cwd, spawnTimeMs })
 }
 
+export async function extractReportPathFromJsonl(jsonlPath: string): Promise<string | null> {
+  return invoke<string | null>('extract_report_path_from_jsonl', { jsonlPath })
+}
+
 export async function watchSessionLog(sessionId: string, path: string): Promise<void> {
   return invoke<void>('watch_session_log', { sessionId, path })
 }

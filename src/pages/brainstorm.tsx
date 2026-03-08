@@ -71,7 +71,7 @@ export default function BrainstormPage() {
           />
         ) : showReport ? (
           <BrainstormReportPanel
-            sessionLogPath={brainstorm.sessionLogPath}
+            sessionLogPath={brainstorm.reportPath}
             onClose={() => setShowReport(false)}
           />
         ) : (
@@ -119,6 +119,7 @@ export default function BrainstormPage() {
               <BrainstormActions
                 prompt={prompt}
                 sessionLogPath={brainstorm.sessionLogPath}
+                reportPath={brainstorm.reportPath}
                 onViewReport={() => setShowReport(true)}
               />
             )}

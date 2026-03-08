@@ -77,6 +77,7 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
   const taskCallsRef = useRef<ToolCall[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const userScrolledUpRef = useRef(false)
 
   // Reset state when session changes
   useEffect(() => {
@@ -205,15 +206,27 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
     }
   }, [sessionLogPath])
 
-  // Auto-scroll to bottom when entries change
+  // Track user scroll: if scrolled up, pause auto-scroll; if near bottom, resume
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 300
-    if (nearBottom) bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    function handleScroll() {
+      if (!el) return
+      const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150
+      userScrolledUpRef.current = !nearBottom
+    }
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Auto-scroll to bottom when entries change, unless user scrolled up
+  useEffect(() => {
+    if (userScrolledUpRef.current) return
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [entries])
 
   const items = sessionEntriesToConversation(entries)
+  const hasAIItems = useMemo(() => items.some((i) => i.type === 'ai'), [items])
   const latestAIItemId = useMemo(() => {
     for (let i = items.length - 1; i >= 0; i -= 1) {
       if (items[i].type === 'ai') return items[i].id
@@ -342,6 +355,14 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <span className="text-sm font-medium text-muted-foreground">
               {t('ccsStream.stream.waitingForOutput')}
+            </span>
+          </div>
+        )}
+        {items.length > 0 && !hasAIItems && isStreamInProgress && (
+          <div className="flex items-center gap-2 px-4 py-3">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <span className="text-sm text-muted-foreground">
+              {t('ccsStream.stream.preparingResponse')}
             </span>
           </div>
         )}
