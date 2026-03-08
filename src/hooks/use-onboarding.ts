@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/stores/project-store'
 import { useDeckStore } from '@/stores/deck-store'
-import { createProject, listDecks } from '@/lib/tauri'
+import { createProject } from '@/lib/tauri'
 
 export type GitMethod = 'local' | 'clone'
 
@@ -20,8 +20,7 @@ export function useOnboarding() {
   const navigate = useNavigate()
   const addProject = useProjectStore((s) => s.addProject)
   const setActiveProject = useProjectStore((s) => s.setActiveProject)
-  const addDeck = useDeckStore((s) => s.addDeck)
-  const setActiveDeck = useDeckStore((s) => s.setActiveDeck)
+  const loadDecks = useDeckStore((s) => s.loadDecks)
 
   const [step, setStep] = useState(0)
   const [creating, setCreating] = useState(false)
@@ -63,11 +62,7 @@ export function useOnboarding() {
       setActiveProject(project.id)
 
       // Load auto-created default deck
-      const decks = await listDecks(project.id)
-      if (decks.length > 0) {
-        addDeck(decks[0])
-        setActiveDeck(decks[0].id)
-      }
+      await loadDecks(project.id)
 
       navigate('/')
     } catch (e) {
@@ -75,7 +70,7 @@ export function useOnboarding() {
     } finally {
       setCreating(false)
     }
-  }, [canFinish, creating, formData, addProject, setActiveProject, addDeck, setActiveDeck, navigate])
+  }, [canFinish, creating, formData, addProject, setActiveProject, loadDecks, navigate])
 
   return { step, formData, patch, next, back, finish, canFinish, creating, error }
 }

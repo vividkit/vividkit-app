@@ -15,7 +15,8 @@
     "noProject": "No Project",
     "selectProject": "Select a project",
     "newProject": "New Project",
-    "expand": "Expand"
+    "expand": "Expand",
+    "projects": "Projects"
   },
   "header": {
     "aiConnected": "CCS Ready"

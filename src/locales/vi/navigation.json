@@ -15,7 +15,8 @@
     "noProject": "Chưa có dự án",
     "selectProject": "Chọn một dự án",
     "newProject": "Dự án mới",
-    "expand": "Mở rộng"
+    "expand": "Mở rộng",
+    "projects": "Project"
   },
   "header": {
     "aiConnected": "CCS Ready"

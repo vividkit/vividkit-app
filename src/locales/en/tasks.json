@@ -36,7 +36,15 @@
     "backlog": "Backlog",
     "todo": "Todo",
     "in_progress": "In Progress",
-    "done": "Done"
+    "cooking": "Cooking",
+    "paused": "Paused",
+    "review": "Review",
+    "done": "Done",
+    "failed": "Failed"
+  },
+  "actions": {
+    "delete": "Delete",
+    "confirmDelete": "Delete this task?"
   },
   "addDialog": {
     "title": "Add Task",

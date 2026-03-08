@@ -4,7 +4,6 @@ import { applyLanguage } from '@/i18n/app-language'
 import { useSettingsStore } from '@/stores/settings-store'
 import { useProjectStore } from '@/stores/project-store'
 import { useDeckStore } from '@/stores/deck-store'
-import { listDecks } from '@/lib/tauri'
 import { AppRouter } from './router'
 import './App.css'
 
@@ -14,8 +13,7 @@ export default function App() {
   const loadProjects = useProjectStore((s) => s.loadProjects)
   const activeProjectId = useProjectStore((s) => s.activeProjectId)
   const activeDeckId = useDeckStore((s) => s.activeDeckId)
-  const addDeck = useDeckStore((s) => s.addDeck)
-  const setActiveDeck = useDeckStore((s) => s.setActiveDeck)
+  const loadDecks = useDeckStore((s) => s.loadDecks)
 
   useEffect(() => {
     void loadFromDb()
@@ -25,14 +23,8 @@ export default function App() {
   // Load decks when project is available but no deck is active
   useEffect(() => {
     if (!activeProjectId || activeDeckId) return
-    listDecks(activeProjectId)
-      .then((decks) => {
-        for (const deck of decks) addDeck(deck)
-        const active = decks.find((d) => d.isActive) ?? decks[0]
-        if (active) setActiveDeck(active.id)
-      })
-      .catch((e) => console.error('[App] load decks:', e))
-  }, [activeProjectId, activeDeckId, addDeck, setActiveDeck])
+    void loadDecks(activeProjectId)
+  }, [activeProjectId, activeDeckId, loadDecks])
 
   useEffect(() => {
     void applyLanguage(language)

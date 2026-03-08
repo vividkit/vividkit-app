@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { StepGitSetup } from '@/components/onboarding/step-git-setup'
 import { useProjectStore } from '@/stores/project-store'
 import { useDeckStore } from '@/stores/deck-store'
-import { createProject, listDecks } from '@/lib/tauri'
+import { createProject } from '@/lib/tauri'
 import { baseNameFromPath } from '@/lib/session-path-utils'
 import type { OnboardingFormData } from '@/hooks/use-onboarding'
 
@@ -17,8 +17,7 @@ export default function NewProjectPage() {
   const projects = useProjectStore((s) => s.projects)
   const addProject = useProjectStore((s) => s.addProject)
   const setActiveProject = useProjectStore((s) => s.setActiveProject)
-  const addDeck = useDeckStore((s) => s.addDeck)
-  const setActiveDeck = useDeckStore((s) => s.setActiveDeck)
+  const loadDecks = useDeckStore((s) => s.loadDecks)
 
   const [state, setState] = useState<OnboardingFormData>({
     gitMethod: 'local', gitPath: '', cloneUrl: '', projectName: '', projectSummary: '',
@@ -52,11 +51,7 @@ export default function NewProjectPage() {
       setActiveProject(project.id)
 
       // Load auto-created default deck
-      const decks = await listDecks(project.id)
-      if (decks.length > 0) {
-        addDeck(decks[0])
-        setActiveDeck(decks[0].id)
-      }
+      await loadDecks(project.id)
 
       navigate('/')
     } catch (e) {

@@ -17,13 +17,13 @@ created: 2026-03-07
 |---|-------|-----------|--------|--------|------------|
 | 00 | [Global Tech Spec](phase-00-global-tech-spec.md) | D0 | done | 2h | — |
 | 01 | [Foundation](phase-01-foundation.md) | M0 | done | 4h | D0 |
-| 02 | [Brainstorm](phase-02-brainstorm.md) | M1 | pending | 5h | M0 |
+| 02 | [Brainstorm](phase-02-brainstorm.md) | M1 | done | 5h | M0 |
 | 03 | [Onboarding](phase-03-onboarding.md) | M2 | done | 3h | M0 |
 | 04 | [Dashboard](phase-04-dashboard.md) | M3 | done | 2h | M0 |
-| 05 | [Decks + Project Switcher](phase-05-decks-project-switcher.md) | M4 | pending | 3h | M0, M2 |
-| 06 | [Generate Plan](phase-06-generate-plan.md) | M5 | pending | 3h | M1 |
+| 05 | [Decks + Project Switcher](phase-05-decks-project-switcher.md) | M4 | done | 3h | M0, M2 |
+| 06 | [Generate Plan](phase-06-generate-plan.md) | M5 | done | 3h | M1 |
 | 07 | [Plans List + Review](phase-07-plans-list-review.md) | M6 | pending | 3h | M5 |
-| 08 | [Tasks](phase-08-tasks.md) | M7 | pending | 4h | M0 |
+| 08 | [Tasks](phase-08-tasks.md) | M7 | done | 4h | M0 |
 | 09 | [Cook](phase-09-cook.md) | M8 | pending | 5h | M7 |
 | 10 | [Worktrees](phase-10-worktrees.md) | M9 | pending | 3h | M8 |
 | 11 | [Settings](phase-11-settings.md) | M10 | done | 2h | M0 |

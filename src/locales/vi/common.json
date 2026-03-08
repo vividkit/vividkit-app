@@ -19,7 +19,8 @@
     "view": "Xem",
     "select": "Chọn...",
     "pause": "Tạm dừng",
-    "resume": "Tiếp tục"
+    "resume": "Tiếp tục",
+    "delete": "Xóa"
   },
   "status": {
     "ready": "Sẵn sàng",

@@ -36,7 +36,15 @@
     "backlog": "Backlog",
     "todo": "Todo",
     "in_progress": "Đang làm",
-    "done": "Hoàn thành"
+    "cooking": "Cooking",
+    "paused": "Paused",
+    "review": "Review",
+    "done": "Hoàn thành",
+    "failed": "Thất bại"
+  },
+  "actions": {
+    "delete": "Xóa",
+    "confirmDelete": "Xóa task này?"
   },
   "addDialog": {
     "title": "Thêm công việc",

@@ -19,7 +19,8 @@
     "view": "View",
     "select": "Select...",
     "pause": "Pause",
-    "resume": "Resume"
+    "resume": "Resume",
+    "delete": "Delete"
   },
   "status": {
     "ready": "Ready",

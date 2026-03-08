@@ -11,7 +11,9 @@
     "activeBadge": "Đang hoạt động",
     "actions": {
       "brainstorm": "Brainstorm",
-      "tasks": "Công việc"
+      "tasks": "Công việc",
+      "delete": "Xóa deck",
+      "cannotDeleteLast": "Không thể xóa deck duy nhất"
     },
     "createDialog": {
       "title": "Tạo deck mới",
@@ -19,7 +21,12 @@
       "namePlaceholder": "vd: MVP Sprint",
       "description": "Mô tả",
       "descriptionPlaceholder": "Mô tả ngắn...",
-      "createButton": "Tạo deck"
+      "createButton": "Tạo deck",
+      "setActive": "Đặt làm deck đang dùng"
+    },
+    "deleteDialog": {
+      "title": "Xóa deck",
+      "description": "Bạn có chắc muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác."
     }
   },
   "tasks": {

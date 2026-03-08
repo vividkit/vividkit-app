@@ -11,7 +11,9 @@
     "activeBadge": "Active",
     "actions": {
       "brainstorm": "Brainstorm",
-      "tasks": "Tasks"
+      "tasks": "Tasks",
+      "delete": "Delete deck",
+      "cannotDeleteLast": "Cannot delete the last deck"
     },
     "createDialog": {
       "title": "Create New Deck",
@@ -19,7 +21,12 @@
       "namePlaceholder": "e.g. MVP Sprint",
       "description": "Description",
       "descriptionPlaceholder": "Brief description...",
-      "createButton": "Create Deck"
+      "createButton": "Create Deck",
+      "setActive": "Set as active deck"
+    },
+    "deleteDialog": {
+      "title": "Delete Deck",
+      "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
     }
   },
   "tasks": {
