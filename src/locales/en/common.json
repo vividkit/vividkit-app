@@ -9,6 +9,7 @@
     "close": "Close",
     "run": "Run",
     "stop": "Stop",
+    "stopping": "Stopping...",
     "save": "Save",
     "create": "Create",
     "merge": "Merge",
@@ -38,7 +39,8 @@
     "thinking": "Thinking",
     "output": "Output",
     "optional": "optional",
-    "unknown": "unknown"
+    "unknown": "unknown",
+    "loading": "Loading..."
   },
   "defaults": {
     "noPath": "(no path)",
@@ -48,6 +50,7 @@
   "messages": {
     "loading": "Loading…",
     "sessionInProgress": "Session is in progress...",
-    "noExecutionTrace": "No execution trace available"
+    "noExecutionTrace": "No execution trace available",
+    "creating": "Creating…"
   }
 }

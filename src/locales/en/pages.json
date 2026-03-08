@@ -44,6 +44,7 @@
   "generatePlan": {
     "title": "Generate Plan",
     "subtitle": "AI is creating your implementation plan…",
+    "generate": "Generate",
     "viewPlan": "View Plan",
     "goToTasks": "Go to Tasks",
     "generatedPlanName": "Generated Plan",
@@ -79,7 +80,8 @@
     "subtitle": "Developer tool - validate ccs subprocess + stream output"
   },
   "newProject": {
-    "title": "New Project"
+    "title": "New Project",
+    "duplicatePath": "A project with this path already exists"
   },
   "cook": {
     "sessionTitle": "Cook Session"

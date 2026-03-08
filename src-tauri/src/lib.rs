@@ -67,6 +67,21 @@ pub fn run() {
             // Settings
             commands::settings::get_settings,
             commands::settings::update_settings,
+            // Brainstorm
+            commands::brainstorm::create_brainstorm_session,
+            commands::brainstorm::update_brainstorm_session,
+            commands::brainstorm::list_brainstorm_sessions,
+            commands::brainstorm::get_brainstorm_session,
+            commands::brainstorm::create_key_insight,
+            commands::brainstorm::list_key_insights,
+            commands::brainstorm::delete_key_insight,
+            // Plan
+            commands::plan::create_plan,
+            commands::plan::create_phases,
+            commands::plan::list_plans,
+            commands::plan::get_plan,
+            commands::plan::update_phase_status,
+            commands::plan::read_plan_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

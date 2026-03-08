@@ -2,20 +2,45 @@
   "deckContext": {
     "activeDeck": "Deck đang dùng:",
     "noneSelected": "Chưa chọn",
-    "keyInsights": "Ý chính"
+    "keyInsights": "Key Insights"
+  },
+  "start": {
+    "title": "Bạn muốn build gì?",
+    "subtitle": "Mô tả ý tưởng và để AI tạo kế hoạch triển khai.",
+    "placeholder": "VD: Tạo hệ thống xác thực user với JWT tokens, login, đăng ký, reset mật khẩu, và xác minh email...",
+    "submit": "Start Brainstorm",
+    "previousInsights": "Insights trước đó"
+  },
+  "templates": {
+    "payment": "Payment",
+    "chat": "Chat",
+    "upload": "Upload",
+    "email": "Email"
   },
   "input": {
     "placeholder": "Mô tả điều bạn muốn brainstorm..."
   },
+  "streaming": {
+    "profileLabel": "Profile: {{profile}}"
+  },
   "actions": {
     "viewReport": "Xem báo cáo",
     "createPlan": "Tạo kế hoạch triển khai",
-    "saveAsInsight": "Lưu làm ý chính",
+    "saveAsInsight": "Lưu thành insight",
     "saved": "Đã lưu!"
   },
+  "stopOptions": {
+    "prompt": "Đã dừng phiên. Lưu lại thành insight cho lần brainstorm sau?",
+    "saveInsight": "Lưu thành Insight",
+    "clear": "Bỏ qua"
+  },
+  "profileSelector": {
+    "placeholder": "Chọn CCS profile..."
+  },
   "insightsDialog": {
-    "title": "Ý chính",
-    "empty": "Chưa có ý chính nào được lưu cho deck này."
+    "title": "Key Insights",
+    "empty": "Chưa có insight nào được lưu cho deck này.",
+    "viewReport": "Xem báo cáo"
   },
   "reportDialog": {
     "title": "Báo cáo Brainstorm",
@@ -30,7 +55,8 @@
       "aiIntegration": "Tích hợp AI",
       "testingStrategy": "Chiến lược kiểm thử"
     },
-    "phaseDescription": "Chi tiết triển khai và lưu ý cho {{phase}}."
+    "phaseDescription": "Chi tiết triển khai và lưu ý cho {{phase}}.",
+    "noContent": "Chưa có nội dung báo cáo."
   },
   "reportPage": {
     "insights": {

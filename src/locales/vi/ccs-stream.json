@@ -42,7 +42,7 @@
     "replyPlaceholder": "Trả lời trợ lý... (Cmd/Ctrl + Enter để gửi)",
     "send": "Gửi",
     "sending": "Đang gửi...",
-    "waitingForOutput": "Đang chờ output của phiên...",
+    "waitingForOutput": "AI đang suy nghĩ...",
     "emptyState": "Hãy chạy CCS để xem luồng output tại đây.",
     "sessionJsonlPaths": "Đường dẫn JSONL của phiên",
     "main": "Chính:",

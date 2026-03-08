@@ -23,6 +23,7 @@ interface Props {
   isSessionRunning?: boolean
   taskIdsWithSubagents?: Set<string>
   subagents?: Process[]
+  profileName?: string
 }
 
 type RenderDetailItem =
@@ -131,11 +132,34 @@ function buildBaseDetailItems(item: AIGroup, thinkingBlocks: string[], visibleTo
   ]
 }
 
+/** Map CCS profile name to a short display label for the AI header */
+function profileDisplayName(profile?: string): string {
+  if (!profile) return 'AI'
+  const lower = profile.toLowerCase()
+  if (lower.includes('claude') || lower === 'default') return 'Claude'
+  if (lower.includes('gemini') || lower.includes('google')) return 'Gemini'
+  if (lower.includes('glm') || lower.includes('zhipu')) return 'GLM'
+  if (lower.includes('kimi') || lower.includes('moonshot')) return 'Kimi'
+  if (lower.includes('gpt') || lower.includes('openai')) return 'GPT'
+  return profile
+}
+
+/** Return a distinct color class based on profile for the avatar icon */
+function profileColorClass(profile?: string): string {
+  const lower = (profile ?? '').toLowerCase()
+  if (lower.includes('gemini') || lower.includes('google')) return 'text-blue-500'
+  if (lower.includes('glm') || lower.includes('zhipu')) return 'text-emerald-500'
+  if (lower.includes('kimi') || lower.includes('moonshot')) return 'text-violet-500'
+  if (lower.includes('gpt') || lower.includes('openai')) return 'text-green-500'
+  return 'text-primary' // default / claude
+}
+
 export function AIMessage({
   item,
   isLast,
   isSessionRunning,
   subagents = [],
+  profileName,
 }: Props) {
   const { t } = useTranslation()
   const [detailsExpanded, setDetailsExpanded] = useState(false)
@@ -308,8 +332,8 @@ export function AIMessage({
             <ChevronRight
               className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${effectiveDetailsExpanded ? 'rotate-90' : ''}`}
             />
-            <Bot className="h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="shrink-0 text-xs font-semibold text-foreground">{t('ccsStream.ai.assistant')}</span>
+            <Bot className={`h-3.5 w-3.5 shrink-0 ${profileColorClass(profileName)}`} />
+            <span className="shrink-0 text-xs font-semibold text-foreground">{profileDisplayName(profileName)}</span>
             <span className="shrink-0 text-xs text-muted-foreground">·</span>
             <span className="truncate text-xs text-muted-foreground">
               {detailsSummary}
@@ -362,7 +386,7 @@ export function AIMessage({
       {shouldRenderFinalBubble && (
         <div className="flex gap-2 px-1">
           <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
-            <Bot className="h-3.5 w-3.5 text-primary" />
+            <Bot className={`h-3.5 w-3.5 ${profileColorClass(profileName)}`} />
           </div>
           <div className="min-w-0 flex-1 overflow-hidden rounded-2xl rounded-bl-sm border border-border bg-muted/20">
             <div className="prose-stream px-4 py-3" data-search-content>

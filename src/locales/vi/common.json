@@ -9,6 +9,7 @@
     "close": "Đóng",
     "run": "Chạy",
     "stop": "Dừng",
+    "stopping": "Đang dừng...",
     "save": "Lưu",
     "create": "Tạo",
     "merge": "Gộp",
@@ -38,7 +39,8 @@
     "thinking": "Suy luận",
     "output": "Kết quả",
     "optional": "tùy chọn",
-    "unknown": "không rõ"
+    "unknown": "không rõ",
+    "loading": "Đang tải..."
   },
   "defaults": {
     "noPath": "(chưa có đường dẫn)",
@@ -48,6 +50,7 @@
   "messages": {
     "loading": "Đang tải...",
     "sessionInProgress": "Phiên đang chạy...",
-    "noExecutionTrace": "Không có nhật ký thực thi"
+    "noExecutionTrace": "Không có nhật ký thực thi",
+    "creating": "Đang tạo…"
   }
 }

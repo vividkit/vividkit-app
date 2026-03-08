@@ -95,7 +95,7 @@ export async function checkDb(): Promise<number> {
 // CCS Account Commands
 // =============================================================================
 
-import type { CcsAccount, Project, Deck, AppSettings } from '@/types'
+import type { CcsAccount, Project, Deck, AppSettings, BrainstormSession, KeyInsight } from '@/types'
 
 /** Discover CCS profiles from ~/.ccs/ and save to DB */
 export async function discoverCcsProfiles(): Promise<CcsAccount[]> {
@@ -168,6 +168,133 @@ export async function getSettings(): Promise<AppSettings> {
 
 export async function updateSettingsDb(settings: AppSettings): Promise<AppSettings> {
   return invoke<AppSettings>('update_settings', { settings })
+}
+
+// =============================================================================
+// Brainstorm Commands
+// =============================================================================
+
+export async function createBrainstormSession(
+  deckId: string,
+  prompt: string,
+): Promise<BrainstormSession> {
+  return invoke<BrainstormSession>('create_brainstorm_session', { deckId, prompt })
+}
+
+export async function updateBrainstormSession(
+  id: string,
+  status?: string,
+  sessionLogPath?: string,
+  reportPath?: string,
+): Promise<void> {
+  return invoke<void>('update_brainstorm_session', { id, status, sessionLogPath, reportPath })
+}
+
+export async function listBrainstormSessions(deckId: string): Promise<BrainstormSession[]> {
+  return invoke<BrainstormSession[]>('list_brainstorm_sessions', { deckId })
+}
+
+export async function getBrainstormSession(id: string): Promise<BrainstormSession | null> {
+  return invoke<BrainstormSession | null>('get_brainstorm_session', { id })
+}
+
+// =============================================================================
+// Key Insight Commands
+// =============================================================================
+
+export async function createKeyInsight(
+  projectId: string,
+  deckId: string,
+  title: string,
+  reportPath: string,
+): Promise<KeyInsight> {
+  return invoke<KeyInsight>('create_key_insight', { projectId, deckId, title, reportPath })
+}
+
+export async function listKeyInsights(deckId: string): Promise<KeyInsight[]> {
+  return invoke<KeyInsight[]>('list_key_insights', { deckId })
+}
+
+export async function deleteKeyInsight(id: string): Promise<void> {
+  return invoke<void>('delete_key_insight', { id })
+}
+
+// =============================================================================
+// Plan Commands
+// =============================================================================
+
+export interface PlanWithProgress {
+  id: string
+  deckId: string
+  name: string
+  reportPath?: string
+  planPath?: string
+  createdAt: string
+  updatedAt: string
+  totalPhases: number
+  donePhases: number
+}
+
+export interface PlanWithPhases {
+  plan: {
+    id: string
+    deckId: string
+    name: string
+    reportPath?: string
+    planPath?: string
+    createdAt: string
+    updatedAt: string
+  }
+  phases: Array<{
+    id: string
+    planId: string
+    name: string
+    description?: string
+    filePath?: string
+    orderIndex: number
+    status: string
+    createdAt: string
+    updatedAt: string
+  }>
+}
+
+export interface PhaseInput {
+  name: string
+  description?: string
+  filePath?: string
+  orderIndex: number
+}
+
+export async function createPlan(
+  deckId: string,
+  name: string,
+  planPath?: string,
+  reportPath?: string,
+): Promise<{ id: string; deckId: string; name: string; createdAt: string }> {
+  return invoke('create_plan', { deckId, name, planPath, reportPath })
+}
+
+export async function createPhases(
+  planId: string,
+  phases: PhaseInput[],
+): Promise<PlanWithPhases['phases']> {
+  return invoke('create_phases', { planId, phases })
+}
+
+export async function listPlansDb(deckId: string): Promise<PlanWithProgress[]> {
+  return invoke<PlanWithProgress[]>('list_plans', { deckId })
+}
+
+export async function getPlan(id: string): Promise<PlanWithPhases | null> {
+  return invoke<PlanWithPhases | null>('get_plan', { id })
+}
+
+export async function updatePhaseStatus(phaseId: string, done: boolean): Promise<void> {
+  return invoke<void>('update_phase_status', { phaseId, done })
+}
+
+export async function readPlanFile(path: string): Promise<string> {
+  return invoke<string>('read_plan_file', { path })
 }
 
 // =============================================================================

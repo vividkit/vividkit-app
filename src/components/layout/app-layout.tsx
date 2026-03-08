@@ -5,9 +5,9 @@ import { AppSidebar } from './app-sidebar'
 export function AppLayout() {
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex h-screen bg-background">
         <AppSidebar />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 min-w-0 overflow-y-auto flex flex-col">
           <Outlet />
         </main>
       </div>

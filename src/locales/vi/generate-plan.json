@@ -1,4 +1,5 @@
 {
+  "contextPlaceholder": "Mô tả ngữ cảnh cho kế hoạch (tùy chọn)...",
   "indicator": {
     "analyzing": "Đang phân tích báo cáo brainstorm...",
     "generating": "Đang tạo cấu trúc kế hoạch...",

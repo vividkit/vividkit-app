@@ -7,7 +7,7 @@ import { PhaseChecklist, ViewToggle, PlanMarkdownPreview, RelatedTasks, CookShee
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { usePlanStore } from '@/stores/plan-store'
+import { usePlanReview } from '@/hooks/use-plan-review'
 import type { PlanView } from '@/components/plans/view-toggle'
 
 export default function PlanReviewPage() {
@@ -18,9 +18,20 @@ export default function PlanReviewPage() {
   const [view, setView] = useState<PlanView>('phases')
   const [cookOpen, setCookOpen] = useState(false)
 
-  const plan = usePlanStore((s) => s.plans.find((p) => p.id === id))
+  const { data, loading, planContent, togglePhase } = usePlanReview(id)
 
-  if (!plan) {
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full">
+        <AppHeader title={t('common.labels.loading')} />
+        <div className="flex items-center justify-center flex-1 text-muted-foreground text-sm">
+          {t('common.messages.loading')}
+        </div>
+      </div>
+    )
+  }
+
+  if (!data) {
     return (
       <div className="flex flex-col h-full">
         <AppHeader title={t('pages.planReview.notFoundTitle')} />
@@ -32,8 +43,9 @@ export default function PlanReviewPage() {
     )
   }
 
-  const total = plan.phases.length
-  const completed = plan.phases.filter((p) => p.status === 'done').length
+  const { plan, phases } = data
+  const total = phases.length
+  const completed = phases.filter((p) => p.status === 'done').length
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0
   const isNew = searchParams.get('new') === 'true'
 
@@ -41,7 +53,6 @@ export default function PlanReviewPage() {
     <div className="flex flex-col h-full">
       <AppHeader title={plan.name} />
       <div className="p-6 space-y-6">
-        {/* Top bar */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate('/plans')}>
             <ChevronLeft className="size-4 mr-1" /> {t('pages.planReview.plans')}
@@ -53,7 +64,6 @@ export default function PlanReviewPage() {
           </Button>
         </div>
 
-        {/* Plan header */}
         <Card>
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -75,17 +85,19 @@ export default function PlanReviewPage() {
           </CardContent>
         </Card>
 
-        {/* Main content */}
-        {view === 'phases' ? <PhaseChecklist plan={plan} /> : <PlanMarkdownPreview plan={plan} />}
+        {view === 'phases' ? (
+          <PhaseChecklist phases={phases} onToggle={togglePhase} />
+        ) : (
+          <PlanMarkdownPreview plan={plan} planContent={planContent} phases={phases} />
+        )}
 
-        {/* Related tasks */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold">{t('pages.planReview.relatedTasks')}</h3>
           <RelatedTasks planId={plan.id} isNew={isNew} />
         </div>
       </div>
 
-      <CookSheet open={cookOpen} onOpenChange={setCookOpen} plan={plan} />
+      <CookSheet open={cookOpen} onOpenChange={setCookOpen} planId={plan.id} planName={plan.name} />
     </div>
   )
 }

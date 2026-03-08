@@ -1,21 +1,22 @@
 import { create } from 'zustand'
-import type { Plan, PhaseStatus } from '@/types'
+import { listPlansDb, type PlanWithProgress } from '@/lib/tauri'
 
 interface PlanStore {
-  plans: Plan[]
-  addPlan: (plan: Plan) => void
-  updatePhaseStatus: (planId: string, phaseId: string, status: PhaseStatus) => void
+  plans: PlanWithProgress[]
+  loaded: boolean
+  loadPlans: (deckId: string) => Promise<void>
 }
 
 export const usePlanStore = create<PlanStore>((set) => ({
   plans: [],
-  addPlan: (plan) => set((s) => ({ plans: [...s.plans, plan] })),
-  updatePhaseStatus: (planId, phaseId, status) =>
-    set((s) => ({
-      plans: s.plans.map((p) =>
-        p.id === planId
-          ? { ...p, phases: p.phases.map((ph) => (ph.id === phaseId ? { ...ph, status } : ph)) }
-          : p
-      ),
-    })),
+  loaded: false,
+  loadPlans: async (deckId: string) => {
+    try {
+      const plans = await listPlansDb(deckId)
+      set({ plans, loaded: true })
+    } catch (e) {
+      console.error('[plan-store] loadPlans:', e)
+      set({ loaded: true })
+    }
+  },
 }))

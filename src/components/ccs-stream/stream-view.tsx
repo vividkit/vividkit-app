@@ -6,6 +6,7 @@ import { AIMessage } from './ai-message'
 import { SystemLine } from './system-line'
 import { QuestionCard } from './question-card'
 import { StreamStatusBar } from './stream-status-bar'
+import { Square, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -36,6 +37,14 @@ interface Props {
   exitCode: number | null
   activeRunId?: string | null
   ccsCwd?: string
+  profileName?: string
+  hideSystemLines?: boolean
+  hideStatusBar?: boolean
+  hideJsonlPaths?: boolean
+  disableInput?: boolean
+  initialPrompt?: string
+  onStop?: () => void
+  isStopping?: boolean
 }
 
 function collectTaskCalls(entries: RawSessionEntry[]): ToolCall[] {
@@ -53,7 +62,7 @@ function collectTaskCalls(entries: RawSessionEntry[]): ToolCall[] {
     )
 }
 
-export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, ccsCwd }: Props) {
+export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, ccsCwd, profileName, hideSystemLines, hideStatusBar, hideJsonlPaths, disableInput, initialPrompt, onStop, isStopping }: Props) {
   const { t } = useTranslation()
   const [entries, setEntries] = useState<RawSessionEntry[]>([])
   const [subagents, setSubagents] = useState<Process[]>([])
@@ -212,7 +221,15 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
     return undefined
   }, [items])
   const sessionId = sessionLogPath ? sessionFileIdFromLogPath(sessionLogPath) : undefined
-  const canSendManual = Boolean((activeRunId && isProcessRunning) || sessionId)
+  // Disable manual input when an AskUserQuestion is pending (last visible item is a question)
+  const hasPendingQuestion = useMemo(() => {
+    for (let i = items.length - 1; i >= 0; i -= 1) {
+      if (items[i].type === 'question') return true
+      if (items[i].type === 'ai' || items[i].type === 'user') break
+    }
+    return false
+  }, [items])
+  const canSendManual = Boolean(!hasPendingQuestion && ((activeRunId && isProcessRunning) || sessionId))
   const taskIdsWithSubagents = useMemo(() => collectTaskIdsWithSubagents(subagents), [subagents])
   const subagentSessionPaths = useMemo(() => {
     const unique = new Set<string>()
@@ -305,24 +322,39 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <StreamStatusBar
-        isRunning={isStreamInProgress}
-        exitCode={exitCode}
-        sessionLogPath={sessionLogPath}
-      />
+      {!hideStatusBar && (
+        <StreamStatusBar
+          isRunning={isStreamInProgress}
+          exitCode={exitCode}
+          sessionLogPath={sessionLogPath}
+        />
+      )}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto py-6 space-y-6">
-        {items.length === 0 && (
+        {initialPrompt && (
+          <div className="flex justify-end px-4">
+            <div className="max-w-[75%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-primary text-primary-foreground text-sm leading-relaxed">
+              {initialPrompt}
+            </div>
+          </div>
+        )}
+        {items.length === 0 && isStreamInProgress && (
+          <div className="flex flex-col items-center justify-center h-40 gap-3">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="text-sm font-medium text-muted-foreground">
+              {t('ccsStream.stream.waitingForOutput')}
+            </span>
+          </div>
+        )}
+        {items.length === 0 && !isStreamInProgress && !initialPrompt && (
           <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-            {sessionLogPath
-              ? t('ccsStream.stream.waitingForOutput')
-              : t('ccsStream.stream.emptyState')}
+            {t('ccsStream.stream.emptyState')}
           </div>
         )}
         {items.map((item) =>
           item.type === 'user' ? (
             <UserMessage key={item.id} item={item} />
           ) : item.type === 'system' ? (
-            <SystemLine key={item.id} item={item} />
+            hideSystemLines ? null : <SystemLine key={item.id} item={item} />
           ) : item.type === 'question' ? (
             <QuestionCard
               key={item.id}
@@ -339,11 +371,13 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
               isSessionRunning={isStreamInProgress}
               taskIdsWithSubagents={taskIdsWithSubagents}
               subagents={aiGroupSubagentMap.get(item.id) ?? []}
+              profileName={profileName}
             />
           ),
         )}
         <div ref={bottomRef} />
       </div>
+      {!disableInput && (
       <div className="shrink-0 border-t border-border p-3 space-y-2">
         <div className="flex items-center gap-2">
           <Textarea
@@ -362,43 +396,58 @@ export function StreamView({ sessionLogPath, isRunning, exitCode, activeRunId, c
             className="flex-1 min-h-[72px] max-h-[200px]"
             disabled={!canSendManual || sendingManual}
           />
-          <Button
-            size="sm"
-            onClick={() => void handleManualSend()}
-            disabled={!canSendManual || sendingManual || manualInput.trim().length === 0}
-          >
-            {sendingManual ? t('ccsStream.stream.sending') : t('ccsStream.stream.send')}
-          </Button>
+          {/* Stop button when running, Send button otherwise */}
+          {isStreamInProgress && onStop ? (
+            <button
+              onClick={onStop}
+              disabled={isStopping}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors disabled:opacity-50"
+              title={isStopping ? t('common.actions.stopping') : t('common.actions.stop')}
+            >
+              <Square className="size-3.5 fill-current" />
+            </button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => void handleManualSend()}
+              disabled={!canSendManual || sendingManual || manualInput.trim().length === 0}
+            >
+              {sendingManual ? t('ccsStream.stream.sending') : t('ccsStream.stream.send')}
+            </Button>
+          )}
         </div>
         {manualError && <p className="text-xs text-destructive">{manualError}</p>}
-        <div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2 text-[10px]">
-          <div className="mb-1 font-medium text-foreground">{t('ccsStream.stream.sessionJsonlPaths')}</div>
-          <div className="flex items-start gap-2">
-            <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.main')}</span>
-            <span className="font-mono break-all text-foreground" title={sessionLogPath ?? undefined}>
-              {sessionLogPath ?? '-'}
-            </span>
-          </div>
-          <div className="mt-1 flex items-start gap-2">
-            <span className="shrink-0 text-muted-foreground">
-              {t('ccsStream.stream.subagent')} ({subagentSessionPaths.length}):
-            </span>
-            {subagentSessionPaths.length === 0 ? (
-              <span className="font-mono text-foreground">-</span>
-            ) : (
-              <span className="font-mono break-all text-foreground">
-                {subagentSessionPaths.join(' | ')}
+        {import.meta.env.DEV && !hideJsonlPaths && (
+          <div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2 text-[10px]">
+            <div className="mb-1 font-medium text-foreground">{t('ccsStream.stream.sessionJsonlPaths')}</div>
+            <div className="flex items-start gap-2">
+              <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.main')}</span>
+              <span className="font-mono break-all text-foreground" title={sessionLogPath ?? undefined}>
+                {sessionLogPath ?? '-'}
               </span>
-            )}
+            </div>
+            <div className="mt-1 flex items-start gap-2">
+              <span className="shrink-0 text-muted-foreground">
+                {t('ccsStream.stream.subagent')} ({subagentSessionPaths.length}):
+              </span>
+              {subagentSessionPaths.length === 0 ? (
+                <span className="font-mono text-foreground">-</span>
+              ) : (
+                <span className="font-mono break-all text-foreground">
+                  {subagentSessionPaths.join(' | ')}
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-start gap-2">
+              <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.subagentScanDir')}</span>
+              <span className="font-mono break-all text-foreground" title={subagentScanDir}>
+                {subagentScanDir ?? '-'}
+              </span>
+            </div>
           </div>
-          <div className="mt-1 flex items-start gap-2">
-            <span className="shrink-0 text-muted-foreground">{t('ccsStream.stream.subagentScanDir')}</span>
-            <span className="font-mono break-all text-foreground" title={subagentScanDir}>
-              {subagentScanDir ?? '-'}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
+      )}
     </div>
   )
 }

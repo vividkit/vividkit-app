@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -5,30 +6,64 @@ import { AppHeader } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { StepGitSetup } from '@/components/onboarding/step-git-setup'
 import { useProjectStore } from '@/stores/project-store'
-import { useState } from 'react'
-import type { OnboardingState } from '@/components/onboarding/onboarding-wizard'
+import { useDeckStore } from '@/stores/deck-store'
+import { createProject, listDecks } from '@/lib/tauri'
 import { baseNameFromPath } from '@/lib/session-path-utils'
+import type { OnboardingFormData } from '@/hooks/use-onboarding'
 
 export default function NewProjectPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const projects = useProjectStore((s) => s.projects)
   const addProject = useProjectStore((s) => s.addProject)
-  const [state, setState] = useState<OnboardingState>({
+  const setActiveProject = useProjectStore((s) => s.setActiveProject)
+  const addDeck = useDeckStore((s) => s.addDeck)
+  const setActiveDeck = useDeckStore((s) => s.setActiveDeck)
+
+  const [state, setState] = useState<OnboardingFormData>({
     gitMethod: 'local', gitPath: '', cloneUrl: '', projectName: '', projectSummary: '',
   })
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  function patch(u: Partial<OnboardingState>) { setState((s) => ({ ...s, ...u })) }
+  function patch(u: Partial<OnboardingFormData>) {
+    setState((s) => ({ ...s, ...u }))
+    setError(null)
+  }
 
-  function handleCreate() {
-    addProject({
-      id: crypto.randomUUID(),
-      name: baseNameFromPath(state.gitPath) ?? t('navigation.sidebar.newProject'),
-      gitPath: state.gitMethod === 'local' ? state.gitPath : state.cloneUrl,
-      ccsConnected: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    })
-    navigate('/')
+  async function handleCreate() {
+    const gitPath = state.gitMethod === 'local' ? state.gitPath.trim() : state.cloneUrl.trim()
+    if (!gitPath) return
+
+    // Check duplicate path
+    const duplicate = projects.some((p) => p.gitPath === gitPath)
+    if (duplicate) {
+      setError(t('pages.newProject.duplicatePath'))
+      return
+    }
+
+    const name = baseNameFromPath(gitPath) ?? t('navigation.sidebar.newProject')
+
+    setCreating(true)
+    setError(null)
+    try {
+      const project = await createProject(name, undefined, gitPath)
+      addProject(project)
+      setActiveProject(project.id)
+
+      // Load auto-created default deck
+      const decks = await listDecks(project.id)
+      if (decks.length > 0) {
+        addDeck(decks[0])
+        setActiveDeck(decks[0].id)
+      }
+
+      navigate('/')
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setCreating(false)
+    }
   }
 
   return (
@@ -38,8 +73,10 @@ export default function NewProjectPage() {
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
           <ChevronLeft className="size-4 mr-1" /> {t('common.actions.back')}
         </Button>
-        <div className="max-w-lg">
-          <StepGitSetup state={state} patch={patch} onNext={handleCreate} onBack={() => navigate(-1)} />
+        <div className="max-w-lg space-y-3">
+          <StepGitSetup state={state} patch={patch} onNext={() => void handleCreate()} onBack={() => navigate(-1)} />
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {creating && <p className="text-sm text-muted-foreground">{t('common.messages.creating')}</p>}
         </div>
       </div>
     </div>

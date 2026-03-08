@@ -3,17 +3,17 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import type { Plan } from '@/types'
+import type { PlanWithProgress } from '@/lib/tauri'
 
 interface PlanCardProps {
-  plan: Plan
+  plan: PlanWithProgress
 }
 
 export function PlanCard({ plan }: PlanCardProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const total = plan.phases.length
-  const completed = plan.phases.filter((p) => p.status === 'done').length
+  const total = plan.totalPhases
+  const completed = plan.donePhases
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0
 
   return (

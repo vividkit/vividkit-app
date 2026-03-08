@@ -44,6 +44,7 @@
   "generatePlan": {
     "title": "Tạo kế hoạch",
     "subtitle": "AI đang tạo kế hoạch triển khai...",
+    "generate": "Tạo",
     "viewPlan": "Xem kế hoạch",
     "goToTasks": "Đi tới công việc",
     "generatedPlanName": "Kế hoạch đã tạo",
@@ -79,7 +80,8 @@
     "subtitle": "Công cụ dev - kiểm tra subprocess ccs và luồng output"
   },
   "newProject": {
-    "title": "Dự án mới"
+    "title": "Dự án mới",
+    "duplicatePath": "Đã có dự án với đường dẫn này"
   },
   "cook": {
     "sessionTitle": "Phiên Cook"

@@ -42,7 +42,7 @@
     "replyPlaceholder": "Reply to assistant... (Cmd/Ctrl + Enter to send)",
     "send": "Send",
     "sending": "Sending...",
-    "waitingForOutput": "Waiting for session output...",
+    "waitingForOutput": "AI is thinking...",
     "emptyState": "Start a CCS run to see stream output here.",
     "sessionJsonlPaths": "Session JSONL paths",
     "main": "Main:",

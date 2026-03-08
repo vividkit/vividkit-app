@@ -1,4 +1,5 @@
 {
+  "contextPlaceholder": "Describe context for the plan (optional)...",
   "indicator": {
     "analyzing": "Analyzing brainstorm report...",
     "generating": "Generating plan structure...",

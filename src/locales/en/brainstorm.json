@@ -2,10 +2,26 @@
   "deckContext": {
     "activeDeck": "Active Deck:",
     "noneSelected": "None selected",
-    "keyInsights": "Key Insights"
+    "keyInsights": "Key insights"
+  },
+  "start": {
+    "title": "What would you like to build?",
+    "subtitle": "Describe your idea and let AI create an execution plan.",
+    "placeholder": "e.g., Create a user authentication system with JWT tokens, login, registration, password reset, and email verification...",
+    "submit": "Start Brainstorm",
+    "previousInsights": "Previous Insights"
+  },
+  "templates": {
+    "payment": "Payment",
+    "chat": "Chat",
+    "upload": "Upload",
+    "email": "Email"
   },
   "input": {
     "placeholder": "Describe what you want to brainstorm..."
+  },
+  "streaming": {
+    "profileLabel": "Profile: {{profile}}"
   },
   "actions": {
     "viewReport": "View Report",
@@ -13,9 +29,18 @@
     "saveAsInsight": "Save as Key Insight",
     "saved": "Saved!"
   },
+  "stopOptions": {
+    "prompt": "Session stopped. Save progress as an insight for future brainstorms?",
+    "saveInsight": "Save as Insight",
+    "clear": "Dismiss"
+  },
+  "profileSelector": {
+    "placeholder": "Select CCS profile..."
+  },
   "insightsDialog": {
     "title": "Key Insights",
-    "empty": "No insights saved yet for this deck."
+    "empty": "No insights saved yet for this deck.",
+    "viewReport": "View Report"
   },
   "reportDialog": {
     "title": "Brainstorm Report",
@@ -30,7 +55,8 @@
       "aiIntegration": "AI Integration",
       "testingStrategy": "Testing Strategy"
     },
-    "phaseDescription": "Implementation details and considerations for {{phase}}."
+    "phaseDescription": "Implementation details and considerations for {{phase}}.",
+    "noContent": "No report content available."
   },
   "reportPage": {
     "insights": {

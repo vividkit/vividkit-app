@@ -1,10 +1,18 @@
-import { PlanCard } from './plan-card'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PlanCard } from './plan-card'
 import { usePlanStore } from '@/stores/plan-store'
+import { useDeckStore } from '@/stores/deck-store'
 
 export function PlanList() {
   const { t } = useTranslation()
   const plans = usePlanStore((s) => s.plans)
+  const loadPlans = usePlanStore((s) => s.loadPlans)
+  const { activeDeckId } = useDeckStore()
+
+  useEffect(() => {
+    if (activeDeckId) void loadPlans(activeDeckId)
+  }, [activeDeckId, loadPlans])
 
   if (plans.length === 0) {
     return (

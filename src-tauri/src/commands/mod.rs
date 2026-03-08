@@ -1,9 +1,11 @@
 pub mod ai;
+pub mod brainstorm;
 pub mod ccs;
 pub mod dashboard;
 pub mod db;
 pub mod fs;
 pub mod git;
+pub mod plan;
 pub mod project;
 pub mod settings;
 pub mod subagent;

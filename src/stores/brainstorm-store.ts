@@ -1,16 +1,23 @@
 import { create } from 'zustand'
-import type { BrainstormSession, KeyInsight } from '@/types'
+import type { BrainstormSession } from '@/types'
+import { listBrainstormSessions } from '@/lib/tauri'
 
 interface BrainstormStore {
   sessions: BrainstormSession[]
-  insights: KeyInsight[]
-  addSession: (session: BrainstormSession) => void
-  addInsight: (insight: KeyInsight) => void
+  loaded: boolean
+  loadSessions: (deckId: string) => Promise<void>
 }
 
 export const useBrainstormStore = create<BrainstormStore>((set) => ({
   sessions: [],
-  insights: [],
-  addSession: (session) => set((s) => ({ sessions: [...s.sessions, session] })),
-  addInsight: (insight) => set((s) => ({ insights: [...s.insights, insight] })),
+  loaded: false,
+  loadSessions: async (deckId: string) => {
+    try {
+      const sessions = await listBrainstormSessions(deckId)
+      set({ sessions, loaded: true })
+    } catch (e) {
+      console.error('[brainstorm-store] loadSessions:', e)
+      set({ loaded: true })
+    }
+  },
 }))
