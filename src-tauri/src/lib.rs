@@ -83,6 +83,17 @@ pub fn run() {
             commands::plan::get_plan,
             commands::plan::update_phase_status,
             commands::plan::read_plan_file,
+            // Deck
+            commands::deck::create_deck,
+            commands::deck::set_active_deck,
+            commands::deck::delete_deck,
+            // Task
+            commands::task::create_task,
+            commands::task::list_tasks,
+            commands::task::get_task,
+            commands::task::update_task,
+            commands::task::delete_task,
+            commands::task::update_task_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

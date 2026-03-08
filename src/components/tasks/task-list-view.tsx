@@ -7,9 +7,11 @@ interface TaskListViewProps {
   statusFilter: TaskStatus | 'all'
   search: string
   onCook: (task: Task) => void
+  onStatusChange?: (task: Task, status: TaskStatus) => void
+  onDelete?: (task: Task) => void
 }
 
-export function TaskListView({ tasks, statusFilter, search, onCook }: TaskListViewProps) {
+export function TaskListView({ tasks, statusFilter, search, onCook, onStatusChange, onDelete }: TaskListViewProps) {
   const { t } = useTranslation()
   const filtered = tasks.filter((t) => {
     const matchStatus = statusFilter === 'all' || t.status === statusFilter
@@ -28,7 +30,7 @@ export function TaskListView({ tasks, statusFilter, search, onCook }: TaskListVi
   return (
     <div className="space-y-2">
       {filtered.map((task) => (
-        <TaskListCard key={task.id} task={task} onCook={onCook} />
+        <TaskListCard key={task.id} task={task} onCook={onCook} onStatusChange={onStatusChange} onDelete={onDelete} />
       ))}
     </div>
   )

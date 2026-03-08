@@ -18,9 +18,11 @@ interface TaskKanbanColumnProps {
   status: TaskStatus
   tasks: Task[]
   onCook: (task: Task) => void
+  onStatusChange?: (task: Task, status: TaskStatus) => void
+  onDelete?: (task: Task) => void
 }
 
-export function TaskKanbanColumn({ status, tasks, onCook }: TaskKanbanColumnProps) {
+export function TaskKanbanColumn({ status, tasks, onCook, onStatusChange, onDelete }: TaskKanbanColumnProps) {
   const { t } = useTranslation()
   const meta = COLUMN_META[status]
   const labelByStatus: Record<TaskStatus, string> = {
@@ -43,7 +45,7 @@ export function TaskKanbanColumn({ status, tasks, onCook }: TaskKanbanColumnProp
       </div>
       <div className="space-y-2">
         {tasks.map((task) => (
-          <TaskKanbanCard key={task.id} task={task} onCook={onCook} />
+          <TaskKanbanCard key={task.id} task={task} onCook={onCook} onStatusChange={onStatusChange} onDelete={onDelete} />
         ))}
         {tasks.length === 0 && (
           <div className="h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center">

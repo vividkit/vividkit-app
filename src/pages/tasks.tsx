@@ -2,18 +2,34 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppHeader } from '@/components/layout'
 import { TaskToolbar, TaskListView, TaskKanbanView, AddTaskDialog, TaskCookSheet } from '@/components/tasks'
-import { useTaskStore } from '@/stores/task-store'
+import { useTasks } from '@/hooks/use-tasks'
 import type { Task, TaskStatus } from '@/types'
 import type { TaskView } from '@/components/tasks/task-toolbar'
 
 export default function TasksPage() {
   const { t } = useTranslation()
-  const tasks = useTaskStore((s) => s.tasks)
+  const { tasks, updateStatus, removeTask } = useTasks()
   const [view, setView] = useState<TaskView>('list')
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
   const [showAdd, setShowAdd] = useState(false)
   const [cookTask, setCookTask] = useState<Task | null>(null)
+
+  async function handleStatusChange(task: Task, status: TaskStatus) {
+    try {
+      await updateStatus(task.id, status)
+    } catch (e) {
+      console.error('[tasks] status change failed:', e)
+    }
+  }
+
+  async function handleDelete(task: Task) {
+    try {
+      await removeTask(task.id)
+    } catch (e) {
+      console.error('[tasks] delete failed:', e)
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -29,9 +45,9 @@ export default function TasksPage() {
           onAddTask={() => setShowAdd(true)}
         />
         {view === 'list' ? (
-          <TaskListView tasks={tasks} statusFilter={statusFilter} search={search} onCook={setCookTask} />
+          <TaskListView tasks={tasks} statusFilter={statusFilter} search={search} onCook={setCookTask} onStatusChange={handleStatusChange} onDelete={handleDelete} />
         ) : (
-          <TaskKanbanView tasks={tasks} search={search} onCook={setCookTask} />
+          <TaskKanbanView tasks={tasks} search={search} onCook={setCookTask} onStatusChange={handleStatusChange} onDelete={handleDelete} />
         )}
       </div>
       <AddTaskDialog open={showAdd} onOpenChange={setShowAdd} />

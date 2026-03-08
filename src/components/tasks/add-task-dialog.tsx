@@ -17,28 +17,26 @@ const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high']
 
 export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
   const { t } = useTranslation()
-  const addTask = useTaskStore((s) => s.addTask)
+  const { addTask } = useTaskStore()
   const { activeDeckId } = useDeckStore()
   const [name, setName] = useState('')
   const [desc, setDesc] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('medium')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: { preventDefault: () => void }) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!name.trim()) return
-    addTask({
-      id: crypto.randomUUID(),
-      deckId: activeDeckId ?? '',
-      type: 'custom',
-      name: name.trim(),
-      description: desc.trim() || undefined,
-      status: 'todo',
-      priority,
-    })
-    setName('')
-    setDesc('')
-    setPriority('medium')
-    onOpenChange(false)
+    if (!name.trim() || !activeDeckId) return
+    setLoading(true)
+    try {
+      await addTask(activeDeckId, name.trim(), priority, 'custom', desc.trim() || undefined)
+      setName('')
+      setDesc('')
+      setPriority('medium')
+      onOpenChange(false)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -60,14 +58,7 @@ export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
             <label className="text-sm font-medium">{t('tasks.addDialog.priority')}</label>
             <div className="flex gap-2">
               {PRIORITIES.map((p) => (
-                <Button
-                  key={p}
-                  type="button"
-                  variant={priority === p ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setPriority(p)}
-                >
+                <Button key={p} type="button" variant={priority === p ? 'default' : 'outline'} size="sm" className="flex-1" onClick={() => setPriority(p)}>
                   {t(`tasks.priorities.${p}`)}
                 </Button>
               ))}
@@ -75,7 +66,7 @@ export function AddTaskDialog({ open, onOpenChange }: AddTaskDialogProps) {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('common.actions.cancel')}</Button>
-            <Button type="submit" disabled={!name.trim()}>{t('tasks.toolbar.addTask')}</Button>
+            <Button type="submit" disabled={!name.trim() || loading}>{t('tasks.toolbar.addTask')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
